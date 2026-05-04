@@ -63,9 +63,9 @@ protected:
 	void Move_Stop(const FInputActionValue& value);
 	void Look(const FInputActionValue& value);
 	void Inter_Look(float DeltaTime);
-	void Jump_Start(const FInputActionValue& value);
-	virtual void Landed(const FHitResult& Hit) override;
-	void Jump_Stop(const FInputActionValue& value);
+	void Roll_Start(const FInputActionValue& value);
+	//virtual void Landed(const FHitResult& Hit) override;
+	void Roll_Stop(const FInputActionValue& value);
 	void Sprint_Start(const FInputActionValue& value);
 	void Sprint_Stop(const FInputActionValue& value);
 	void Attack_Start(const FInputActionValue& value);

@@ -87,21 +87,21 @@ void APrototypeXCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 					&APrototypeXCharacter::Look
 				);
 			}
-
-			if (PlayerController->IA_Jump)
+			// change to Roll
+			if (PlayerController->IA_Roll)
 			{
 				EnhancedInput->BindAction(
-					PlayerController->IA_Jump,
+					PlayerController->IA_Roll,
 					ETriggerEvent::Triggered,
 					this,
-					&APrototypeXCharacter::Jump_Start
+					&APrototypeXCharacter::Roll_Start
 				);
 
 				EnhancedInput->BindAction(
-					PlayerController->IA_Jump,
+					PlayerController->IA_Roll,
 					ETriggerEvent::Completed,
 					this,
-					&APrototypeXCharacter::Jump_Stop
+					&APrototypeXCharacter::Roll_Stop
 				);
 			}
 
@@ -121,6 +121,16 @@ void APrototypeXCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 					&APrototypeXCharacter::Sprint_Stop
 				);
 			}
+
+			//if (PlayerController->IA_Lock)
+			//{
+			//	EnhancedInput->BindAction(
+			//		PlayerController->IA_Lock,
+			//		ETriggerEvent::Triggered,
+			//		this,
+
+			//	)
+			//}
 
 			if (PlayerController->IA_Attack)
 			{
@@ -227,23 +237,26 @@ void APrototypeXCharacter::Inter_Look(float DeltaTime)
 	}
 }
 
-void APrototypeXCharacter::Jump_Start(const FInputActionValue& value)
+void APrototypeXCharacter::Roll_Start(const FInputActionValue& value)
 {
-	bIsOnJumpping = true;
-	Jump();
+	//change to roll
+	//bIsOnJumpping = true;
+	//Jump();
 }
 
-void APrototypeXCharacter::Landed(const FHitResult& Hit)
-{
-	Super::Landed(Hit);
-	bIsOnJumpping = false;
-	GetCharacterMovement()->JumpZVelocity = Normal_Jump_Speed;
+//void APrototypeXCharacter::Landed(const FHitResult& Hit)
+//{
+//	//need to delete
+//	Super::Landed(Hit);
+//	//bIsOnJumpping = false;
+//	GetCharacterMovement()->JumpZVelocity = Normal_Jump_Speed;
+//
+//}
 
-}
-
-void APrototypeXCharacter::Jump_Stop(const FInputActionValue& value)
+void APrototypeXCharacter::Roll_Stop(const FInputActionValue& value)
 {
-	StopJumping();
+	// change to roll
+	//StopJumping();
 }
 
 void APrototypeXCharacter::Sprint_Start(const FInputActionValue& value)
@@ -345,6 +358,8 @@ void APrototypeXCharacter::ApplyAttackModeSettings()
 	 SpringArmComponent->bInheritYaw = true;
 	 SpringArmComponent->bInheritRoll = false;
 
+	 SpringArmComponent->bEnableCameraLag = true;
+	 SpringArmComponent->CameraLagSpeed = 8.f;
 	 //============================================================================================
 	 MouseSensibiliy = 0.5f;
 	 Normal_Speed = 450.f;

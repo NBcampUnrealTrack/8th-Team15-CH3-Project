@@ -21,14 +21,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
 	TObjectPtr<UInputAction> IA_Look;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
-	TObjectPtr<UInputAction> IA_Jump;
+	TObjectPtr<UInputAction> IA_Roll;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
 	TObjectPtr<UInputAction> IA_Sprint;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
-	TObjectPtr<UInputAction> IA_Roll;
+	TObjectPtr<UInputAction> IA_Lock;
 	// =============================================================
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
-	TObjectPtr<UInputMappingContext> IMC_Attack;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
 	TObjectPtr<UInputAction> IA_Attack;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
