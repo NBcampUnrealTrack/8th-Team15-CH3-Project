@@ -21,8 +21,6 @@ void APrototypeXPlayerController::BeginPlay()
 			LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
 		{
 			LocalPlayerSubSys->AddMappingContext(IMC_Player, 0);
-			//==================================================
-			//LocalPlayerSubSys->AddMappingContext(IMC_Attack, 1);
 		}
 	}
 
