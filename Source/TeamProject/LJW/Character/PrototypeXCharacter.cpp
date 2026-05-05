@@ -37,15 +37,13 @@ APrototypeXCharacter::APrototypeXCharacter()
 void APrototypeXCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	//SetPlayerMode(EPlayerMode::Normal);
-	SetPlayerMode(EPlayerMode::Attack);
+	SetPlayerMode(EPlayerMode::Normal);
+
 }
 
 void APrototypeXCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	// Mouse_Interp
-	//Inter_Look(DeltaTime);
 	
 
 }
@@ -122,49 +120,6 @@ void APrototypeXCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 				);
 			}
 
-			//if (PlayerController->IA_Lock)
-			//{
-			//	EnhancedInput->BindAction(
-			//		PlayerController->IA_Lock,
-			//		ETriggerEvent::Triggered,
-			//		this,
-
-			//	)
-			//}
-
-			if (PlayerController->IA_Attack)
-			{
-				EnhancedInput->BindAction(
-					PlayerController->IA_Attack,
-					ETriggerEvent::Triggered,
-					this,
-					&APrototypeXCharacter::Attack_Start
-				);
-
-				EnhancedInput->BindAction(
-					PlayerController->IA_Attack,
-					ETriggerEvent::Completed,
-					this,
-					&APrototypeXCharacter::Attack_End
-				);
-			}
-
-			if (PlayerController->IA_Defence)
-			{
-				EnhancedInput->BindAction(
-					PlayerController->IA_Defence,
-					ETriggerEvent::Triggered,
-					this,
-					&APrototypeXCharacter::Defence_Start
-				);
-
-				EnhancedInput->BindAction(
-					PlayerController->IA_Defence,
-					ETriggerEvent::Completed,
-					this,
-					&APrototypeXCharacter::Defence_End
-				);
-			}
 		}
 	}
 }
@@ -204,17 +159,25 @@ void APrototypeXCharacter::Look(const FInputActionValue& value)
 {
 	const FVector2D LookAmount = value.Get<FVector2D>();
 
-	if (!FMath::IsNearlyZero(LookAmount.X))
-	{
-		//Inter_LookAmountX += LookAmount.X;
-		AddControllerYawInput(LookAmount.X);
-	}
-	if (!FMath::IsNearlyZero(LookAmount.Y))
-	{
-		AddControllerPitchInput(-LookAmount.Y);
-		//Inter_LookAmountY += LookAmount.Y;
-		//Inter_LookAmountY = FMath::Clamp(Inter_LookAmountY, -80, 60);
 
+	switch (CurrentMode)
+	{
+	case EPlayerMode::Normal:
+		if (!FMath::IsNearlyZero(LookAmount.X))
+		{
+			//Inter_LookAmountX += LookAmount.X;
+			AddControllerYawInput(LookAmount.X);
+		}
+		if (!FMath::IsNearlyZero(LookAmount.Y))
+		{
+			AddControllerPitchInput(-LookAmount.Y);
+			//Inter_LookAmountY += LookAmount.Y;
+			//Inter_LookAmountY = FMath::Clamp(Inter_LookAmountY, -80, 60);
+
+		}
+		break;
+	case EPlayerMode::Attack:
+		break;
 	}
 }
 
@@ -269,26 +232,6 @@ void APrototypeXCharacter::Sprint_Stop(const FInputActionValue& value)
 	GetCharacterMovement()->MaxWalkSpeed = Normal_Speed;
 }
 
-void APrototypeXCharacter::Attack_Start(const FInputActionValue& value)
-{
-
-}
-
-void APrototypeXCharacter::Attack_End(const FInputActionValue& value)
-{
-
-}
-
-void APrototypeXCharacter::Defence_Start(const FInputActionValue& value)
-{
-
-}
-
-void APrototypeXCharacter::Defence_End(const FInputActionValue& value)
-{
-
-}
-
 void APrototypeXCharacter::SetPlayerMode(EPlayerMode NewMode)
 {
 	CurrentMode = NewMode;
@@ -322,7 +265,7 @@ void APrototypeXCharacter::ApplyNormalModeSettings()
 	GetCharacterMovement()->MaxAcceleration = 1500.f;
 	// 스프링암 설정 (카메라만 컨트롤러 회전을 따름)
 	SpringArmComponent->bUsePawnControlRotation = true;
-	SpringArmComponent->bInheritPitch = true;
+	SpringArmComponent->bInheritPitch = false;
 	SpringArmComponent->bInheritYaw = true;
 	SpringArmComponent->bInheritRoll = false;
 
@@ -332,11 +275,10 @@ void APrototypeXCharacter::ApplyNormalModeSettings()
 	Sprint_Speed = 900.f;
 	GetCharacterMovement()->MaxWalkSpeed = Normal_Speed;
 
-	Normal_Jump_Speed = 500.f;
-	Max_Jump_Speed = 500.f;
-	Min_Jump_Speed = Normal_Jump_Speed;
-
-	GetCharacterMovement()->JumpZVelocity = Normal_Jump_Speed;
+	//Normal_Jump_Speed = 500.f;
+	//Max_Jump_Speed = 500.f;
+	//Min_Jump_Speed = Normal_Jump_Speed;
+	//GetCharacterMovement()->JumpZVelocity = Normal_Jump_Speed;
 
 	// =========================================================================
 
@@ -366,11 +308,11 @@ void APrototypeXCharacter::ApplyAttackModeSettings()
 	 Sprint_Speed = 900.f;
 	 GetCharacterMovement()->MaxWalkSpeed = Normal_Speed;
 
-	 Normal_Jump_Speed = 500.f;
-	 Max_Jump_Speed = 500.f;
-	 Min_Jump_Speed = Normal_Jump_Speed;
+	 //Normal_Jump_Speed = 500.f;
+	 //Max_Jump_Speed = 500.f;
+	 //Min_Jump_Speed = Normal_Jump_Speed;
 
-	 GetCharacterMovement()->JumpZVelocity = Normal_Jump_Speed;
+	 //GetCharacterMovement()->JumpZVelocity = Normal_Jump_Speed;
 
 	 // =========================================================================
 

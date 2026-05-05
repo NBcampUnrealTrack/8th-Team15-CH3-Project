@@ -64,16 +64,12 @@ protected:
 	void Look(const FInputActionValue& value);
 	void Inter_Look(float DeltaTime);
 	void Roll_Start(const FInputActionValue& value);
-	//virtual void Landed(const FHitResult& Hit) override;
 	void Roll_Stop(const FInputActionValue& value);
 	void Sprint_Start(const FInputActionValue& value);
 	void Sprint_Stop(const FInputActionValue& value);
-	void Attack_Start(const FInputActionValue& value);
-	void Attack_End(const FInputActionValue& value);
-	void Defence_Start(const FInputActionValue& value);
-	void Defence_End(const FInputActionValue& value);
 
 	// enum =======================
+	UFUNCTION(BlueprintCallable, Category = "Mode")
 	void SetPlayerMode(EPlayerMode NewMode);
 	void ApplyNormalModeSettings();
 	void ApplyAttackModeSettings();
