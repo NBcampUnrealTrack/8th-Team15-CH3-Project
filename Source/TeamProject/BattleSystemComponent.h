@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "BattleSystemComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathSignature);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class TEAMPROJECT_API UBattleSystemComponent : public UActorComponent
@@ -19,16 +20,18 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Stats")
 	float HP;
-	UPROPERTY(EditDefaultsOnly)
-	float MaxHP;
-	UPROPERTY(EditDefaultsOnly)
-	float ATK;
+	UPROPERTY(EditDefaultsOnly, Category = "Stats")
+	float MaxHP = 100;
+	UPROPERTY(EditDefaultsOnly, Category = "Stats")
+	float ATK = 10;
 	UPROPERTY()
-	bool isDead;
+	bool bisDead;
 
 public:
+	UPROPERTY(BlueprintAssignable, Category = "Combat")
+	FOnDeathSignature OnDeath;
 	UFUNCTION(BlueprintCallable)
 	void DamageCalculation(float attackerATK);
 	UFUNCTION(BlueprintCallable)

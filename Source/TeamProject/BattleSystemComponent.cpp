@@ -12,18 +12,20 @@ UBattleSystemComponent::UBattleSystemComponent()
 void UBattleSystemComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	HP = MaxHP;
 }
 
 void UBattleSystemComponent::DamageCalculation(float attackerATK)
 {
-	if (!isDead)
+	if (!bisDead)
 	{
 		HP = HP - attackerATK;
 
 		if (HP <= 0)
 		{
 			HP = 0;
-			isDead = true; // TODO: 사망 델리게이트 Broadcast, GameMode에게 전달
+			bisDead = true;
+			OnDeath.Broadcast();
 		}
 	}
 }

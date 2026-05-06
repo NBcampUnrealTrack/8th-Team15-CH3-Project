@@ -4,6 +4,22 @@
 #include "MainGameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "BluePrint/UserWidget.h"
+#include "BattleSystemComponent.h"
+
+void AMainGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	if (PlayerPawn)
+	{
+		UBattleSystemComponent* BattleComp = PlayerPawn->FindComponentByClass<UBattleSystemComponent>();
+		if (BattleComp)
+		{
+			BattleComp->OnDeath.AddDynamic(this, &AMainGameMode::SetGameOver);
+		}
+	}
+}
 
 void AMainGameMode::SetGameOver()
 {
