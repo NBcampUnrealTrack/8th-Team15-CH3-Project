@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿// MainGameMode.h
 
 #pragma once
 
@@ -20,6 +20,9 @@ class TEAMPROJECT_API AMainGameMode : public AGameMode
 public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UUserWidget> GameOverWidgetClass;
+
+protected:
+	virtual void BeginPlay() override;
 
 public:
 	UFUNCTION(BlueprintCallable)

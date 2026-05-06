@@ -1,0 +1,86 @@
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/Character.h"
+#include "PrototypeXCharacter.generated.h"
+
+class UCapsuleComponent;
+class USkeletalMeshComponent;
+class USpringArmComponent;
+class UCameraComponent;
+
+struct FInputActionValue;
+
+class UAnimMontage;
+
+UENUM(BlueprintType)
+enum class EPlayerMode : uint8
+{
+	Normal, Attack
+};
+
+UCLASS()
+class TEAMPROJECT_API APrototypeXCharacter : public ACharacter
+{
+	GENERATED_BODY()
+
+public:
+	APrototypeXCharacter();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	TObjectPtr<UCapsuleComponent> UCapsuleComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	TObjectPtr<USkeletalMeshComponent> SkeletalMeshComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	TObjectPtr<USpringArmComponent> SpringArmComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	TObjectPtr<UCameraComponent> CameraComponent;
+	// Mouse ==========================
+	float Inter_LookAmountX;
+	float Inter_LookAmountY;
+	float Inter_FinalX;
+	float Inter_FinalY;
+
+	float MouseSensibiliy;
+	// ================================
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Velocitys|Speed")
+	float Normal_Speed;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Velocitys|Speed")
+	float Sprint_Speed;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Velocitys|Jump")
+	float Normal_Jump_Speed;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Velocitys|Jump")
+	float Max_Jump_Speed;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Velocitys|Jump")
+	float Min_Jump_Speed;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "States|Jump")
+	bool bIsOnJumpping;
+
+protected:
+	virtual void BeginPlay() override;
+	void Move_Start(const FInputActionValue& value);
+	void Move_Stop(const FInputActionValue& value);
+	void Look(const FInputActionValue& value);
+	void Inter_Look(float DeltaTime);
+	void Roll_Start(const FInputActionValue& value);
+	void Roll_Stop(const FInputActionValue& value);
+	void Sprint_Start(const FInputActionValue& value);
+	void Sprint_Stop(const FInputActionValue& value);
+
+	// enum =======================
+	UFUNCTION(BlueprintCallable, Category = "Mode")
+	void SetPlayerMode(EPlayerMode NewMode);
+	void ApplyNormalModeSettings();
+	void ApplyAttackModeSettings();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mode")
+	EPlayerMode CurrentMode;
+	// ============================
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "States|Roll")
+	UAnimMontage* RollMontage;
+
+public:	
+	virtual void Tick(float DeltaTime) override;
+
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+};
