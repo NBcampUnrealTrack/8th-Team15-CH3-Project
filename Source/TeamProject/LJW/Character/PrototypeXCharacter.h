@@ -56,6 +56,8 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "States|Jump")
 	bool bIsOnJumpping;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "States|Attack")
+	bool bIsAttacking;
 
 protected:
 	virtual void BeginPlay() override;
@@ -78,7 +80,18 @@ protected:
 	// ============================
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "States|Roll")
 	UAnimMontage* RollMontage;
-
+	void ApplyRollingAtMode(EPlayerMode InMode);
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "States|Roll")
+	bool IsRollingMontagePlaying = false;
+	UFUNCTION()
+	void RollingMontageEnd(UAnimMontage* Montage, bool bInterrupted, EPlayerMode InMode);
+	UPROPERTY()
+	FVector2D NowPlayerDir = FVector2D::ZeroVector;
+	FRotator BeforePlayerRot;
+	//bool BeforeSetModeRInter = false;
+	//EPlayerMode BeforeSetMode;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "States|Roll")
+	AActor* TargetLockActor;
 public:	
 	virtual void Tick(float DeltaTime) override;
 
