@@ -265,7 +265,7 @@ void APrototypeXCharacter::ApplyNormalModeSettings()
 	GetCharacterMovement()->MaxAcceleration = 1500.f;
 	// 스프링암 설정 (카메라만 컨트롤러 회전을 따름)
 	SpringArmComponent->bUsePawnControlRotation = true;
-	SpringArmComponent->bInheritPitch = false;
+	SpringArmComponent->bInheritPitch = true;
 	SpringArmComponent->bInheritYaw = true;
 	SpringArmComponent->bInheritRoll = false;
 
