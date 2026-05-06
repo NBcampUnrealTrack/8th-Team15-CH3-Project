@@ -7,6 +7,7 @@
 #include "HealthComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHPChangedSignature, float, NewHP);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class TEAMPROJECT_API UHealthComponent : public UActorComponent
@@ -21,34 +22,41 @@ protected:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Health")
-	float CurrentHealth;
+	float HP;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Health")
-	float MaxHealth = 100.0f;
+	float MaxHP = 100.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
-	float ATK = 10.0f;
+	float ATK = 10.0f; // TODO 추후 StatusComponent로 분리
 
 	UPROPERTY()
 	bool bIsDead = false;
 
 public:
 	UPROPERTY(BlueprintAssignable, Category = "Health")
+	FOnHPChangedSignature OnHPChanged;
+
+public:
+	UPROPERTY(BlueprintAssignable, Category = "Health")
 	FOnDeathSignature OnDeath;
 
 	UFUNCTION(BlueprintCallable, Category = "Health")
-	void TakeDamage(float DamageAmount);
+	void TakeDamage(float AttackerATK);
 
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	void Heal();
 
-	// Getter 함수들
+	// Getter 
 	UFUNCTION(BlueprintPure, Category = "Health")
-	FORCEINLINE bool IsDead() const { return bIsDead; }
+	FORCEINLINE bool IsDead() const;
 
 	UFUNCTION(BlueprintPure, Category = "Health")
-	FORCEINLINE float GetCurrentHealth() const { return CurrentHealth; }
+	FORCEINLINE float GetHP() const;
 
 	UFUNCTION(BlueprintPure, Category = "Health")
-	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
+	FORCEINLINE float GetMaxHP() const;
+
+	UFUNCTION(BlueprintPure, Category = "Health")
+	FORCEINLINE float GetATK() const;
 };
