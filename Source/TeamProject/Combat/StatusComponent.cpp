@@ -66,7 +66,7 @@ float UStatusComponent::GetATK() const
 void UStatusComponent::SetHP(float NewHP)
 {
 	HP = NewHP;
-
+	OnHPChanged.Broadcast(HP);
 	return;
 }
 
