@@ -4,7 +4,7 @@
 #include "MainGameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "BluePrint/UserWidget.h"
-#include "HealthComponent.h"
+#include "Combat/HealthComponent.h"
 
 void AMainGameMode::BeginPlay()
 {

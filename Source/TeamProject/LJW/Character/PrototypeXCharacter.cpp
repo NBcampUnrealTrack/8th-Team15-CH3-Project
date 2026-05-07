@@ -9,6 +9,7 @@
 #include "EnhancedInputComponent.h"
 #include "LJW/Controller/PrototypeXPlayerController.h"
 
+#include "Kismet/KismetMathLibrary.h"
 APrototypeXCharacter::APrototypeXCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -39,6 +40,69 @@ void APrototypeXCharacter::BeginPlay()
 	Super::BeginPlay();
 	SetPlayerMode(EPlayerMode::Normal);
 
+}
+
+void APrototypeXCharacter::ApplyRollingAtMode(EPlayerMode InMode)
+{
+	if (IsRollingMontagePlaying) return;
+	UAnimInstance* Animbackground = GetMesh()->GetAnimInstance();
+
+	SetPlayerMode(EPlayerMode::Normal);
+		if (RollMontage)
+		{
+			if (Animbackground)
+			{
+				// 누르고있는 방향키의 방향대로 setrot한다음 play해야하나...
+				BeforePlayerRot = GetActorRotation();
+
+				FRotator ControlRot = GetControlRotation();
+				FRotator YawRotation(0.f, ControlRot.Yaw, 0.f);// 컨트롤의 Yaw회전(Z축)만 가져옴
+
+				FVector Forward = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+				// 컨트롤러의 Yaw회전이 적용된Z축기준 기즈모를 다시만들고 거기서 정면 X축 +값
+				FVector Right = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+				// 컨트롤러의 Yaw회전이 적용된Z축기준 기즈모를 다시만들고 거기서 오른쪽 Y축 +값
+				FVector DesiredDir = (Forward * NowPlayerDir.X) + (Right * NowPlayerDir.Y);
+				// 컨트롤러의 정면방향벡터 * (1, -1)x축인풋입력값, 컨트롤러의 정면방향벡터 * (1, -1)Y축인풋입력값
+				// 벡터의 합은 두방향의 중간방향
+				if (DesiredDir.IsNearlyZero())
+				{
+					DesiredDir = GetActorForwardVector();
+				}
+
+				SetActorRotation(DesiredDir.Rotation());
+				//DesiredDir방향(Rotation) 회전하라(SetActorRotation)
+
+				Animbackground->Montage_Play(RollMontage);
+				IsRollingMontagePlaying = true;
+				// 싱글 델리게이트
+				FOnMontageEnded EndDelegate;
+				EndDelegate.BindUObject(this, &APrototypeXCharacter::RollingMontageEnd, InMode); // 매개변수추가가 가능하다니...
+				// EndDelegate가 자신과 함수를 묶었다
+				Animbackground->Montage_SetEndDelegate(EndDelegate, RollMontage);
+				// RollMontage가 End일때 SetEndDelegate에 EndDelegate를 등록(set)
+				// endmontage일때 함수바인딩 call
+			}
+		}
+
+}
+
+void APrototypeXCharacter::RollingMontageEnd(UAnimMontage* Montage, bool bInterrupted, EPlayerMode InMode)
+{//DECLARE_DELEGATE_TwoParams(FOnMontageEnded, UAnimMontage*, bool /*bInterrupted*/)
+	//FOnMontageEnded에서 F12를 눌러 확인할수있음
+	IsRollingMontagePlaying = false;
+
+	UE_LOG(LogTemp, Warning, TEXT("Montage Ended: %s"), *Montage->GetName());
+
+	//if (InMode == EPlayerMode::Attack)
+	//{
+	//	BeforeSetModeRInter = true;
+	//	BeforeSetMode = InMode;
+	//}
+	//else
+	//{
+		SetPlayerMode(InMode);
+	//}
 }
 
 void APrototypeXCharacter::Tick(float DeltaTime)
@@ -127,6 +191,9 @@ void APrototypeXCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 void APrototypeXCharacter::Move_Start(const FInputActionValue& value)
 {
 	if (!Controller) return;
+
+	NowPlayerDir = value.Get<FVector2D>();
+
 	const FVector2D MoveAmount = value.Get<FVector2D>();
 	
 	const FRotator Rotation = Controller->GetControlRotation();
@@ -205,6 +272,8 @@ void APrototypeXCharacter::Roll_Start(const FInputActionValue& value)
 	//change to roll
 	//bIsOnJumpping = true;
 	//Jump();
+	ApplyRollingAtMode(CurrentMode);
+	UE_LOG(LogTemp, Warning, TEXT("Roll"));
 }
 
 //void APrototypeXCharacter::Landed(const FHitResult& Hit)
@@ -265,10 +334,12 @@ void APrototypeXCharacter::ApplyNormalModeSettings()
 	GetCharacterMovement()->MaxAcceleration = 1500.f;
 	// 스프링암 설정 (카메라만 컨트롤러 회전을 따름)
 	SpringArmComponent->bUsePawnControlRotation = true;
-	SpringArmComponent->bInheritPitch = false;
+	SpringArmComponent->bInheritPitch = true;
 	SpringArmComponent->bInheritYaw = true;
 	SpringArmComponent->bInheritRoll = false;
 
+	SpringArmComponent->bEnableCameraRotationLag = true;
+	SpringArmComponent->CameraRotationLagSpeed = 5.f;
 	//============================================================================================
 	MouseSensibiliy = 0.5f;
 	Normal_Speed = 450.f;

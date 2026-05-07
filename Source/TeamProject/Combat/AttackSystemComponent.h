@@ -23,13 +23,10 @@ protected:
 private:
 	UPROPERTY()
 	UHealthComponent* OwnerHealthComp;
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "WeaponColision")
-	UPrimitiveComponent* WeaponColision;
 
 public:	
-	UFUNCTION(BlueprintCallable)
-	void SetAttackerWeaponColision();
+	/*UFUNCTION(BlueprintCallable)
+	void SetAttackerWeaponColision();*/
 
 	UFUNCTION(BlueprintCallable)
 	void OnOverlapAttack(

@@ -16,23 +16,28 @@ void UAttackSystemComponent::BeginPlay()
 	
 }
 
-void UAttackSystemComponent::SetAttackerWeaponColision()
-{
-	if  (WeaponColision != nullptr)
-	{
-		WeaponColision->OnComponentBeginOverlap.AddDynamic(this, &UAttackSystemComponent::OnOverlapAttack);
-	}
-}
+//void UAttackSystemComponent::SetAttackerWeaponColision()
+//{
+//	if  (WeaponColision != nullptr)
+//	{
+//		WeaponColision->OnComponentBeginOverlap.AddDynamic(this, &UAttackSystemComponent::OnOverlapAttack);
+//	}
+//}
 
 void UAttackSystemComponent::OnOverlapAttack(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor == nullptr)
+	ApplyDamage(OtherActor);
+}
+
+void UAttackSystemComponent::ApplyDamage(AActor* TargetActor)
+{
+	if (TargetActor == nullptr)
 	{
 		return;
 	}
 
-	UHealthComponent* TargetHealthComp = OtherActor->FindComponentByClass<UHealthComponent>();
+	UHealthComponent* TargetHealthComp = TargetActor->FindComponentByClass<UHealthComponent>();
 
 	if (TargetHealthComp != nullptr)
 	{
@@ -42,10 +47,6 @@ void UAttackSystemComponent::OnOverlapAttack(UPrimitiveComponent* OverlappedComp
 			TargetHealthComp->TakeDamage(AttackerHealthComp->GetATK());
 		}
 	}
-}
-
-void UAttackSystemComponent::ApplyDamage(AActor* TargetActor)
-{
 }
 
 
