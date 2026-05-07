@@ -1,4 +1,4 @@
-#include "LJW/Character/PrototypeXCharacter.h"
+ï»¿#include "LJW/Character/PrototypeXCharacter.h"
 #include "TeamProject/LJW/GameUtilHeader/GameUtil.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -52,36 +52,36 @@ void APrototypeXCharacter::ApplyRollingAtMode(EPlayerMode InMode)
 		{
 			if (Animbackground)
 			{
-				// ´©¸£°íÀÖ´Â ¹æÇâÅ°ÀÇ ¹æÇâ´ë·Î setrotÇÑ´ÙÀ½ playÇØ¾ßÇÏ³ª...
+				// ëˆ„ë¥´ê³ ìžˆëŠ” ë°©í–¥í‚¤ì˜ ë°©í–¥ëŒ€ë¡œ setrotí•œë‹¤ìŒ playí•´ì•¼í•˜ë‚˜...
 				BeforePlayerRot = GetActorRotation();
 
 				FRotator ControlRot = GetControlRotation();
-				FRotator YawRotation(0.f, ControlRot.Yaw, 0.f);// ÄÁÆ®·ÑÀÇ YawÈ¸Àü(ZÃà)¸¸ °¡Á®¿È
+				FRotator YawRotation(0.f, ControlRot.Yaw, 0.f);// ì»¨íŠ¸ë¡¤ì˜ YawíšŒì „(Zì¶•)ë§Œ ê°€ì ¸ì˜´
 
 				FVector Forward = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-				// ÄÁÆ®·Ñ·¯ÀÇ YawÈ¸ÀüÀÌ Àû¿ëµÈZÃà±âÁØ ±âÁî¸ð¸¦ ´Ù½Ã¸¸µé°í °Å±â¼­ Á¤¸é XÃà +°ª
+				// ì»¨íŠ¸ë¡¤ëŸ¬ì˜ YawíšŒì „ì´ ì ìš©ëœZì¶•ê¸°ì¤€ ê¸°ì¦ˆëª¨ë¥¼ ë‹¤ì‹œë§Œë“¤ê³  ê±°ê¸°ì„œ ì •ë©´ Xì¶• +ê°’
 				FVector Right = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-				// ÄÁÆ®·Ñ·¯ÀÇ YawÈ¸ÀüÀÌ Àû¿ëµÈZÃà±âÁØ ±âÁî¸ð¸¦ ´Ù½Ã¸¸µé°í °Å±â¼­ ¿À¸¥ÂÊ YÃà +°ª
+				// ì»¨íŠ¸ë¡¤ëŸ¬ì˜ YawíšŒì „ì´ ì ìš©ëœZì¶•ê¸°ì¤€ ê¸°ì¦ˆëª¨ë¥¼ ë‹¤ì‹œë§Œë“¤ê³  ê±°ê¸°ì„œ ì˜¤ë¥¸ìª½ Yì¶• +ê°’
 				FVector DesiredDir = (Forward * NowPlayerDir.X) + (Right * NowPlayerDir.Y);
-				// ÄÁÆ®·Ñ·¯ÀÇ Á¤¸é¹æÇâº¤ÅÍ * (1, -1)xÃàÀÎÇ²ÀÔ·Â°ª, ÄÁÆ®·Ñ·¯ÀÇ Á¤¸é¹æÇâº¤ÅÍ * (1, -1)YÃàÀÎÇ²ÀÔ·Â°ª
-				// º¤ÅÍÀÇ ÇÕÀº µÎ¹æÇâÀÇ Áß°£¹æÇâ
+				// ì»¨íŠ¸ë¡¤ëŸ¬ì˜ ì •ë©´ë°©í–¥ë²¡í„° * (1, -1)xì¶•ì¸í’‹ìž…ë ¥ê°’, ì»¨íŠ¸ë¡¤ëŸ¬ì˜ ì •ë©´ë°©í–¥ë²¡í„° * (1, -1)Yì¶•ì¸í’‹ìž…ë ¥ê°’
+				// ë²¡í„°ì˜ í•©ì€ ë‘ë°©í–¥ì˜ ì¤‘ê°„ë°©í–¥
 				if (DesiredDir.IsNearlyZero())
 				{
 					DesiredDir = GetActorForwardVector();
 				}
 
 				SetActorRotation(DesiredDir.Rotation());
-				//DesiredDir¹æÇâ(Rotation) È¸ÀüÇÏ¶ó(SetActorRotation)
+				//DesiredDirë°©í–¥(Rotation) íšŒì „í•˜ë¼(SetActorRotation)
 
 				Animbackground->Montage_Play(RollMontage);
 				IsRollingMontagePlaying = true;
-				// ½Ì±Û µ¨¸®°ÔÀÌÆ®
+				// ì‹±ê¸€ ë¸ë¦¬ê²Œì´íŠ¸
 				FOnMontageEnded EndDelegate;
-				EndDelegate.BindUObject(this, &APrototypeXCharacter::RollingMontageEnd, InMode); // ¸Å°³º¯¼öÃß°¡°¡ °¡´ÉÇÏ´Ù´Ï...
-				// EndDelegate°¡ ÀÚ½Å°ú ÇÔ¼ö¸¦ ¹­¾ú´Ù
+				EndDelegate.BindUObject(this, &APrototypeXCharacter::RollingMontageEnd, InMode); // ë§¤ê°œë³€ìˆ˜ì¶”ê°€ê°€ ê°€ëŠ¥í•˜ë‹¤ë‹ˆ...
+				// EndDelegateê°€ ìžì‹ ê³¼ í•¨ìˆ˜ë¥¼ ë¬¶ì—ˆë‹¤
 				Animbackground->Montage_SetEndDelegate(EndDelegate, RollMontage);
-				// RollMontage°¡ EndÀÏ¶§ SetEndDelegate¿¡ EndDelegate¸¦ µî·Ï(set)
-				// endmontageÀÏ¶§ ÇÔ¼ö¹ÙÀÎµù call
+				// RollMontageê°€ Endì¼ë•Œ SetEndDelegateì— EndDelegateë¥¼ ë“±ë¡(set)
+				// endmontageì¼ë•Œ í•¨ìˆ˜ë°”ì¸ë”© call
 			}
 		}
 
@@ -89,7 +89,7 @@ void APrototypeXCharacter::ApplyRollingAtMode(EPlayerMode InMode)
 
 void APrototypeXCharacter::RollingMontageEnd(UAnimMontage* Montage, bool bInterrupted, EPlayerMode InMode)
 {//DECLARE_DELEGATE_TwoParams(FOnMontageEnded, UAnimMontage*, bool /*bInterrupted*/)
-	//FOnMontageEnded¿¡¼­ F12¸¦ ´­·¯ È®ÀÎÇÒ¼öÀÖÀ½
+	//FOnMontageEndedì—ì„œ F12ë¥¼ ëˆŒëŸ¬ í™•ì¸í• ìˆ˜ìžˆìŒ
 	IsRollingMontagePlaying = false;
 
 	UE_LOG(LogTemp, Warning, TEXT("Montage Ended: %s"), *Montage->GetName());
@@ -197,12 +197,12 @@ void APrototypeXCharacter::Move_Start(const FInputActionValue& value)
 	const FVector2D MoveAmount = value.Get<FVector2D>();
 	
 	const FRotator Rotation = Controller->GetControlRotation();
-	const FRotator YawRotation(0, Rotation.Yaw, 0); // ÄÁÆ®·Ñ·¯ÀÇ Yaw(ZÃà) ÃßÃâ
+	const FRotator YawRotation(0, Rotation.Yaw, 0); // ì»¨íŠ¸ë¡¤ëŸ¬ì˜ Yaw(Zì¶•) ì¶”ì¶œ
 
 	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	// ÄÁÆ®·Ñ·¯ÀÇ Æ²¾îÁøYawÃà¿¡¼­ XYZ±âÁî¸ð¸¦ ¾ò°í XÃàÀÇ ±âÁî¸ð¸¦ ¾òÀ½(¹æÇâº¤ÅÍ¶ó Å©±â1)
+	// ì»¨íŠ¸ë¡¤ëŸ¬ì˜ í‹€ì–´ì§„Yawì¶•ì—ì„œ XYZê¸°ì¦ˆëª¨ë¥¼ ì–»ê³  Xì¶•ì˜ ê¸°ì¦ˆëª¨ë¥¼ ì–»ìŒ(ë°©í–¥ë²¡í„°ë¼ í¬ê¸°1)
 	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-	// ÄÁÆ®·Ñ·¯ÀÇ Æ²¾îÁøYawÃà¿¡¼­ XYZ±âÁî¸ð¸¦ ¾ò°í YÃàÀÇ ±âÁî¸ð¸¦ ¾òÀ½(¹æÇâº¤ÅÍ¶ó Å©±â1)
+	// ì»¨íŠ¸ë¡¤ëŸ¬ì˜ í‹€ì–´ì§„Yawì¶•ì—ì„œ XYZê¸°ì¦ˆëª¨ë¥¼ ì–»ê³  Yì¶•ì˜ ê¸°ì¦ˆëª¨ë¥¼ ì–»ìŒ(ë°©í–¥ë²¡í„°ë¼ í¬ê¸°1)
 
 	if (!FMath::IsNearlyZero(MoveAmount.X))
 	{
@@ -320,20 +320,20 @@ void APrototypeXCharacter::SetPlayerMode(EPlayerMode NewMode)
 
 void APrototypeXCharacter::ApplyNormalModeSettings()
 {
-	// TODO: bUsePawnControlRotation °ª ¹èÄ¡
-	// TODO: SpringArm Inherit Pitch/Yaw/Roll °ª ¹èÄ¡
-	// TODO: CharacterMovement È¸Àü °ü·Ã ¿É¼Ç ¹èÄ¡
-			// TODO: ÀÌµ¿¸ðµå ¼³Á¤ Àû¿ë ÇÔ¼ö È£Ãâ
-	bUseControllerRotationYaw = false; // = ÄÁÆ®·Ñ·¯ÀÇ È¸ÀüÀ» Ä³¸¯ÅÍ°¡ »ó¼ÓÀ» ÇÏ°Ú´À³Ä
-	bUseControllerRotationPitch = false; // = False > µû·Îµû·Î È¸Àü Àû¿ë
+	// TODO: bUsePawnControlRotation ê°’ ë°°ì¹˜
+	// TODO: SpringArm Inherit Pitch/Yaw/Roll ê°’ ë°°ì¹˜
+	// TODO: CharacterMovement íšŒì „ ê´€ë ¨ ì˜µì…˜ ë°°ì¹˜
+			// TODO: ì´ë™ëª¨ë“œ ì„¤ì • ì ìš© í•¨ìˆ˜ í˜¸ì¶œ
+	bUseControllerRotationYaw = false; // = ì»¨íŠ¸ë¡¤ëŸ¬ì˜ íšŒì „ì„ ìºë¦­í„°ê°€ ìƒì†ì„ í•˜ê² ëŠëƒ
+	bUseControllerRotationPitch = false; // = False > ë”°ë¡œë”°ë¡œ íšŒì „ ì ìš©
 	bUseControllerRotationRoll = false;
 
-	// ÀÌµ¿ ¹æÇâÀ¸·Î Ä³¸¯ÅÍ°¡ ÀÚµ¿À¸·Î È¸ÀüÇÏµµ·Ï ¼³Á¤
-	GetCharacterMovement()->bOrientRotationToMovement = true; // ÇÙ½É: ÀÔ·Â ¹æÇâÀ¸·Î ¸öÀ» µ¹¸²
-	GetCharacterMovement()->RotationRate = FRotator(0.f, 540.f, 0.f); // È¸Àü ¼Óµµ
+	// ì´ë™ ë°©í–¥ìœ¼ë¡œ ìºë¦­í„°ê°€ ìžë™ìœ¼ë¡œ íšŒì „í•˜ë„ë¡ ì„¤ì •
+	GetCharacterMovement()->bOrientRotationToMovement = true; // í•µì‹¬: ìž…ë ¥ ë°©í–¥ìœ¼ë¡œ ëª¸ì„ ëŒë¦¼
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 540.f, 0.f); // íšŒì „ ì†ë„
 	GetCharacterMovement()->MaxAcceleration = 1500.f;
-	// ½ºÇÁ¸µ¾Ï ¼³Á¤ (Ä«¸Þ¶ó¸¸ ÄÁÆ®·Ñ·¯ È¸ÀüÀ» µû¸§)
-	SpringArmComponent->bUsePawnControlRotation = true;
+	// ìŠ¤í”„ë§ì•” ì„¤ì • (ì¹´ë©”ë¼ë§Œ ì»¨íŠ¸ë¡¤ëŸ¬ íšŒì „ì„ ë”°ë¦„)
+	SpringArmComponent->bUsePawnControlRotation = false;
 	SpringArmComponent->bInheritPitch = true;
 	SpringArmComponent->bInheritYaw = true;
 	SpringArmComponent->bInheritRoll = false;
@@ -358,12 +358,12 @@ void APrototypeXCharacter::ApplyNormalModeSettings()
 void APrototypeXCharacter::ApplyAttackModeSettings()
 {
 	 bUseControllerRotationYaw = true;
-	 bUseControllerRotationPitch = false; // = False > µû·Îµû·Î È¸Àü Àû¿ë
+	 bUseControllerRotationPitch = false; // = False > ë”°ë¡œë”°ë¡œ íšŒì „ ì ìš©
 	 bUseControllerRotationRoll = false;
 
 	 GetCharacterMovement()->bOrientRotationToMovement = false;
 	 //GetCharacterMovement()->bUseControllerDesiredRotation = true;
-	 GetCharacterMovement()->RotationRate = FRotator(0.f, 540.f, 0.f); // È¸Àü ¼Óµµ
+	 GetCharacterMovement()->RotationRate = FRotator(0.f, 540.f, 0.f); // íšŒì „ ì†ë„
 	 GetCharacterMovement()->MaxAcceleration = 1500.f;
 
 	 SpringArmComponent->bUsePawnControlRotation = true;

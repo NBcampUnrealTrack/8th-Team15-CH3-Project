@@ -2,7 +2,7 @@
 
 
 #include "Combat/AttackSystemComponent.h"
-#include "Combat/HealthComponent.h"
+#include "Combat/StatusComponent.h"
 
 UAttackSystemComponent::UAttackSystemComponent()
 {
@@ -32,33 +32,45 @@ void UAttackSystemComponent::OnOverlapAttack(UPrimitiveComponent* OverlappedComp
 
 void UAttackSystemComponent::ApplyDamage(AActor* TargetActor)
 {
-	if (TargetActor == nullptr)
+	if (!TargetActor)
 	{
 		return;
 	}
 
-	UHealthComponent* TargetHealthComp = TargetActor->FindComponentByClass<UHealthComponent>();
+	UStatusComponent* TargetStatusComp = TargetActor->FindComponentByClass<UStatusComponent>();
 
-	if (TargetHealthComp != nullptr)
+	if (!TargetStatusComp)
 	{
-		UHealthComponent* AttackerHealthComp = GetAttackerHealthComponent();
-		if (AttackerHealthComp != nullptr)
-		{
-			TargetHealthComp->TakeDamage(AttackerHealthComp->GetATK());
-		}
+		return;
 	}
+
+	UStatusComponent* AttackerStatusComp = GetAttackerStatusComponent();
+
+	if (!AttackerStatusComp)
+	{
+		return;
+	}
+
+	TargetStatusComp->ReceiveDamage(AttackerStatusComp->GetATK());
 }
 
 
 
-UHealthComponent* UAttackSystemComponent::GetAttackerHealthComponent()
+UStatusComponent* UAttackSystemComponent::GetAttackerStatusComponent()
 {
-	if (!OwnerHealthComp)
+	AActor* Owner = GetOwner();
+
+	if (!Owner)
 	{
-		OwnerHealthComp = GetOwner()->GetComponentByClass<UHealthComponent>();
+		return nullptr;
 	}
 
-	return OwnerHealthComp;
+	if (!OwnerStatusComp)
+	{
+		OwnerStatusComp = Owner->GetComponentByClass<UStatusComponent>();
+	}
+
+	return OwnerStatusComp;
 }
 
 

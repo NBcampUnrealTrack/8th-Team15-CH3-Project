@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "AttackSystemComponent.generated.h"
 
-class UHealthComponent;
+class UStatusComponent;
 class UPrimitiveComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -22,7 +22,7 @@ protected:
 
 private:
 	UPROPERTY()
-	UHealthComponent* OwnerHealthComp;
+	UStatusComponent* OwnerStatusComp;
 
 public:	
 	/*UFUNCTION(BlueprintCallable)
@@ -42,5 +42,5 @@ public:
 	void ApplyDamage(AActor* TargetActor);
 
 	UFUNCTION(BlueprintCallable)
-	UHealthComponent* GetAttackerHealthComponent();
+	UStatusComponent* GetAttackerStatusComponent();
 };
