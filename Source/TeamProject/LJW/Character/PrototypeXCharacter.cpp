@@ -49,7 +49,7 @@ void APrototypeXCharacter::BeginPlay()
 
 void APrototypeXCharacter::ApplyRollingAtMode(EPlayerMode InMode)
 {
-	if (IsRollingMontagePlaying) return;
+	if (IsRollingMontagePlaying || bIsOnJumpping) return;
 	UAnimInstance* Animbackground = GetMesh()->GetAnimInstance();
 
 	SetPlayerMode(EPlayerMode::Normal);
@@ -176,6 +176,24 @@ void APrototypeXCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 					&APrototypeXCharacter::Sprint_Stop
 				);
 			}
+
+			if (PlayerController->IA_Jump)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->IA_Jump,
+					ETriggerEvent::Triggered,
+					this,
+					&APrototypeXCharacter::Jump_Start
+				);
+
+				EnhancedInput->BindAction(
+					PlayerController->IA_Jump,
+					ETriggerEvent::Completed,
+					this,
+					&APrototypeXCharacter::Jump_Stop
+				);
+
+			}
 		}
 	}
 }
@@ -255,6 +273,24 @@ void APrototypeXCharacter::Sprint_Stop(const FInputActionValue& value)
 	GetCharacterMovement()->MaxWalkSpeed = Normal_Speed;
 }
 
+void APrototypeXCharacter::Jump_Start(const FInputActionValue& value)
+{
+	if (IsRollingMontagePlaying) return;
+	UE_LOG(LogTemp, Warning, TEXT("Jumping"));
+	bIsOnJumpping = true;
+	Jump();
+}
+
+void APrototypeXCharacter::Landed(const FHitResult& Hit)
+{
+	bIsOnJumpping = false;
+	StopJumping();
+}
+
+void APrototypeXCharacter::Jump_Stop(const FInputActionValue& value)
+{
+}
+
 void APrototypeXCharacter::SetPlayerMode(EPlayerMode NewMode)
 {
 	CurrentMode = NewMode;
@@ -279,7 +315,7 @@ void APrototypeXCharacter::ApplyNormalModeSettings()
 	// 이동 방향으로 캐릭터가 자동으로 회전하도록 설정
 	GetCharacterMovement()->bOrientRotationToMovement = true; // 핵심: 입력 방향으로 몸을 돌림
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 540.f, 0.f); // 회전 속도
-	GetCharacterMovement()->MaxAcceleration = 1500.f;
+	GetCharacterMovement()->MaxAcceleration = 1200.f;
 
 	// 스프링암 설정 (카메라만 컨트롤러 회전을 따름)
 	SpringArmComponent->bUsePawnControlRotation = true;
@@ -295,28 +331,35 @@ void APrototypeXCharacter::ApplyNormalModeSettings()
 	Normal_Speed = 450.f;
 	Sprint_Speed = 900.f;
 	GetCharacterMovement()->MaxWalkSpeed = Normal_Speed;
+
+	GetCharacterMovement()->JumpZVelocity = Normal_Jump_Speed;
 }
 
 void APrototypeXCharacter::ApplyAttackModeSettings()
 {
-	bUseControllerRotationYaw = true;
+	// 컨트롤러의 회전을 pawn에 즉시 반영 ( 바로바로 set )
+	bUseControllerRotationYaw = false;
 	bUseControllerRotationPitch = false; // = False > 따로따로 회전 적용
 	bUseControllerRotationRoll = false;
 
 	GetCharacterMovement()->bOrientRotationToMovement = false;
-	GetCharacterMovement()->RotationRate = FRotator(0.f, 540.f, 0.f); // 회전 속도
-	GetCharacterMovement()->MaxAcceleration = 1500.f;
+	// 컨트롤러의 회전을 finterp로 적용 ( 메쉬가 부드럽게 회전하며 컨트롤러의 정면방향으로 set )
+	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 740.f, 0.f); // 회전 속도
+	GetCharacterMovement()->MaxAcceleration = 1200.f;
 
 	SpringArmComponent->bUsePawnControlRotation = true;
 	SpringArmComponent->bInheritPitch = true;
 	SpringArmComponent->bInheritYaw = true;
 	SpringArmComponent->bInheritRoll = false;
 
-	SpringArmComponent->bEnableCameraLag = true;
+	SpringArmComponent->bEnableCameraLag = false;
 	SpringArmComponent->CameraLagSpeed = 8.f;
 	//============================================================================================
 	MouseSensibiliy = 0.5f;
 	Normal_Speed = 450.f;
 	Sprint_Speed = 900.f;
 	GetCharacterMovement()->MaxWalkSpeed = Normal_Speed;
+
+	GetCharacterMovement()->JumpZVelocity = Normal_Jump_Speed;
 }

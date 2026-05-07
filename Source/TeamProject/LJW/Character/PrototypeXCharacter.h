@@ -48,14 +48,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Velocitys|Speed")
 	float Sprint_Speed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Velocitys|Jump")
-	float Normal_Jump_Speed;
+	float Normal_Jump_Speed = 550.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Velocitys|Jump")
 	float Max_Jump_Speed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Velocitys|Jump")
 	float Min_Jump_Speed;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "States|Jump")
-	bool bIsOnJumpping;
+	bool bIsOnJumpping = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "States|Attack")
 	bool bIsAttacking;
 
@@ -70,6 +70,9 @@ protected:
 	void Sprint_Start(const FInputActionValue& value);
 	void Sprint_Stop(const FInputActionValue& value);
 
+	void Jump_Start(const FInputActionValue& value);
+	virtual void Landed(const FHitResult& Hit) override;
+	void Jump_Stop(const FInputActionValue& value);
 	// enum =======================
 	UFUNCTION(BlueprintCallable, Category = "Mode")
 	void SetPlayerMode(EPlayerMode NewMode);
