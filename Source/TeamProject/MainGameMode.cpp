@@ -1,24 +1,30 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿// MainGameMode.cpp
 
 
 #include "MainGameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "BluePrint/UserWidget.h"
-#include "Combat/HealthComponent.h"
+#include "Combat/StatusComponent.h"
 
 void AMainGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
 	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-	if (PlayerPawn)
+
+	if (!PlayerPawn)
 	{
-		UHealthComponent* BattleComp = PlayerPawn->FindComponentByClass<UHealthComponent>();
-		if (BattleComp)
-		{
-			BattleComp->OnDeath.AddDynamic(this, &AMainGameMode::SetGameOver);
-		}
+		return;
 	}
+
+	UStatusComponent* BattleComp = PlayerPawn->FindComponentByClass<UStatusComponent>();
+
+	if (!BattleComp)
+	{
+		return;
+	}
+
+	BattleComp->OnDeath.AddDynamic(this, &AMainGameMode::SetGameOver);
 }
 
 void AMainGameMode::SetGameOver()
@@ -27,13 +33,19 @@ void AMainGameMode::SetGameOver()
 	
 	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 
-	if (PC != nullptr)
+	if (!PC)
 	{
-		UUserWidget* GameOverWidget = CreateWidget<UUserWidget>(PC, GameOverWidgetClass);
-
-		if (GameOverWidget != nullptr)
-		{
-			GameOverWidget->AddToViewport();
-		}
+		return;
 	}
+		
+	UUserWidget* GameOverWidget = CreateWidget<UUserWidget>(PC, GameOverWidgetClass);
+
+	if (!GameOverWidget)
+	{
+		return;
+	}
+
+	GameOverWidget->AddToViewport();
+		
+	
 }

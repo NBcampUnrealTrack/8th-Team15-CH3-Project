@@ -1,4 +1,4 @@
-#include "LJW/Character/PrototypeXCharacter.h"
+﻿#include "LJW/Character/PrototypeXCharacter.h"
 #include "TeamProject/LJW/GameUtilHeader/GameUtil.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -52,36 +52,36 @@ void APrototypeXCharacter::ApplyRollingAtMode(EPlayerMode InMode)
 		{
 			if (Animbackground)
 			{
-				// �������ִ� ����Ű�� ������ setrot�Ѵ��� play�ؾ��ϳ�...
+				// 누르고있는 방향키의 방향대로 setrot한다음 play해야하나...
 				BeforePlayerRot = GetActorRotation();
 
 				FRotator ControlRot = GetControlRotation();
-				FRotator YawRotation(0.f, ControlRot.Yaw, 0.f);// ��Ʈ���� Yawȸ��(Z��)�� ������
+				FRotator YawRotation(0.f, ControlRot.Yaw, 0.f);// 컨트롤의 Yaw회전(Z축)만 가져옴
 
 				FVector Forward = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-				// ��Ʈ�ѷ��� Yawȸ���� �����Z����� ����� �ٽø���� �ű⼭ ���� X�� +��
+				// 컨트롤러의 Yaw회전이 적용된Z축기준 기즈모를 다시만들고 거기서 정면 X축 +값
 				FVector Right = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-				// ��Ʈ�ѷ��� Yawȸ���� �����Z����� ����� �ٽø���� �ű⼭ ������ Y�� +��
+				// 컨트롤러의 Yaw회전이 적용된Z축기준 기즈모를 다시만들고 거기서 오른쪽 Y축 +값
 				FVector DesiredDir = (Forward * NowPlayerDir.X) + (Right * NowPlayerDir.Y);
-				// ��Ʈ�ѷ��� ������⺤�� * (1, -1)x����ǲ�Է°�, ��Ʈ�ѷ��� ������⺤�� * (1, -1)Y����ǲ�Է°�
-				// ������ ���� �ι����� �߰�����
+				// 컨트롤러의 정면방향벡터 * (1, -1)x축인풋입력값, 컨트롤러의 정면방향벡터 * (1, -1)Y축인풋입력값
+				// 벡터의 합은 두방향의 중간방향
 				if (DesiredDir.IsNearlyZero())
 				{
 					DesiredDir = GetActorForwardVector();
 				}
 
 				SetActorRotation(DesiredDir.Rotation());
-				//DesiredDir����(Rotation) ȸ���϶�(SetActorRotation)
+				//DesiredDir방향(Rotation) 회전하라(SetActorRotation)
 
 				Animbackground->Montage_Play(RollMontage);
 				IsRollingMontagePlaying = true;
-				// �̱� ��������Ʈ
+				// 싱글 델리게이트
 				FOnMontageEnded EndDelegate;
-				EndDelegate.BindUObject(this, &APrototypeXCharacter::RollingMontageEnd, InMode); // �Ű������߰��� �����ϴٴ�...
-				// EndDelegate�� �ڽŰ� �Լ��� ������
+				EndDelegate.BindUObject(this, &APrototypeXCharacter::RollingMontageEnd, InMode); // 매개변수추가가 가능하다니...
+				// EndDelegate가 자신과 함수를 묶었다
 				Animbackground->Montage_SetEndDelegate(EndDelegate, RollMontage);
-				// RollMontage�� End�϶� SetEndDelegate�� EndDelegate�� ���(set)
-				// endmontage�϶� �Լ����ε� call
+				// RollMontage가 End일때 SetEndDelegate에 EndDelegate를 등록(set)
+				// endmontage일때 함수바인딩 call
 			}
 		}
 
@@ -89,7 +89,7 @@ void APrototypeXCharacter::ApplyRollingAtMode(EPlayerMode InMode)
 
 void APrototypeXCharacter::RollingMontageEnd(UAnimMontage* Montage, bool bInterrupted, EPlayerMode InMode)
 {//DECLARE_DELEGATE_TwoParams(FOnMontageEnded, UAnimMontage*, bool /*bInterrupted*/)
-	//FOnMontageEnded���� F12�� ���� Ȯ���Ҽ�����
+	//FOnMontageEnded에서 F12를 눌러 확인할수있음
 	IsRollingMontagePlaying = false;
 
 	UE_LOG(LogTemp, Warning, TEXT("Montage Ended: %s"), *Montage->GetName());
@@ -197,12 +197,12 @@ void APrototypeXCharacter::Move_Start(const FInputActionValue& value)
 	const FVector2D MoveAmount = value.Get<FVector2D>();
 	
 	const FRotator Rotation = Controller->GetControlRotation();
-	const FRotator YawRotation(0, Rotation.Yaw, 0); // ��Ʈ�ѷ��� Yaw(Z��) ����
+	const FRotator YawRotation(0, Rotation.Yaw, 0); // 컨트롤러의 Yaw(Z축) 추출
 
 	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	// ��Ʈ�ѷ��� Ʋ����Yaw�࿡�� XYZ����� ��� X���� ����� ����(���⺤�Ͷ� ũ��1)
+	// 컨트롤러의 틀어진Yaw축에서 XYZ기즈모를 얻고 X축의 기즈모를 얻음(방향벡터라 크기1)
 	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-	// ��Ʈ�ѷ��� Ʋ����Yaw�࿡�� XYZ����� ��� Y���� ����� ����(���⺤�Ͷ� ũ��1)
+	// 컨트롤러의 틀어진Yaw축에서 XYZ기즈모를 얻고 Y축의 기즈모를 얻음(방향벡터라 크기1)
 
 	if (!FMath::IsNearlyZero(MoveAmount.X))
 	{
@@ -320,20 +320,20 @@ void APrototypeXCharacter::SetPlayerMode(EPlayerMode NewMode)
 
 void APrototypeXCharacter::ApplyNormalModeSettings()
 {
-	// TODO: bUsePawnControlRotation �� ��ġ
-	// TODO: SpringArm Inherit Pitch/Yaw/Roll �� ��ġ
-	// TODO: CharacterMovement ȸ�� ���� �ɼ� ��ġ
-			// TODO: �̵���� ���� ���� �Լ� ȣ��
-	bUseControllerRotationYaw = false; // = ��Ʈ�ѷ��� ȸ���� ĳ���Ͱ� ����� �ϰڴ���
-	bUseControllerRotationPitch = false; // = False > ���ε��� ȸ�� ����
+	// TODO: bUsePawnControlRotation 값 배치
+	// TODO: SpringArm Inherit Pitch/Yaw/Roll 값 배치
+	// TODO: CharacterMovement 회전 관련 옵션 배치
+			// TODO: 이동모드 설정 적용 함수 호출
+	bUseControllerRotationYaw = false; // = 컨트롤러의 회전을 캐릭터가 상속을 하겠느냐
+	bUseControllerRotationPitch = false; // = False > 따로따로 회전 적용
 	bUseControllerRotationRoll = false;
 
-	// �̵� �������� ĳ���Ͱ� �ڵ����� ȸ���ϵ��� ����
-	GetCharacterMovement()->bOrientRotationToMovement = true; // �ٽ�: �Է� �������� ���� ����
-	GetCharacterMovement()->RotationRate = FRotator(0.f, 540.f, 0.f); // ȸ�� �ӵ�
+	// 이동 방향으로 캐릭터가 자동으로 회전하도록 설정
+	GetCharacterMovement()->bOrientRotationToMovement = true; // 핵심: 입력 방향으로 몸을 돌림
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 540.f, 0.f); // 회전 속도
 	GetCharacterMovement()->MaxAcceleration = 1500.f;
-	// �������� ���� (ī�޶� ��Ʈ�ѷ� ȸ���� ����)
-	SpringArmComponent->bUsePawnControlRotation = true;
+	// 스프링암 설정 (카메라만 컨트롤러 회전을 따름)
+	SpringArmComponent->bUsePawnControlRotation = false;
 	SpringArmComponent->bInheritPitch = true;
 	SpringArmComponent->bInheritYaw = true;
 	SpringArmComponent->bInheritRoll = false;
@@ -358,12 +358,12 @@ void APrototypeXCharacter::ApplyNormalModeSettings()
 void APrototypeXCharacter::ApplyAttackModeSettings()
 {
 	 bUseControllerRotationYaw = true;
-	 bUseControllerRotationPitch = false; // = False > ���ε��� ȸ�� ����
+	 bUseControllerRotationPitch = false; // = False > 따로따로 회전 적용
 	 bUseControllerRotationRoll = false;
 
 	 GetCharacterMovement()->bOrientRotationToMovement = false;
 	 //GetCharacterMovement()->bUseControllerDesiredRotation = true;
-	 GetCharacterMovement()->RotationRate = FRotator(0.f, 540.f, 0.f); // ȸ�� �ӵ�
+	 GetCharacterMovement()->RotationRate = FRotator(0.f, 540.f, 0.f); // 회전 속도
 	 GetCharacterMovement()->MaxAcceleration = 1500.f;
 
 	 SpringArmComponent->bUsePawnControlRotation = true;
