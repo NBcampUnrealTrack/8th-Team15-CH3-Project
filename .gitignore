@@ -3,6 +3,10 @@ Build/
 DerivedDataCache/
 Intermediate/
 Saved/
+Config/DefaultEditorPerProjectUserSettings.ini
+contant/*
+
+!contant/BP_Gamemode
 
 *.sln
 *.suo
@@ -22,3 +26,4 @@ Saved/
 # Visual Studio cache
 .vs/
 *.ipch
+.vsconfig
