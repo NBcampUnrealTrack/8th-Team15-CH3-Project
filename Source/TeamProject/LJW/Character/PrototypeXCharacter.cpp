@@ -200,7 +200,8 @@ void APrototypeXCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 void APrototypeXCharacter::Move_Start(const FInputActionValue& value)
 {
-	if (!Controller) return;
+	UE_LOG(LogTemp, Warning, TEXT("Moving... IsAttacking: %s"), bIsAttacking ? TEXT("TRUE") : TEXT("FALSE"));
+	if (!Controller || bIsAttacking) return;
 
 	NowPlayerDir = value.Get<FVector2D>();
 	const FVector2D MoveAmount = value.Get<FVector2D>();
@@ -285,6 +286,11 @@ void APrototypeXCharacter::Landed(const FHitResult& Hit)
 {
 	bIsOnJumpping = false;
 	StopJumping();
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance)
+	{
+		AnimInstance->SetRootMotionMode(ERootMotionMode::RootMotionFromMontagesOnly);
+	}
 }
 
 void APrototypeXCharacter::Jump_Stop(const FInputActionValue& value)
@@ -329,7 +335,7 @@ void APrototypeXCharacter::ApplyNormalModeSettings()
 	//============================================================================================
 	MouseSensibiliy = 0.5f;
 	Normal_Speed = 450.f;
-	Sprint_Speed = 900.f;
+	Sprint_Speed = 700.f;
 	GetCharacterMovement()->MaxWalkSpeed = Normal_Speed;
 
 	GetCharacterMovement()->JumpZVelocity = Normal_Jump_Speed;
@@ -358,7 +364,7 @@ void APrototypeXCharacter::ApplyAttackModeSettings()
 	//============================================================================================
 	MouseSensibiliy = 0.5f;
 	Normal_Speed = 450.f;
-	Sprint_Speed = 900.f;
+	Sprint_Speed = 700.f;
 	GetCharacterMovement()->MaxWalkSpeed = Normal_Speed;
 
 	GetCharacterMovement()->JumpZVelocity = Normal_Jump_Speed;

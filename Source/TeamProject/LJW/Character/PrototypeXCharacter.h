@@ -48,7 +48,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Velocitys|Speed")
 	float Sprint_Speed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Velocitys|Jump")
-	float Normal_Jump_Speed = 550.f;
+	float Normal_Jump_Speed = 400.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Velocitys|Jump")
 	float Max_Jump_Speed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Velocitys|Jump")
@@ -57,7 +57,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "States|Jump")
 	bool bIsOnJumpping = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "States|Attack")
-	bool bIsAttacking;
+	bool bIsAttacking = false;
 
 protected:
 	virtual void BeginPlay() override;
