@@ -7,6 +7,10 @@ APrototypeXPlayerController::APrototypeXPlayerController()
 	,IA_Look(nullptr)
 	,IA_Roll(nullptr)
 	,IA_Sprint(nullptr)
+	,IA_Lock(nullptr)
+	,IA_Jump(nullptr)
+	,IA_Attack(nullptr)
+	,IA_Defence(nullptr)
 {
 
 }
