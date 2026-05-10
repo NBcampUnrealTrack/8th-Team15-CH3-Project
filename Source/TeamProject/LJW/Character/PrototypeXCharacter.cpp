@@ -47,6 +47,46 @@ void APrototypeXCharacter::BeginPlay()
 	SetPlayerMode(EPlayerMode::Normal);
 }
 
+void APrototypeXCharacter::ItemUse_Start(const FInputActionValue& value)
+{
+	// UI의 선택 아이템정보 불러오기
+	// 아이템이 포션이냐 >
+	// 아이템이 강화냐 >
+	if (IsRollingMontagePlaying || bIsAttacking || bIsOnJumpping) return;
+
+	UAnimInstance* Animbackground = GetMesh()->GetAnimInstance();
+	if (!ensureMsgf(Animbackground, TEXT("Invalid AnimInstance"))) return;
+
+	if (!ensureMsgf(ItemUseMontage[0], TEXT("Invalid UseItemMontage"))) return;
+	// change item?
+	UStaticMeshComponent* SwordComp = nullptr;
+	TArray<UStaticMeshComponent*> MeshComp;
+	GetComponents<UStaticMeshComponent>(MeshComp);
+	for (UStaticMeshComponent* Meshs : MeshComp)
+	{
+		if (Meshs->GetName() == TEXT("Sword"))
+		{
+			SwordComp = Meshs;
+			break;
+		}
+	}
+	if (ensureMsgf(SwordComp, TEXT("SwordSocket is Invalid")))
+	{
+		// item load
+		// 
+		// SwordComp->SetHiddenInGame(true);
+		// 
+		// =============
+		Animbackground->Montage_Play(ItemUseMontage[0]);
+		IsItemUsing = true;
+	}
+	else
+	{
+		return;
+	}
+}
+// notify로 착용무기해제 장착
+
 void APrototypeXCharacter::ApplyRollingAtMode(EPlayerMode InMode)
 {
 	if (IsRollingMontagePlaying || bIsOnJumpping) return;
@@ -193,6 +233,16 @@ void APrototypeXCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 					&APrototypeXCharacter::Jump_Stop
 				);
 
+			}
+
+			if (PlayerController->IA_ItemUse)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->IA_ItemUse,
+					ETriggerEvent::Triggered,
+					this,
+					&APrototypeXCharacter::ItemUse_Start
+				);
 			}
 		}
 	}

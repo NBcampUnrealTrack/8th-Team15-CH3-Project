@@ -95,6 +95,15 @@ protected:
 	//EPlayerMode BeforeSetMode;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "States|Roll")
 	AActor* TargetLockActor;
+	//===============================
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "States|Use")
+	TArray<UAnimMontage*> ItemUseMontage;
+
+	void ItemUse_Start(const FInputActionValue& value);
+	bool IsItemUsing = false;
+
+	//================================
+
 public:	
 	virtual void Tick(float DeltaTime) override;
 

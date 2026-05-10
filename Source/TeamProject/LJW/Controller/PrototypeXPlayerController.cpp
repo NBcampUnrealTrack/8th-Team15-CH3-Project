@@ -11,6 +11,7 @@ APrototypeXPlayerController::APrototypeXPlayerController()
 	,IA_Jump(nullptr)
 	,IA_Attack(nullptr)
 	,IA_Defence(nullptr)
+	,IA_ItemUse(nullptr)
 {
 
 }
