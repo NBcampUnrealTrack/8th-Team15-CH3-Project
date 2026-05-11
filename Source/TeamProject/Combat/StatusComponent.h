@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Components/WidgetComponent.h"
 #include "StatusComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathSignature);
@@ -23,6 +24,12 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> HPBarWidgetClass;
+
+	UPROPERTY()
+	UWidgetComponent* HPBarWidgetComp;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Health")
 	float HP;
 
@@ -61,6 +68,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Health")
 	float GetATK() const;
+
+	UFUNCTION(BlueprintPure, Category = "Health")
+	float GetHPRatio() const;
 
 	// setter
 	UFUNCTION(BlueprintCallable, Category = "Health")

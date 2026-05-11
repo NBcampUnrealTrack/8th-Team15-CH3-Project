@@ -13,6 +13,20 @@ void UStatusComponent::BeginPlay()
 	Super::BeginPlay();
 	HP = MaxHP;
 	bIsDead = false;
+
+	if (HPBarWidgetClass)
+	{
+		HPBarWidgetComp = NewObject<UWidgetComponent>(GetOwner());
+		HPBarWidgetComp->SetWidgetClass(HPBarWidgetClass);
+		HPBarWidgetComp->SetWidgetSpace(EWidgetSpace::World);
+		HPBarWidgetComp->SetDrawSize(FVector2D(150.f, 15.f));
+		HPBarWidgetComp->AttachToComponent(
+			GetOwner()->GetRootComponent(),
+			FAttachmentTransformRules::KeepRelativeTransform
+		);
+		HPBarWidgetComp->SetRelativeLocation(FVector(0.f, 0.f, 120.f));
+		HPBarWidgetComp->RegisterComponent();
+	}
 }
 
 void UStatusComponent::ReceiveDamage(float AttackerATK)
@@ -73,6 +87,9 @@ void UStatusComponent::SetHP(float NewHP)
 void UStatusComponent::SetATK(float NewATK)
 {
 	ATK = NewATK;
+}
 
-	return;
+float UStatusComponent::GetHPRatio() const
+{
+	return MaxHP > 0.f ? HP / MaxHP : 0.f;
 }
