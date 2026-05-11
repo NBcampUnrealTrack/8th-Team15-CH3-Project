@@ -5,15 +5,34 @@
 
 UStatusComponent::UStatusComponent()
 {
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 }
 
 void UStatusComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	HP = MaxHP;
+	Stamina = MaxStamina;
 	bIsDead = false;
 }
+
+void UStatusComponent::TickComponent(float DeltaTime, ELevelTick TickType,
+	FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	StaminaRegenDelay += DeltaTime;
+
+	if (Stamina < MaxStamina)
+	{
+		if (StaminaRegenDelay > StaminaRegenDelayTime)
+		{
+			RegenStamina(DeltaTime);
+			OnStaminaChanged.Broadcast(Stamina);
+		}
+	}
+} 
+
 
 void UStatusComponent::ReceiveDamage(float AttackerATK)
 {
@@ -32,17 +51,31 @@ void UStatusComponent::ReceiveDamage(float AttackerATK)
 	}
 }
 
-void UStatusComponent::Heal()
+void UStatusComponent::DrainStamina(float Amount, float DeltaTime)
 {
-	if (bIsDead)
-	{
-		return;
-	}
-
-	HP = FMath::Min(HP + ATK * 0.45f, MaxHP);
-	OnHPChanged.Broadcast(HP);
+	Stamina = FMath::Max(Stamina - Amount * DeltaTime, 0.0f);
+	OnStaminaChanged.Broadcast(Stamina);
+	ResetRegenDelay();
 }
 
+void UStatusComponent::ConsumeStamina(float Amount)
+{
+	Stamina = FMath::Max(Stamina - Amount, 0.0f);
+	OnStaminaChanged.Broadcast(Stamina);
+	ResetRegenDelay();
+}
+
+void UStatusComponent::RegenStamina(float DeltaTime)
+{
+	Stamina = FMath::Min(Stamina + RegenStaminaValue * DeltaTime, MaxStamina);
+}
+
+void UStatusComponent::ResetRegenDelay()
+{
+	StaminaRegenDelay = 0.0f;
+}
+
+// getter
 bool UStatusComponent::IsDead() const
 {
 	return bIsDead;
@@ -63,6 +96,7 @@ float UStatusComponent::GetATK() const
 	return ATK;
 }
 
+// setter
 void UStatusComponent::SetHP(float NewHP)
 {
 	HP = NewHP;

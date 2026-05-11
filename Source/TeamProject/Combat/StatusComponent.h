@@ -8,6 +8,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHPChangedSignature, float, NewHP);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStaminaChangedSignature, float, NewStamina);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class TEAMPROJECT_API UStatusComponent : public UActorComponent
@@ -15,12 +16,13 @@ class TEAMPROJECT_API UStatusComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
 	UStatusComponent();
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
+
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, 
+		FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Health")
@@ -30,7 +32,21 @@ private:
 	float MaxHP = 100.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
-	float ATK = 10.0f; // TODO 추후 StatusComponent로 분리
+	float ATK = 10.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Stamina")
+	float Stamina;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Stamina")
+	float RegenStaminaValue = 20.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Stamina")
+	float MaxStamina = 100.0f;
+
+	float StaminaRegenDelay;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Stamina")
+	float StaminaRegenDelayTime = 1.0f;
 
 	UPROPERTY()
 	bool bIsDead = false;
@@ -39,16 +55,29 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Health")
 	FOnHPChangedSignature OnHPChanged;
 
-public:
+	UPROPERTY(BlueprintAssignable, Category = "Stamina")
+	FOnStaminaChangedSignature OnStaminaChanged;
+
 	UPROPERTY(BlueprintAssignable, Category = "Health")
 	FOnDeathSignature OnDeath;
 
+public:
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	void ReceiveDamage(float AttackerATK);
 
-	UFUNCTION(BlueprintCallable, Category = "Health")
-	void Heal();
+	UFUNCTION(BlueprintCallable, Category = "Stamina")
+	void DrainStamina(float Amount, float DeltaTime);
 
+	UFUNCTION(BlueprintCallable, Category = "Stamina")
+	void ConsumeStamina(float Amount);
+
+	UFUNCTION(BlueprintCallable, Category = "Stamina")
+	void RegenStamina(float DeltaTime);
+
+private:
+	void ResetRegenDelay();
+
+public:
 	// Getter 
 	UFUNCTION(BlueprintPure, Category = "Health")
 	bool IsDead() const;
