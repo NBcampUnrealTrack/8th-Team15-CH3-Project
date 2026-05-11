@@ -17,14 +17,14 @@ void AMainGameMode::BeginPlay()
 		return;
 	}
 
-	UStatusComponent* StatusComp = PlayerPawn->FindComponentByClass<UStatusComponent>();
+	UStatusComponent* BattleComp = PlayerPawn->FindComponentByClass<UStatusComponent>();
 
-	if (!StatusComp)
+	if (!BattleComp)
 	{
 		return;
 	}
 
-	StatusComp->OnDeath.AddDynamic(this, &AMainGameMode::SetGameOver);
+	BattleComp->OnDeath.AddDynamic(this, &AMainGameMode::SetGameOver);
 }
 
 void AMainGameMode::SetGameOver()
@@ -46,4 +46,6 @@ void AMainGameMode::SetGameOver()
 	}
 
 	GameOverWidget->AddToViewport();
+		
+	
 }
