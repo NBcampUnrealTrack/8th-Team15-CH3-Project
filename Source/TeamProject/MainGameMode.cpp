@@ -46,6 +46,4 @@ void AMainGameMode::SetGameOver()
 	}
 
 	GameOverWidget->AddToViewport();
-		
-	
 }
