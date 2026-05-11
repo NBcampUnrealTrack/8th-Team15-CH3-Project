@@ -42,6 +42,48 @@ void APrototypeXCharacter::BeginPlay()
 
 }
 
+void APrototypeXCharacter::ItemUse_Start(const FInputActionValue& value)
+{
+	// UI�� ���� ���������� �ҷ�����
+	// �������� �����̳� >
+	// �������� ��ȭ�� >
+	if (IsRollingMontagePlaying || bIsAttacking || bIsOnJumpping) return;
+
+	UAnimInstance* Animbackground = GetMesh()->GetAnimInstance();
+	if (!ensureMsgf(Animbackground, TEXT("Invalid AnimInstance"))) return;
+
+	if (!ensureMsgf(ItemUseMontage[0], TEXT("Invalid UseItemMontage"))) return;
+	// change item?
+	UStaticMeshComponent* SwordComp = nullptr;
+	TArray<UStaticMeshComponent*> MeshComp;
+	GetComponents<UStaticMeshComponent>(MeshComp);
+	for (UStaticMeshComponent* Meshs : MeshComp)
+	{
+		if (Meshs->GetName() == TEXT("Sword"))
+		{
+			SwordComp = Meshs;
+			break;
+		}
+	}
+	if (ensureMsgf(SwordComp, TEXT("SwordSocket is Invalid")))
+	{
+
+		// item load
+		//
+		// 
+		// 
+		// SwordComp->SetHiddenInGame(true);
+		// 
+		// =============
+		Animbackground->Montage_Play(ItemUseMontage[0]);
+		IsItemUsing = true;
+	}
+	else
+	{
+		return;
+	}
+}
+
 void APrototypeXCharacter::ApplyRollingAtMode(EPlayerMode InMode)
 {
 	if (IsRollingMontagePlaying) return;
