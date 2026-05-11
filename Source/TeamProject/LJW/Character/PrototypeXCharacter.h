@@ -48,16 +48,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Velocitys|Speed")
 	float Sprint_Speed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Velocitys|Jump")
-	float Normal_Jump_Speed;
+	float Normal_Jump_Speed = 400.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Velocitys|Jump")
 	float Max_Jump_Speed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Velocitys|Jump")
 	float Min_Jump_Speed;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "States|Jump")
-	bool bIsOnJumpping;
+	bool bIsOnJumpping = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "States|Attack")
-	bool bIsAttacking;
+	bool bIsAttacking = false;
 
 protected:
 	virtual void BeginPlay() override;
@@ -70,6 +70,9 @@ protected:
 	void Sprint_Start(const FInputActionValue& value);
 	void Sprint_Stop(const FInputActionValue& value);
 
+	void Jump_Start(const FInputActionValue& value);
+	virtual void Landed(const FHitResult& Hit) override;
+	void Jump_Stop(const FInputActionValue& value);
 	// enum =======================
 	UFUNCTION(BlueprintCallable, Category = "Mode")
 	void SetPlayerMode(EPlayerMode NewMode);
@@ -92,6 +95,16 @@ protected:
 	//EPlayerMode BeforeSetMode;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "States|Roll")
 	AActor* TargetLockActor;
+	//===============================
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "States|Use")
+	TArray<UAnimMontage*> ItemUseMontage;
+
+	void ItemUse_Start(const FInputActionValue& value);
+	bool IsItemUsing = false;
+
+	//================================
+
+
 public:	
 	virtual void Tick(float DeltaTime) override;
 
