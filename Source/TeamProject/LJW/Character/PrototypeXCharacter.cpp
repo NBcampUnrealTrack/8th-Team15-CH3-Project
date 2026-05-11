@@ -49,15 +49,6 @@ void APrototypeXCharacter::BeginPlay()
 
 void APrototypeXCharacter::ItemUse_Start(const FInputActionValue& value)
 {
-<<<<<<< HEAD
-	// UIÀÇ ¼±ÅÃ ¾ÆÀÌÅÛÁ¤º¸ ºÒ·¯¿À±â
-	// ¾ÆÀÌÅÛÀÌ Æ÷¼ÇÀÌ³Ä >
-	// ¾ÆÀÌÅÛÀÌ °­È­³Ä >
-=======
-	// UIï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ò·ï¿½ï¿½ï¿½ï¿½ï¿½
-	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ì³ï¿½ >
-	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È­ï¿½ï¿½ >
->>>>>>> e54d9650f7cbd49419171b482babc0bc57388b84
 	if (IsRollingMontagePlaying || bIsAttacking || bIsOnJumpping) return;
 
 	UAnimInstance* Animbackground = GetMesh()->GetAnimInstance();
