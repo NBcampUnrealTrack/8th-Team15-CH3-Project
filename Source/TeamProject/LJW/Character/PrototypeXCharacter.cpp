@@ -72,7 +72,10 @@ void APrototypeXCharacter::ItemUse_Start(const FInputActionValue& value)
 	}
 	if (ensureMsgf(SwordComp, TEXT("SwordSocket is Invalid")))
 	{
+
 		// item load
+		//
+		// 
 		// 
 		// SwordComp->SetHiddenInGame(true);
 		// 
