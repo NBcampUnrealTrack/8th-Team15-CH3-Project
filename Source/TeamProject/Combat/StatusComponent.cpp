@@ -14,20 +14,6 @@ void UStatusComponent::BeginPlay()
 	HP = MaxHP;
 	Stamina = MaxStamina;
 	bIsDead = false;
-
-	if (HPBarWidgetClass)
-	{
-		HPBarWidgetComp = NewObject<UWidgetComponent>(GetOwner());
-		HPBarWidgetComp->SetWidgetClass(HPBarWidgetClass);
-		HPBarWidgetComp->SetWidgetSpace(EWidgetSpace::World);
-		HPBarWidgetComp->SetDrawSize(FVector2D(150.f, 15.f));
-		HPBarWidgetComp->AttachToComponent(
-			GetOwner()->GetRootComponent(),
-			FAttachmentTransformRules::KeepRelativeTransform
-		);
-		HPBarWidgetComp->SetRelativeLocation(FVector(0.f, 0.f, 120.f));
-		HPBarWidgetComp->RegisterComponent();
-	}
 }
 
 void UStatusComponent::TickComponent(float DeltaTime, ELevelTick TickType,
