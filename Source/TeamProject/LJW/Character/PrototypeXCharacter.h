@@ -103,8 +103,6 @@ protected:
 	bool IsItemUsing = false;
 
 	//================================
-
-
 public:	
 	virtual void Tick(float DeltaTime) override;
 
