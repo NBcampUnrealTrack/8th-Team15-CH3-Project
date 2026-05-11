@@ -24,20 +24,13 @@ public:
 	TObjectPtr<UInputAction> IA_Roll;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
 	TObjectPtr<UInputAction> IA_Sprint;
-	// ===================== Blueprint Node =======================
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
 	TObjectPtr<UInputAction> IA_Lock;
+	// =============================================================
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
 	TObjectPtr<UInputAction> IA_Attack;
-	// =============================================================
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
 	TObjectPtr<UInputAction> IA_Defence;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
-	TObjectPtr<UInputAction> IA_Jump;
-	// =============================================================
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
-	TObjectPtr<UInputAction> IA_ItemUse;
 
 
 protected:
