@@ -251,7 +251,8 @@ void APrototypeXCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 void APrototypeXCharacter::Move_Start(const FInputActionValue& value)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Moving... IsAttacking: %s"), bIsAttacking ? TEXT("TRUE") : TEXT("FALSE"));
-	if (!Controller || bIsAttacking) return;
+
+	if (!Controller) return;
 
 	NowPlayerDir = value.Get<FVector2D>();
 	const FVector2D MoveAmount = value.Get<FVector2D>();
