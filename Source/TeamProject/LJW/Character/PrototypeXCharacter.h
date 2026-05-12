@@ -84,8 +84,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "States|Roll")
 	UAnimMontage* RollMontage;
 	void ApplyRollingAtMode(EPlayerMode InMode);
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "States|Roll")
-	bool IsRollingMontagePlaying = false;
+
+
 	UFUNCTION()
 	void RollingMontageEnd(UAnimMontage* Montage, bool bInterrupted, EPlayerMode InMode);
 	UPROPERTY()
@@ -104,6 +104,10 @@ protected:
 
 	//================================
 public:	
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "States|Roll")
+	bool IsRollingMontagePlaying = false;
+
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
