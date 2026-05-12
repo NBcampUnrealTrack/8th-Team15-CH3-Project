@@ -200,7 +200,7 @@ void APrototypeXCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 			}
 
 			if (PlayerController->IA_Sprint)
-			{
+	
 				EnhancedInput->BindAction(
 					PlayerController->IA_Sprint,
 					ETriggerEvent::Triggered,
