@@ -49,10 +49,6 @@ void APrototypeXCharacter::BeginPlay()
 
 void APrototypeXCharacter::ItemUse_Start(const FInputActionValue& value)
 {
-	// UI의 선택 아이템정보 불러오기
-	// 아이템이 포션이냐 >
-	// 아이템이 강화냐 >
-
 	if (IsRollingMontagePlaying || bIsAttacking || bIsOnJumpping) return;
 
 	UAnimInstance* Animbackground = GetMesh()->GetAnimInstance();
