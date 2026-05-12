@@ -7,7 +7,6 @@
 UAttackSystemComponent::UAttackSystemComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-
 }
 
 void UAttackSystemComponent::BeginPlay()
@@ -38,9 +37,13 @@ void UAttackSystemComponent::ApplyDamage(AActor* TargetActor)
 	}
 
 	TargetStatusComp->ReceiveDamage(AttackerStatusComp->GetATK());
+	HitStop(TargetActor);
 }
 
+void UAttackSystemComponent::CheckParry()
+{
 
+}
 
 UStatusComponent* UAttackSystemComponent::GetAttackerStatusComponent()
 {
@@ -59,4 +62,59 @@ UStatusComponent* UAttackSystemComponent::GetAttackerStatusComponent()
 	return OwnerStatusComp;
 }
 
+void UAttackSystemComponent::HitStop(AActor* TargetActor)
+{
+	AActor* Owner = GetOwner();
+
+	if (!Owner)
+	{
+		return;
+	}
+
+	Owner->CustomTimeDilation = 0.0f;
+
+	if (!TargetActor)
+	{
+		return;
+	}
+
+	TargetActor->CustomTimeDilation = 0.0f;
+
+	GetWorld()->GetTimerManager().SetTimer(
+		Timer,
+		[this, Owner, TargetActor]()
+		{
+			if (!IsValid(Owner))
+			{
+				return;
+			}
+
+			Owner->CustomTimeDilation = 1.0f;
+
+			if (!IsValid(TargetActor))
+			{
+				return;
+			}
+
+			TargetActor->CustomTimeDilation = 1.0f;
+		},
+		HitStopDelayTime,
+		false);
+}
+
+// Parry Setter
+void UAttackSystemComponent::SetPreAttackStartTime(float NewTime)
+{
+	PreAttackStart = NewTime;
+}
+
+void UAttackSystemComponent::SetPreAttackEndTime(float NewTime)
+{
+	PreAttackEnd = NewTime;
+}
+
+void UAttackSystemComponent::SetPlayerParryInputTime(float NewTime)
+{
+	PlayerParryInput = NewTime;
+}
 

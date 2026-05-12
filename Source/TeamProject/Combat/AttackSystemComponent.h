@@ -23,11 +23,37 @@ private:
 	UPROPERTY()
 	UStatusComponent* OwnerStatusComp;
 
-public:	
+	FTimerHandle Timer;
+
+public:
+	UPROPERTY(EditDefaultsOnly, Category = "HitStop")
+	float HitStopDelayTime = 0.05f;
+
+private:
+	float PreAttackStart;
+	float PreAttackEnd;
+	float PlayerParryInput;
+
+public:
 	UFUNCTION(BlueprintCallable)
 	void ApplyDamage(AActor* TargetActor);
 
-private:
 	UFUNCTION(BlueprintCallable)
+	void CheckParry();
+
+private:
+	void HitStop(AActor* TargetActor);
+
 	UStatusComponent* GetAttackerStatusComponent();
+
+public:
+	// Parry Setter
+	UFUNCTION(BlueprintCallable)
+	void SetPreAttackStartTime(float NewTime);
+
+	UFUNCTION(BlueprintCallable)
+	void SetPreAttackEndTime(float NewTime);
+
+	UFUNCTION(BlueprintCallable)
+	void SetPlayerParryInputTime(float NewTime);
 };
