@@ -7,7 +7,6 @@
 #include "AttackSystemComponent.generated.h"
 
 class UStatusComponent;
-class UPrimitiveComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class TEAMPROJECT_API UAttackSystemComponent : public UActorComponent
@@ -28,6 +27,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ApplyDamage(AActor* TargetActor);
 
+private:
 	UFUNCTION(BlueprintCallable)
 	UStatusComponent* GetAttackerStatusComponent();
 };
