@@ -3,6 +3,8 @@
 
 #include "Combat/AttackSystemComponent.h"
 #include "Combat/StatusComponent.h"
+#include "PrototypeXMob.h"
+#include "Kismet/GameplayStatics.h"
 
 UAttackSystemComponent::UAttackSystemComponent()
 {
@@ -40,28 +42,42 @@ void UAttackSystemComponent::ApplyDamage(AActor* TargetActor)
 	HitStop(TargetActor);
 }
 
-void UAttackSystemComponent::CheckParry(AActor* TargetActor)
+void UAttackSystemComponent::CheckParry()
 {
-	if (!TargetActor)
-	{
-		return;
-	}
-	
-	UAttackSystemComponent* TargetAttackSystemComp = TargetActor->FindComponentByClass<UAttackSystemComponent>();
+	TArray<AActor*> Mob; 
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APrototypeXMob::StaticClass(), Mob);
 
-	if (!TargetAttackSystemComp)
+	if (Mob.IsEmpty())
 	{
 		return;
 	}
 
-	if (TargetAttackSystemComp->bIsParryWindowOpen)
-	{
-		OnParrySuccess.Broadcast();
-	}
-	
-	else
+	UAttackSystemComponent* MobAttackSystemComp = Mob[0]->GetComponentByClass<UAttackSystemComponent>();
+
+	if (!MobAttackSystemComp)
 	{
 		return;
+	}
+	
+	AActor* Owner = GetOwner();
+
+	if (!Owner)
+	{
+		return;
+	}
+
+	if (FVector::Dist(Mob[0]->GetActorLocation(), Owner->GetActorLocation()) <= ParryRange)
+	{
+		if (MobAttackSystemComp->bIsParryWindowOpen)
+		{
+			OnParrySuccess.Broadcast();
+			UE_LOG(LogTemp, Warning, TEXT("Your Parry Success!"))
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Your Parry Failed!"))
+				return;
+		}
 	}
 }
 

@@ -29,7 +29,7 @@ private:
 
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "HitStop")
-	float HitStopDelayTime = 0.05f;
+	float HitStopDelayTime = 0.2f;
 
 	UPROPERTY(BlueprintAssignable, Category = "Parry")
 	FOnParrySuccessSignature OnParrySuccess;
@@ -37,12 +37,15 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Parry")
 	bool bIsParryWindowOpen;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Parry")
+	float ParryRange = 150.0f;
+
 public:
 	UFUNCTION(BlueprintCallable)
 	void ApplyDamage(AActor* TargetActor);
 
 	UFUNCTION(BlueprintCallable)
-	void CheckParry(AActor* TargetActor);
+	void CheckParry();
 
 private:
 	void HitStop(AActor* TargetActor);

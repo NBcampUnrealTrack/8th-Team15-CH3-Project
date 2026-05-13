@@ -360,7 +360,6 @@ void APrototypeXCharacter::Jump_Stop(const FInputActionValue& value)
 
 void APrototypeXCharacter::Parry(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("TargetLockActor: %s"), TargetLockActor ? TEXT("Valid") : TEXT("Null"));
 	UAttackSystemComponent* MyAttackSystemComp = GetComponentByClass<UAttackSystemComponent>();
 
 	if (!MyAttackSystemComp)
@@ -368,7 +367,7 @@ void APrototypeXCharacter::Parry(const FInputActionValue& Value)
 		return;
 	}
 
-	MyAttackSystemComp->CheckParry(TargetLockActor);
+	MyAttackSystemComp->CheckParry();
 }
 
 void APrototypeXCharacter::SetPlayerMode(EPlayerMode NewMode)
