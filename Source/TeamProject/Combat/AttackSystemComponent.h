@@ -6,6 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "AttackSystemComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnParrySuccessSignature);
+
 class UStatusComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -29,17 +31,18 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "HitStop")
 	float HitStopDelayTime = 0.05f;
 
-private:
-	float PreAttackStart;
-	float PreAttackEnd;
-	float PlayerParryInput;
+	UPROPERTY(BlueprintAssignable, Category = "Parry")
+	FOnParrySuccessSignature OnParrySuccess;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Parry")
+	bool bIsParryWindowOpen;
 
 public:
 	UFUNCTION(BlueprintCallable)
 	void ApplyDamage(AActor* TargetActor);
 
 	UFUNCTION(BlueprintCallable)
-	void CheckParry();
+	void CheckParry(AActor* TargetActor);
 
 private:
 	void HitStop(AActor* TargetActor);
@@ -47,13 +50,6 @@ private:
 	UStatusComponent* GetAttackerStatusComponent();
 
 public:
-	// Parry Setter
-	UFUNCTION(BlueprintCallable)
-	void SetPreAttackStartTime(float NewTime);
-
-	UFUNCTION(BlueprintCallable)
-	void SetPreAttackEndTime(float NewTime);
-
-	UFUNCTION(BlueprintCallable)
-	void SetPlayerParryInputTime(float NewTime);
+	UFUNCTION(BlueprintCallable, Category = "Parry")
+	void SetbIsParryWindowOpen(bool bOpen);
 };

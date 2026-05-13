@@ -40,9 +40,29 @@ void UAttackSystemComponent::ApplyDamage(AActor* TargetActor)
 	HitStop(TargetActor);
 }
 
-void UAttackSystemComponent::CheckParry()
+void UAttackSystemComponent::CheckParry(AActor* TargetActor)
 {
+	if (!TargetActor)
+	{
+		return;
+	}
+	
+	UAttackSystemComponent* TargetAttackSystemComp = TargetActor->FindComponentByClass<UAttackSystemComponent>();
 
+	if (!TargetAttackSystemComp)
+	{
+		return;
+	}
+
+	if (TargetAttackSystemComp->bIsParryWindowOpen)
+	{
+		OnParrySuccess.Broadcast();
+	}
+	
+	else
+	{
+		return;
+	}
 }
 
 UStatusComponent* UAttackSystemComponent::GetAttackerStatusComponent()
@@ -102,19 +122,7 @@ void UAttackSystemComponent::HitStop(AActor* TargetActor)
 		false);
 }
 
-// Parry Setter
-void UAttackSystemComponent::SetPreAttackStartTime(float NewTime)
+void UAttackSystemComponent::SetbIsParryWindowOpen(bool bOpen)
 {
-	PreAttackStart = NewTime;
+	bIsParryWindowOpen = bOpen;
 }
-
-void UAttackSystemComponent::SetPreAttackEndTime(float NewTime)
-{
-	PreAttackEnd = NewTime;
-}
-
-void UAttackSystemComponent::SetPlayerParryInputTime(float NewTime)
-{
-	PlayerParryInput = NewTime;
-}
-

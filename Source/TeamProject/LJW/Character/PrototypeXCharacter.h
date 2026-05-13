@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
@@ -73,6 +73,8 @@ protected:
 	void Jump_Start(const FInputActionValue& value);
 	virtual void Landed(const FHitResult& Hit) override;
 	void Jump_Stop(const FInputActionValue& value);
+
+	void Parry(const FInputActionValue& Value);
 	// enum =======================
 	UFUNCTION(BlueprintCallable, Category = "Mode")
 	void SetPlayerMode(EPlayerMode NewMode);

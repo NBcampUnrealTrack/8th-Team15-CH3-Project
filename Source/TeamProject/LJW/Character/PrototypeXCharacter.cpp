@@ -9,6 +9,8 @@
 #include "EnhancedInputComponent.h"
 #include "LJW/Controller/PrototypeXPlayerController.h"
 
+#include "Combat/AttackSystemComponent.h"
+
 #include "Kismet/KismetMathLibrary.h"
 
 APrototypeXCharacter::APrototypeXCharacter()
@@ -200,7 +202,7 @@ void APrototypeXCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 			}
 
 			if (PlayerController->IA_Sprint)
-	
+			{
 				EnhancedInput->BindAction(
 					PlayerController->IA_Sprint,
 					ETriggerEvent::Triggered,
@@ -241,6 +243,17 @@ void APrototypeXCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 					ETriggerEvent::Triggered,
 					this,
 					&APrototypeXCharacter::ItemUse_Start
+				);
+
+			}
+
+			if (PlayerController->IA_Parry)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->IA_Parry,
+					ETriggerEvent::Triggered,
+					this,
+					&APrototypeXCharacter::Parry
 				);
 			}
 		}
@@ -343,6 +356,19 @@ void APrototypeXCharacter::Landed(const FHitResult& Hit)
 
 void APrototypeXCharacter::Jump_Stop(const FInputActionValue& value)
 {
+}
+
+void APrototypeXCharacter::Parry(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("TargetLockActor: %s"), TargetLockActor ? TEXT("Valid") : TEXT("Null"));
+	UAttackSystemComponent* MyAttackSystemComp = GetComponentByClass<UAttackSystemComponent>();
+
+	if (!MyAttackSystemComp)
+	{
+		return;
+	}
+
+	MyAttackSystemComp->CheckParry(TargetLockActor);
 }
 
 void APrototypeXCharacter::SetPlayerMode(EPlayerMode NewMode)
