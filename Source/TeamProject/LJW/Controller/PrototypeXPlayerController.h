@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
@@ -39,8 +39,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
 	TObjectPtr<UInputAction> IA_ItemUse;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
-	TObjectPtr<UInputAction> IA_Parry;
+
 protected:
 	virtual void BeginPlay() override;
 
