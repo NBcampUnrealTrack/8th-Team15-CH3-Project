@@ -28,9 +28,11 @@ private:
 	FTimerHandle Timer;
 
 public:
+	// Hit Stop
 	UPROPERTY(EditDefaultsOnly, Category = "HitStop")
 	float HitStopDelayTime = 0.2f;
 
+	// Parry
 	UPROPERTY(BlueprintAssignable, Category = "Parry")
 	FOnParrySuccessSignature OnParrySuccess;
 
@@ -40,19 +42,42 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Parry")
 	float ParryRange = 150.0f;
 
+	// Hit
+	UPROPERTY()
+	FVector WeaponFirstPoint;
+
+	UPROPERTY()
+	TSet<AActor*> HitActors;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Hit")
+	float HitTraceSphereRadius = 5.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Hit")
+	bool bIsTracing = false;
+
 public:
 	UFUNCTION(BlueprintCallable)
-	void ApplyDamage(AActor* TargetActor);
+	void CheckParry();
 
 	UFUNCTION(BlueprintCallable)
-	void CheckParry();
+	void PerformHitTrace(FName SocketName);
+
+	UFUNCTION(BlueprintCallable)
+	void BeginAttackTrace();
+
+	UFUNCTION(BlueprintCallable)
+	void EndAttackTrace();
+
 
 private:
 	void HitStop(AActor* TargetActor);
 
+	void ApplyDamage(AActor* TargetActor);
+
 	UStatusComponent* GetAttackerStatusComponent();
 
 public:
+	// Setter
 	UFUNCTION(BlueprintCallable, Category = "Parry")
 	void SetbIsParryWindowOpen(bool bOpen);
 };

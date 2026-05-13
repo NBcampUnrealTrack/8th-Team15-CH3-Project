@@ -4,6 +4,8 @@
 #include "Combat/AttackSystemComponent.h"
 #include "Combat/StatusComponent.h"
 #include "PrototypeXMob.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
 
 UAttackSystemComponent::UAttackSystemComponent()
@@ -80,6 +82,58 @@ void UAttackSystemComponent::CheckParry()
 		}
 	}
 }
+
+void UAttackSystemComponent::PerformHitTrace(FName SocketName)
+{
+	if (!bIsTracing)
+	{
+		return;
+	}
+
+	USkeletalMeshComponent* OwnerSkeletalMeshComp = GetOwner()->GetComponentByClass<USkeletalMeshComponent>();
+
+	if (!OwnerSkeletalMeshComp)
+	{
+		return;
+	}
+
+	FVector CurrentPoint = OwnerSkeletalMeshComp->GetSocketLocation(SocketName);
+
+	TArray<AActor*> IgnoreActors;
+	IgnoreActors.Add(GetOwner());
+
+	FHitResult HitResult;
+
+	bool bHit = UKismetSystemLibrary::SphereTraceSingle(GetWorld(), WeaponFirstPoint, CurrentPoint, 
+		HitTraceSphereRadius, TraceTypeQuery1, false, IgnoreActors, EDrawDebugTrace::ForDuration, HitResult, true);
+
+	if (bHit)
+	{
+		if (HitActors.Contains(HitResult.GetActor()))
+		{
+			return;
+		}
+		
+		HitActors.Add(HitResult.GetActor());
+
+		ApplyDamage(HitResult.GetActor());
+	}
+
+	WeaponFirstPoint = CurrentPoint;
+}
+
+void UAttackSystemComponent::BeginAttackTrace()
+{
+	HitActors.Empty();
+	bIsTracing = true;
+}
+
+void UAttackSystemComponent::EndAttackTrace()
+{
+	bIsTracing = false;
+}
+
+
 
 UStatusComponent* UAttackSystemComponent::GetAttackerStatusComponent()
 {
