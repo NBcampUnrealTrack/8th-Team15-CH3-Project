@@ -9,8 +9,6 @@
 #include "EnhancedInputComponent.h"
 #include "LJW/Controller/PrototypeXPlayerController.h"
 
-#include "Combat/AttackSystemComponent.h"
-
 #include "Kismet/KismetMathLibrary.h"
 
 APrototypeXCharacter::APrototypeXCharacter()
@@ -244,17 +242,6 @@ void APrototypeXCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 					this,
 					&APrototypeXCharacter::ItemUse_Start
 				);
-
-			}
-
-			if (PlayerController->IA_Parry)
-			{
-				EnhancedInput->BindAction(
-					PlayerController->IA_Parry,
-					ETriggerEvent::Triggered,
-					this,
-					&APrototypeXCharacter::Parry
-				);
 			}
 		}
 	}
@@ -356,18 +343,6 @@ void APrototypeXCharacter::Landed(const FHitResult& Hit)
 
 void APrototypeXCharacter::Jump_Stop(const FInputActionValue& value)
 {
-}
-
-void APrototypeXCharacter::Parry(const FInputActionValue& Value)
-{
-	UAttackSystemComponent* MyAttackSystemComp = GetComponentByClass<UAttackSystemComponent>();
-
-	if (!MyAttackSystemComp)
-	{
-		return;
-	}
-
-	MyAttackSystemComp->CheckParry();
 }
 
 void APrototypeXCharacter::SetPlayerMode(EPlayerMode NewMode)
