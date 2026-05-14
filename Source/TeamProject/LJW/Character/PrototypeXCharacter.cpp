@@ -1,5 +1,4 @@
 ﻿#include "LJW/Character/PrototypeXCharacter.h"
-#include "TeamProject/LJW/GameUtilHeader/GameUtil.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -24,16 +23,15 @@ APrototypeXCharacter::APrototypeXCharacter()
 	SkeletalMeshComponent->SetRelativeLocation(PivotLocation);
 
 	// 계층 구조 설정: SpringArm을 Root에 부착하고 Absolute Rotation 설정
-	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
+	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent_0"));
 	SpringArmComponent->SetupAttachment(RootComponent);
 	SpringArmComponent->TargetArmLength = 300.f;
-	SpringArmComponent->bUsePawnControlRotation = true; // 컨트롤러 회전 사용
-	SpringArmComponent->SetUsingAbsoluteRotation(true); // 캐릭터 회전에 카메라 축이 뒤틀리지 않게 고정
+	//SpringArmComponent->bUsePawnControlRotation = true; // 컨트롤러 회전 사용
+	 // 캐릭터 회전에 카메라 축이 뒤틀리지 않게 고정
 
 	// CameraComponent의 bUsePawnControlRotation은 반드시 false (SpringArm이 회전을 주도함)
-	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
+	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent_0"));
 	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
-	CameraComponent->bUsePawnControlRotation = false;
 
 	Inter_LookAmountX = 0;
 	Inter_LookAmountY = 0;
@@ -289,7 +287,7 @@ void APrototypeXCharacter::Look(const FInputActionValue& value)
 		}
 		if (!FMath::IsNearlyZero(LookAmount.Y))
 		{
-			AddControllerPitchInput(-LookAmount.Y);
+			AddControllerPitchInput(LookAmount.Y);
 		}
 		break;
 	case EPlayerMode::Attack:
@@ -324,7 +322,7 @@ void APrototypeXCharacter::Sprint_Stop(const FInputActionValue& value)
 
 void APrototypeXCharacter::Jump_Start(const FInputActionValue& value)
 {
-	if (IsRollingMontagePlaying) return;
+	if (IsRollingMontagePlaying || bIsAttacking) return;
 	UE_LOG(LogTemp, Warning, TEXT("Jumping"));
 	bIsOnJumpping = true;
 	Jump();
@@ -372,14 +370,17 @@ void APrototypeXCharacter::ApplyNormalModeSettings()
 	GetCharacterMovement()->MaxAcceleration = 1200.f;
 
 	// 스프링암 설정 (카메라만 컨트롤러 회전을 따름)
+	//SpringArmComponent->SetUsingAbsoluteRotation(true);
+
 	SpringArmComponent->bUsePawnControlRotation = true;
 	SpringArmComponent->bInheritPitch = true;
 	SpringArmComponent->bInheritYaw = true;
 	SpringArmComponent->bInheritRoll = false;
 
-	SpringArmComponent->bEnableCameraRotationLag = true;
-	SpringArmComponent->CameraRotationLagSpeed = 10.f;
+	//SpringArmComponent->bEnableCameraRotationLag = true;
+	//SpringArmComponent->CameraRotationLagSpeed = 10.f;
 
+	CameraComponent->bUsePawnControlRotation = false;
 	//============================================================================================
 	MouseSensibiliy = 0.5f;
 	Normal_Speed = 450.f;
@@ -408,7 +409,7 @@ void APrototypeXCharacter::ApplyAttackModeSettings()
 	SpringArmComponent->bInheritRoll = false;
 
 	SpringArmComponent->bEnableCameraLag = false;
-	SpringArmComponent->CameraLagSpeed = 8.f;
+	//SpringArmComponent->CameraLagSpeed = 8.f;
 	//============================================================================================
 	MouseSensibiliy = 0.5f;
 	Normal_Speed = 450.f;
