@@ -9,6 +9,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnParrySuccessSignature);
 
 class UStatusComponent;
+class UStaticMeshComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class TEAMPROJECT_API UAttackSystemComponent : public UActorComponent
@@ -55,18 +56,27 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Hit")
 	bool bIsTracing = false;
 
+	UPROPERTY(EditAnywhere, Category = "Hit")
+	FName WeaponTag = FName(TEXT("Weapon"));
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit")
+	TWeakObjectPtr<UStaticMeshComponent> CurrentWeapon;
+
 public:
 	UFUNCTION(BlueprintCallable)
 	void CheckParry();
 
 	UFUNCTION(BlueprintCallable)
-	void PerformHitTrace(FName SocketName);
+	void PerformHitTrace(FVector point1, FVector point2);
 
 	UFUNCTION(BlueprintCallable)
 	void BeginAttackTrace();
 
 	UFUNCTION(BlueprintCallable)
 	void EndAttackTrace();
+
+	UFUNCTION()
+	TWeakObjectPtr<UActorComponent> GetWeapon();
 
 
 private:

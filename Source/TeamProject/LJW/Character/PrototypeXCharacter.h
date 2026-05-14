@@ -1,10 +1,11 @@
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "PrototypeXCharacter.generated.h"
 
 class UCapsuleComponent;
+class UStaticMeshComponent;
 class USkeletalMeshComponent;
 class USpringArmComponent;
 class UCameraComponent;
@@ -26,7 +27,6 @@ class TEAMPROJECT_API APrototypeXCharacter : public ACharacter
 
 public:
 	APrototypeXCharacter();
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	TObjectPtr<UCapsuleComponent> UCapsuleComponent;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")

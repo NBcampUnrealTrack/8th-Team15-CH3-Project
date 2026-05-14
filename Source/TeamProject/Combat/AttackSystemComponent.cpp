@@ -7,6 +7,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/StaticMeshComponent.h"
 
 UAttackSystemComponent::UAttackSystemComponent()
 {
@@ -17,6 +18,7 @@ void UAttackSystemComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	CurrentWeapon = Cast<UStaticMeshComponent>(GetWeapon());
 }
 
 void UAttackSystemComponent::ApplyDamage(AActor* TargetActor)
@@ -83,29 +85,30 @@ void UAttackSystemComponent::CheckParry()
 	}
 }
 
-void UAttackSystemComponent::PerformHitTrace(FName SocketName)
+void UAttackSystemComponent::PerformHitTrace(FVector point1, FVector point2)
 {
 	if (!bIsTracing)
 	{
 		return;
 	}
+	UE_LOG(LogTemp, Warning, TEXT("1"));
+	UStaticMeshComponent* OwnerStaticMeshComp = GetOwner()->GetComponentByClass<UStaticMeshComponent>();
 
-	USkeletalMeshComponent* OwnerSkeletalMeshComp = GetOwner()->GetComponentByClass<USkeletalMeshComponent>();
-
-	if (!OwnerSkeletalMeshComp)
+	if (!OwnerStaticMeshComp)
 	{
 		return;
 	}
 
-	FVector CurrentPoint = OwnerSkeletalMeshComp->GetSocketLocation(SocketName);
+	FVector CurrentPoint = point1;
+	FVector TargetPoint = point2;
 
 	TArray<AActor*> IgnoreActors;
 	IgnoreActors.Add(GetOwner());
 
 	FHitResult HitResult;
 
-	bool bHit = UKismetSystemLibrary::SphereTraceSingle(GetWorld(), WeaponFirstPoint, CurrentPoint, 
-		HitTraceSphereRadius, TraceTypeQuery1, false, IgnoreActors, EDrawDebugTrace::ForDuration, HitResult, true);
+	bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), CurrentPoint, 
+		TargetPoint, TraceTypeQuery1, false, IgnoreActors, EDrawDebugTrace::ForDuration, HitResult, true);
 
 	if (bHit)
 	{
@@ -131,6 +134,22 @@ void UAttackSystemComponent::BeginAttackTrace()
 void UAttackSystemComponent::EndAttackTrace()
 {
 	bIsTracing = false;
+}
+
+TWeakObjectPtr<UActorComponent> UAttackSystemComponent::GetWeapon()
+{
+	TArray<UActorComponent*> Weapon;
+	
+	TArray<UActorComponent*> MyWeapon = GetOwner()->GetComponentsByTag(UStaticMeshComponent::StaticClass(), WeaponTag);
+
+	if (MyWeapon.Num())
+	{
+		TWeakObjectPtr<UActorComponent> TempWeapon = MyWeapon[0];
+
+		return TempWeapon;
+	}
+
+	return nullptr;
 }
 
 UStatusComponent* UAttackSystemComponent::GetAttackerStatusComponent()
