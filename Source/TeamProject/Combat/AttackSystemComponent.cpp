@@ -4,6 +4,7 @@
 #include "Combat/AttackSystemComponent.h"
 #include "Combat/StatusComponent.h"
 #include "PrototypeXMob.h"
+#include "LJW/Character/PrototypeXCharacter.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
@@ -43,7 +44,11 @@ void UAttackSystemComponent::ApplyDamage(AActor* TargetActor)
 	}
 
 	TargetStatusComp->ReceiveDamage(AttackerStatusComp->GetATK());
-	HitStop(TargetActor);
+
+	if (Cast<APrototypeXCharacter>(GetOwner()))
+	{
+		HitStop(TargetActor);
+	}
 }
 
 void UAttackSystemComponent::CheckParry()
@@ -108,7 +113,7 @@ void UAttackSystemComponent::PerformHitTrace(FVector point1, FVector point2)
 	FHitResult HitResult;
 
 	bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), CurrentPoint, 
-		TargetPoint, TraceTypeQuery1, false, IgnoreActors, EDrawDebugTrace::ForDuration, HitResult, true);
+		TargetPoint, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false, IgnoreActors, EDrawDebugTrace::ForDuration, HitResult, true);
 
 	if (bHit)
 	{
@@ -178,35 +183,38 @@ void UAttackSystemComponent::HitStop(AActor* TargetActor)
 		return;
 	}
 
-	Owner->CustomTimeDilation = 0.0f;
-
-	if (!TargetActor)
+	if (Cast<APrototypeXCharacter>(Owner))
 	{
-		return;
-	}
+		Owner->CustomTimeDilation = 0.0f;
 
-	TargetActor->CustomTimeDilation = 0.0f;
-
-	GetWorld()->GetTimerManager().SetTimer(
-		Timer,
-		[this, Owner, TargetActor]()
+		if (!TargetActor)
 		{
-			if (!IsValid(Owner))
+			return;
+		}
+
+		TargetActor->CustomTimeDilation = 0.0f;
+
+		GetWorld()->GetTimerManager().SetTimer(
+			Timer,
+			[this, Owner, TargetActor]()
 			{
-				return;
-			}
+				if (!IsValid(Owner))
+				{
+					return;
+				}
 
-			Owner->CustomTimeDilation = 1.0f;
+				Owner->CustomTimeDilation = 1.0f;
 
-			if (!IsValid(TargetActor))
-			{
-				return;
-			}
+				if (!IsValid(TargetActor))
+				{
+					return;
+				}
 
-			TargetActor->CustomTimeDilation = 1.0f;
-		},
-		HitStopDelayTime,
-		false);
+				TargetActor->CustomTimeDilation = 1.0f;
+			},
+			HitStopDelayTime,
+			false);
+	}
 }
 
 void UAttackSystemComponent::SetbIsParryWindowOpen(bool bOpen)
