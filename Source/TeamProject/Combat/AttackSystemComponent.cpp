@@ -96,7 +96,7 @@ void UAttackSystemComponent::PerformHitTrace(FVector point1, FVector point2)
 	{
 		return;
 	}
-	UE_LOG(LogTemp, Warning, TEXT("1"));
+
 	UStaticMeshComponent* OwnerStaticMeshComp = GetOwner()->GetComponentByClass<UStaticMeshComponent>();
 
 	if (!OwnerStaticMeshComp)
