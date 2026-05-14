@@ -133,8 +133,6 @@ void UAttackSystemComponent::EndAttackTrace()
 	bIsTracing = false;
 }
 
-
-
 UStatusComponent* UAttackSystemComponent::GetAttackerStatusComponent()
 {
 	AActor* Owner = GetOwner();
