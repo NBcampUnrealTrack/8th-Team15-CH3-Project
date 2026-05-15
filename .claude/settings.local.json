@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git show-branch *)",
+      "Bash(git ls-tree *)"
+    ]
+  }
+}

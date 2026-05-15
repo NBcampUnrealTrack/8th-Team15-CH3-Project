@@ -11,7 +11,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnParrySuccessSignature);
 class UStatusComponent;
 class UStaticMeshComponent;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS( ClassGroup=(Custom), Blueprintable, meta=(BlueprintSpawnableComponent) )
 class TEAMPROJECT_API UAttackSystemComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -33,6 +33,21 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "HitStop")
 	float HitStopDelayTime = 0.2f;
 
+	// Hit Slow
+	UPROPERTY(EditDefaultsOnly, Category = "HitStop")
+	float HitSlowDelayTime = 0.2f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "HitStop")
+	float HitSlowPlayerTime = 0.3f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "HitStop")
+	float HitSlowMobTime = 0.3f;
+
+private:
+	UPROPERTY()
+	TMap<AActor*, FTimerHandle> HitSlowTimers;
+
+public:
 	// Parry
 	UPROPERTY(BlueprintAssignable, Category = "Parry")
 	FOnParrySuccessSignature OnParrySuccess;
@@ -43,15 +58,15 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Parry")
 	float ParryRange = 150.0f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Parry")
+	float ParryDamageMultiplier = 3.0f;
+
 	// Hit
 	UPROPERTY()
 	FVector WeaponFirstPoint;
 
 	UPROPERTY()
 	TSet<AActor*> HitActors;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Hit")
-	float HitTraceSphereRadius = 5.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Hit")
 	bool bIsTracing = false;
@@ -78,13 +93,19 @@ public:
 	UFUNCTION()
 	TWeakObjectPtr<UActorComponent> GetWeapon();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void CameraShake();
 
 private:
 	void HitStop(AActor* TargetActor);
 
-	void ApplyDamage(AActor* TargetActor);
+	void HitSlow(AActor* TargetActor);
+
+	void ApplyDamage(AActor* TargetActor, float ParryDamageMultipiler = 1.0f);
 
 	UStatusComponent* GetAttackerStatusComponent();
+
+	AActor* FindClosestActor(TArray<AActor*> Actors);
 
 public:
 	// Setter

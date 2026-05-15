@@ -5,10 +5,9 @@
 #include "Combat/StatusComponent.h"
 #include "PrototypeXMob.h"
 #include "LJW/Character/PrototypeXCharacter.h"
-#include "Components/SkeletalMeshComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
-#include "Components/StaticMeshComponent.h"
 
 UAttackSystemComponent::UAttackSystemComponent()
 {
@@ -22,7 +21,7 @@ void UAttackSystemComponent::BeginPlay()
 	CurrentWeapon = Cast<UStaticMeshComponent>(GetWeapon());
 }
 
-void UAttackSystemComponent::ApplyDamage(AActor* TargetActor)
+void UAttackSystemComponent::ApplyDamage(AActor* TargetActor, float ParryDamageMultipiler)
 {
 	if (!TargetActor)
 	{
@@ -43,11 +42,11 @@ void UAttackSystemComponent::ApplyDamage(AActor* TargetActor)
 		return;
 	}
 
-	TargetStatusComp->ReceiveDamage(AttackerStatusComp->GetATK());
+	TargetStatusComp->ReceiveDamage(AttackerStatusComp->GetATK() * ParryDamageMultipiler);
 
 	if (Cast<APrototypeXCharacter>(GetOwner()))
 	{
-		HitStop(TargetActor);
+		HitSlow(TargetActor);
 	}
 }
 
@@ -61,7 +60,14 @@ void UAttackSystemComponent::CheckParry()
 		return;
 	}
 
-	UAttackSystemComponent* MobAttackSystemComp = Mob[0]->GetComponentByClass<UAttackSystemComponent>();
+	AActor* ClosestMob = FindClosestActor(Mob);
+
+	if (!ClosestMob)
+	{
+		return;
+	}
+
+	UAttackSystemComponent* MobAttackSystemComp = ClosestMob->GetComponentByClass<UAttackSystemComponent>();
 
 	if (!MobAttackSystemComp)
 	{
@@ -75,17 +81,18 @@ void UAttackSystemComponent::CheckParry()
 		return;
 	}
 
-	if (FVector::Dist(Mob[0]->GetActorLocation(), Owner->GetActorLocation()) <= ParryRange)
+	if (FVector::Dist(ClosestMob->GetActorLocation(), Owner->GetActorLocation()) <= ParryRange)
 	{
 		if (MobAttackSystemComp->bIsParryWindowOpen)
 		{
 			OnParrySuccess.Broadcast();
+			ApplyDamage(ClosestMob, ParryDamageMultiplier);
 			UE_LOG(LogTemp, Warning, TEXT("Your Parry Success!"))
 		}
 		else
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Your Parry Failed!"))
-				return;
+			return;
 		}
 	}
 }
@@ -124,6 +131,7 @@ void UAttackSystemComponent::PerformHitTrace(FVector point1, FVector point2)
 		
 		HitActors.Add(HitResult.GetActor());
 
+		CameraShake();
 		ApplyDamage(HitResult.GetActor());
 	}
 
@@ -217,7 +225,84 @@ void UAttackSystemComponent::HitStop(AActor* TargetActor)
 	}
 }
 
+void UAttackSystemComponent::HitSlow(AActor* TargetActor)
+{
+	AActor* Owner = GetOwner();
+
+	if (!Owner)
+	{
+		return;
+	}
+
+	if (Cast<APrototypeXCharacter>(Owner))
+	{
+		Owner->CustomTimeDilation = HitSlowPlayerTime;
+
+		if (!TargetActor)
+		{
+			return;
+		}
+
+		TargetActor->CustomTimeDilation = HitSlowMobTime;
+
+		GetWorld()->GetTimerManager().ClearTimer(HitSlowTimers.FindOrAdd(TargetActor));
+
+		GetWorld()->GetTimerManager().SetTimer(
+			HitSlowTimers.FindOrAdd(TargetActor),
+			[this, Owner, TargetActor]()
+			{
+				if (!IsValid(this))
+				{
+					return;
+				}
+
+				UE_LOG(LogTemp, Warning, TEXT("Call!"))
+
+				if (!IsValid(Owner))
+				{
+					return;
+				}
+
+				Owner->CustomTimeDilation = 1.0f;
+
+				if (!IsValid(TargetActor))
+				{
+					UE_LOG(LogTemp, Warning, TEXT("TargetActor Not Valid"))
+					return;
+				}
+
+				TargetActor->CustomTimeDilation = 1.0f;
+			},
+			HitSlowDelayTime,
+			false);
+	}
+}
+
+
 void UAttackSystemComponent::SetbIsParryWindowOpen(bool bOpen)
 {
 	bIsParryWindowOpen = bOpen;
+}
+
+AActor* UAttackSystemComponent::FindClosestActor(TArray<AActor*> Actors)
+{
+	if (Actors.IsEmpty())
+	{
+		return nullptr;
+	}
+
+	AActor* FindActor = Actors[0];
+	float FindRange = FVector::Dist(Actors[0]->GetActorLocation(), GetOwner()->GetActorLocation());
+
+	for (int i = 1; i < Actors.Num(); ++i)
+	{
+		if (FindRange > FVector::Dist(Actors[i]->GetActorLocation(), GetOwner()->GetActorLocation()))
+		{
+			FindRange = FVector::Dist(Actors[i]->GetActorLocation(), GetOwner()->GetActorLocation());
+			FindActor = Actors[i];
+		}
+
+	}
+
+	return FindActor;
 }
