@@ -96,6 +96,16 @@ float UStatusComponent::GetATK() const
 	return ATK;
 }
 
+float UStatusComponent::GetStamina() const
+{
+	return Stamina;
+}
+
+float UStatusComponent::GetMaxStamina() const
+{
+	return MaxStamina;
+}
+
 // setter
 void UStatusComponent::SetHP(float NewHP)
 {
@@ -107,9 +117,4 @@ void UStatusComponent::SetHP(float NewHP)
 void UStatusComponent::SetATK(float NewATK)
 {
 	ATK = NewATK;
-}
-
-float UStatusComponent::GetHPRatio() const
-{
-	return MaxHP > 0.f ? HP / MaxHP : 0.f;
 }

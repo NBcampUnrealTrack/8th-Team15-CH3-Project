@@ -91,8 +91,11 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Health")
 	float GetATK() const;
 
-	UFUNCTION(BlueprintPure, Category = "Health")
-	float GetHPRatio() const;
+	UFUNCTION(BlueprintCallable, Category = "Statmina")
+	float GetStamina() const;
+
+	UFUNCTION(BlueprintCallable)
+	float GetMaxStamina() const;
 
 	// setter
 	UFUNCTION(BlueprintCallable, Category = "Health")
