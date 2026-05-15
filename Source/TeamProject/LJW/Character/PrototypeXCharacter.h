@@ -1,11 +1,10 @@
-﻿#pragma once
+#pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "PrototypeXCharacter.generated.h"
 
 class UCapsuleComponent;
-class UStaticMeshComponent;
 class USkeletalMeshComponent;
 class USpringArmComponent;
 class UCameraComponent;
@@ -13,6 +12,8 @@ class UCameraComponent;
 struct FInputActionValue;
 
 class UAnimMontage;
+
+class UStatusComponent;
 
 UENUM(BlueprintType)
 enum class EPlayerMode : uint8
@@ -27,6 +28,7 @@ class TEAMPROJECT_API APrototypeXCharacter : public ACharacter
 
 public:
 	APrototypeXCharacter();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	TObjectPtr<UCapsuleComponent> UCapsuleComponent;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
@@ -43,6 +45,9 @@ public:
 
 	float MouseSensibiliy;
 	// ================================
+	UPROPERTY()
+	FTimerHandle RunningTimeCheck;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Velocitys|Speed")
 	float Normal_Speed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Velocitys|Speed")
@@ -59,6 +64,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "States|Attack")
 	bool bIsAttacking = false;
 
+	float TargetLagSpeed = 10.f;
+	bool OnLagSpeed = false;
+
+	// ==================================
+
+	UPROPERTY()
+	UStatusComponent* StatusComponent;
 protected:
 	virtual void BeginPlay() override;
 	void Move_Start(const FInputActionValue& value);

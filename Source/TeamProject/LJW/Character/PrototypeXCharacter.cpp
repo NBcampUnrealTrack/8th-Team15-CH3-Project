@@ -10,6 +10,8 @@
 
 #include "Kismet/KismetMathLibrary.h"
 
+#include "Combat/StatusComponent.h"
+
 APrototypeXCharacter::APrototypeXCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -43,6 +45,10 @@ void APrototypeXCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	SetPlayerMode(EPlayerMode::Normal);
+
+	StatusComponent = FindComponentByClass<UStatusComponent>();
+	UE_LOG(LogTemp, Log, TEXT("%s"), *StatusComponent->GetName());
+	checkf(StatusComponent, TEXT("Must have StatusComponents"));
 }
 
 void APrototypeXCharacter::ItemUse_Start(const FInputActionValue& value)
@@ -59,7 +65,7 @@ void APrototypeXCharacter::ItemUse_Start(const FInputActionValue& value)
 	GetComponents<UStaticMeshComponent>(MeshComp);
 	for (UStaticMeshComponent* Meshs : MeshComp)
 	{
-		if (Meshs->GetName() == TEXT("Sword"))
+		if (Meshs->GetName() == TEXT("SwordComponent"))
 		{
 			SwordComp = Meshs;
 			break;
@@ -115,6 +121,10 @@ void APrototypeXCharacter::ApplyRollingAtMode(EPlayerMode InMode)
 			SetActorRotation(DesiredDir.Rotation());
 			//DesiredDir방향(Rotation) 회전하라(SetActorRotation)
 
+			// ============================ STEMINA =================================
+			StatusComponent->ConsumeStamina(13.f);
+			// ============================ STEMINA =================================
+
 			Animbackground->Montage_Play(RollMontage);
 			IsRollingMontagePlaying = true;
 			// 싱글 델리게이트
@@ -141,6 +151,25 @@ void APrototypeXCharacter::RollingMontageEnd(UAnimMontage* Montage, bool bInterr
 void APrototypeXCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (OnLagSpeed)
+	{
+		SpringArmComponent->CameraLagSpeed = FMath::FInterpTo(
+			SpringArmComponent->CameraLagSpeed,
+			TargetLagSpeed,
+			DeltaTime,
+			12.0f 
+		);
+
+		if (SpringArmComponent->CameraLagSpeed > 49.f)
+		{
+			SpringArmComponent->bEnableCameraLag = false;
+			OnLagSpeed = false;
+		}
+	}
+
+
+
 }
 
 void APrototypeXCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -201,7 +230,7 @@ void APrototypeXCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 			{
 				EnhancedInput->BindAction(
 					PlayerController->IA_Sprint,
-					ETriggerEvent::Triggered,
+					ETriggerEvent::Started,
 					this,
 					&APrototypeXCharacter::Sprint_Start
 				);
@@ -313,11 +342,35 @@ void APrototypeXCharacter::Roll_Stop(const FInputActionValue& value)
 void APrototypeXCharacter::Sprint_Start(const FInputActionValue& value)
 {
 	GetCharacterMovement()->MaxWalkSpeed = Sprint_Speed;
+	SpringArmComponent->bEnableCameraLag = true;
+	TargetLagSpeed = 10.f;
+	OnLagSpeed = true;
+
+	// ========================== STEMINA ==============================
+	GetWorldTimerManager().SetTimer(
+		RunningTimeCheck,
+		[this]()
+		{
+			if (StatusComponent)
+			{
+				StatusComponent->ConsumeStamina(2.f);
+			}
+		},
+		1.0f,
+		true
+	);
+	// ========================== STEMINA ==============================
+
 }
 
 void APrototypeXCharacter::Sprint_Stop(const FInputActionValue& value)
 {
 	GetCharacterMovement()->MaxWalkSpeed = Normal_Speed;
+	TargetLagSpeed = 50.f;
+
+	// ========================== STEMINA ==============================
+	GetWorldTimerManager().ClearTimer(RunningTimeCheck);
+	// ========================== STEMINA ==============================
 }
 
 void APrototypeXCharacter::Jump_Start(const FInputActionValue& value)
@@ -325,6 +378,9 @@ void APrototypeXCharacter::Jump_Start(const FInputActionValue& value)
 	if (IsRollingMontagePlaying || bIsAttacking) return;
 	UE_LOG(LogTemp, Warning, TEXT("Jumping"));
 	bIsOnJumpping = true;
+	// ======================== Stemina =============================
+	StatusComponent->ConsumeStamina(10.f);
+	// ======================== Stemina =============================
 	Jump();
 }
 
@@ -366,6 +422,7 @@ void APrototypeXCharacter::ApplyNormalModeSettings()
 
 	// 이동 방향으로 캐릭터가 자동으로 회전하도록 설정
 	GetCharacterMovement()->bOrientRotationToMovement = true; // 핵심: 입력 방향으로 몸을 돌림
+	//GetCharacterMovement()->bUseControllerDesiredRotation = false;
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 540.f, 0.f); // 회전 속도
 	GetCharacterMovement()->MaxAcceleration = 1200.f;
 
@@ -400,7 +457,7 @@ void APrototypeXCharacter::ApplyAttackModeSettings()
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	// 컨트롤러의 회전을 finterp로 적용 ( 메쉬가 부드럽게 회전하며 컨트롤러의 정면방향으로 set )
 	GetCharacterMovement()->bUseControllerDesiredRotation = true;
-	GetCharacterMovement()->RotationRate = FRotator(0.f, 740.f, 0.f); // 회전 속도
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 900.f, 0.f); // 회전 속도
 	GetCharacterMovement()->MaxAcceleration = 1200.f;
 
 	SpringArmComponent->bUsePawnControlRotation = true;
