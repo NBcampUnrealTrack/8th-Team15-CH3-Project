@@ -85,6 +85,14 @@ protected:
 	void Jump_Start(const FInputActionValue& value);
 	virtual void Landed(const FHitResult& Hit) override;
 	void Jump_Stop(const FInputActionValue& value);
+
+	void Defence_Start(const FInputActionValue& value);
+	void Defence_Ended(UAnimMontage* Montage, bool bInterrupted);
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "States|Defence")
+	UAnimMontage* DefenceMontage;
+	bool bIsOnDefencing = false;
+	//void Defence_Stop(const FInputActionValue& value);
+
 	// enum =======================
 	UFUNCTION(BlueprintCallable, Category = "Mode")
 	void SetPlayerMode(EPlayerMode NewMode);
@@ -112,6 +120,7 @@ protected:
 	TArray<UAnimMontage*> ItemUseMontage;
 
 	void ItemUse_Start(const FInputActionValue& value);
+	void ItemUse_End(UAnimMontage*, bool bInterrupted, UStaticMeshComponent* GetSwordComp);
 	bool IsItemUsing = false;
 
 	//================================

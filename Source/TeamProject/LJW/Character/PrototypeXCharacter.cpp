@@ -53,7 +53,7 @@ void APrototypeXCharacter::BeginPlay()
 
 void APrototypeXCharacter::ItemUse_Start(const FInputActionValue& value)
 {
-	if (IsRollingMontagePlaying || bIsAttacking || bIsOnJumpping) return;
+	if (IsRollingMontagePlaying || bIsAttacking || bIsOnJumpping || IsItemUsing) return;
 
 	UAnimInstance* Animbackground = GetMesh()->GetAnimInstance();
 	if (!ensureMsgf(Animbackground, TEXT("Invalid AnimInstance"))) return;
@@ -73,21 +73,27 @@ void APrototypeXCharacter::ItemUse_Start(const FInputActionValue& value)
 	}
 	if (ensureMsgf(SwordComp, TEXT("SwordSocket is Invalid")))
 	{
-
-		// item load
-		//
-		// 
-		// 
-		// SwordComp->SetHiddenInGame(true);
-		// 
 		// =============
+		SwordComp->SetHiddenInGame(true);
+		//static ConstructorHelpers::FObjectFinder<UStaticMesh> Potion
+		//SwordComp->SetStaticMesh(UStaticMesh* StaticMesh);
 		Animbackground->Montage_Play(ItemUseMontage[0]);
 		IsItemUsing = true;
+
+		FOnMontageEnded EndDelegate;
+		EndDelegate.BindUObject(this, &APrototypeXCharacter::ItemUse_End, SwordComp);
+		Animbackground->Montage_SetEndDelegate(EndDelegate, ItemUseMontage[0]);
 	}
 	else
 	{
 		return;
 	}
+}
+
+void APrototypeXCharacter::ItemUse_End(UAnimMontage*, bool bInterrupted, UStaticMeshComponent* GetSwordComp)
+{
+	IsItemUsing = false;
+	GetSwordComp->SetHiddenInGame(false);
 }
 
 void APrototypeXCharacter::ApplyRollingAtMode(EPlayerMode InMode)
@@ -261,6 +267,16 @@ void APrototypeXCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 			}
 
+			if (PlayerController->IA_Defence)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->IA_Defence,
+					ETriggerEvent::Started,
+					this,
+					&APrototypeXCharacter::Defence_Start
+				);
+			}
+
 			if (PlayerController->IA_ItemUse)
 			{
 				EnhancedInput->BindAction(
@@ -375,7 +391,7 @@ void APrototypeXCharacter::Sprint_Stop(const FInputActionValue& value)
 
 void APrototypeXCharacter::Jump_Start(const FInputActionValue& value)
 {
-	if (IsRollingMontagePlaying || bIsAttacking) return;
+	if (IsRollingMontagePlaying || bIsAttacking || bIsOnDefencing) return;
 	UE_LOG(LogTemp, Warning, TEXT("Jumping"));
 	bIsOnJumpping = true;
 	// ======================== Stemina =============================
@@ -397,6 +413,26 @@ void APrototypeXCharacter::Landed(const FHitResult& Hit)
 
 void APrototypeXCharacter::Jump_Stop(const FInputActionValue& value)
 {
+}
+
+void APrototypeXCharacter::Defence_Start(const FInputActionValue& value)
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (!ensureMsgf(AnimInstance, TEXT("None AnimInstance"))) return;
+	if (bIsOnDefencing || IsRollingMontagePlaying || bIsOnJumpping) return;
+	// =========================== STEMINA ==============================
+	StatusComponent->ConsumeStamina(15.f);
+	// =========================== STEMINA ==============================
+	bIsOnDefencing = true;
+	AnimInstance->Montage_Play(DefenceMontage);
+	FOnMontageEnded EndDelegate;
+	EndDelegate.BindUObject(this, &APrototypeXCharacter::Defence_Ended);
+	AnimInstance->Montage_SetEndDelegate(EndDelegate, DefenceMontage);
+}
+
+void APrototypeXCharacter::Defence_Ended(UAnimMontage* Montage, bool bInterrupted)
+{
+	bIsOnDefencing = false;
 }
 
 void APrototypeXCharacter::SetPlayerMode(EPlayerMode NewMode)
