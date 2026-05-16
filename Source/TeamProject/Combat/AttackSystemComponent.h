@@ -29,38 +29,6 @@ private:
 	FTimerHandle Timer;
 
 public:
-	// Hit Stop
-	UPROPERTY(EditDefaultsOnly, Category = "HitStop")
-	float HitStopDelayTime = 0.2f;
-
-	// Hit Slow
-	UPROPERTY(EditDefaultsOnly, Category = "HitStop")
-	float HitSlowDelayTime = 0.2f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "HitStop")
-	float HitSlowPlayerTime = 0.3f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "HitStop")
-	float HitSlowMobTime = 0.3f;
-
-private:
-	UPROPERTY()
-	TMap<AActor*, FTimerHandle> HitSlowTimers;
-
-public:
-	// Parry
-	UPROPERTY(BlueprintAssignable, Category = "Parry")
-	FOnParrySuccessSignature OnParrySuccess;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Parry")
-	bool bIsParryWindowOpen;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Parry")
-	float ParryRange = 150.0f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Parry")
-	float ParryDamageMultiplier = 3.0f;
-
 	// Hit
 	UPROPERTY()
 	FVector WeaponFirstPoint;
@@ -76,6 +44,44 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit")
 	TWeakObjectPtr<UStaticMeshComponent> CurrentWeapon;
+
+	// Hit Stop
+	UPROPERTY(EditDefaultsOnly, Category = "HitStop")
+	bool bUseHitStop = false;
+
+	UPROPERTY(EditDefaultsOnly, Category = "HitStop")
+	float HitStopDelayTime = 0.2f;
+
+	// Hit Slow
+	UPROPERTY(EditDefaultsOnly, Category = "HitSlow")
+	bool bUseHitSlow = false;
+
+	UPROPERTY(EditDefaultsOnly, Category = "HitSlow")
+	float HitSlowDelayTime = 0.2f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "HitSlow")
+	float HitSlowPlayerTime = 0.3f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "HitSlow")
+	float HitSlowMobTime = 0.3f;
+
+private:
+	UPROPERTY()
+	TMap<AActor*, FTimerHandle> HitSlowTimers;
+
+public:
+	// Parry
+	UPROPERTY(BlueprintAssignable, Category = "Parry")
+	FOnParrySuccessSignature OnParrySuccess;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Parry")
+	float ParryRange = 150.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Parry")
+	float ParryDamageMultiplier = 3.0f;
+
+private:
+	bool bIsParryWindowOpen;
 
 public:
 	UFUNCTION(BlueprintCallable)

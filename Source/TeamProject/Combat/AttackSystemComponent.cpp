@@ -46,7 +46,14 @@ void UAttackSystemComponent::ApplyDamage(AActor* TargetActor, float ParryDamageM
 
 	if (Cast<APrototypeXCharacter>(GetOwner()))
 	{
-		HitSlow(TargetActor);
+		if (bUseHitStop)
+		{
+			HitStop(TargetActor);
+		}
+		if (bUseHitSlow)
+		{
+			HitSlow(TargetActor);
+		}
 	}
 }
 
@@ -245,13 +252,17 @@ void UAttackSystemComponent::HitSlow(AActor* TargetActor)
 
 		TargetActor->CustomTimeDilation = HitSlowMobTime;
 
-		GetWorld()->GetTimerManager().ClearTimer(HitSlowTimers.FindOrAdd(TargetActor));
+		FTimerHandle& Handle = HitSlowTimers.FindOrAdd(TargetActor);
+
+		GetWorld()->GetTimerManager().ClearTimer(Handle);
+
+		TWeakObjectPtr<UAttackSystemComponent> WeakThis(this);
 
 		GetWorld()->GetTimerManager().SetTimer(
-			HitSlowTimers.FindOrAdd(TargetActor),
-			[this, Owner, TargetActor]()
+			Handle,
+			[WeakThis, Owner, TargetActor]()
 			{
-				if (!IsValid(this))
+				if (!WeakThis.IsValid())
 				{
 					return;
 				}
