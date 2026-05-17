@@ -40,4 +40,6 @@ public:
 
 	UFUNCTION()
 	virtual FName GetItemID() const = 0;
+	UFUNCTION()
+	virtual void SetItemID(FName NewItemID) = 0;
 };

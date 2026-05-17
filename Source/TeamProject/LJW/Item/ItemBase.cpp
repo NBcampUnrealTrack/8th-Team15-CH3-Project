@@ -3,8 +3,12 @@
 #include "Components/SceneComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "NiagaraComponent.h"
+#include "NiagaraSystem.h"
 #include "LJW/Character/PrototypeXCharacter.h"
 #include "LJW/Item/ItemDatatable.h"
+#include "LJW/Item/ActorBagComponent.h"
+#include "MainGameInstance.h"
 AItemBase::AItemBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -12,6 +16,7 @@ AItemBase::AItemBase()
 
 	SceneComponent = GameUtil::CreateRootComponet<USceneComponent>(this);
 	StaticMeshComponent = GameUtil::CreateComponent<UStaticMeshComponent>(this);
+	NiagaraComponent = GameUtil::CreateComponent<UNiagaraComponent>(this);
 	Magnetic_SphereComponent = GameUtil::CreateComponent<USphereComponent>(this);
 	Magnetic_SphereComponent->SetSphereRadius(200.f);
 	Activate_SphereComponent = GameUtil::CreateComponent<USphereComponent>(this);
@@ -62,8 +67,11 @@ void AItemBase::OnActivateSphereOverlap(
 void AItemBase::ActivateItem(AActor* Activator)
 {
 	// ~~ add inventory
-
-
+	if (UActorBagComponent* ActivatorInventory = Activator->FindComponentByClass<UActorBagComponent>())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Activate Item: %s"), *this->GetName());
+		ActivatorInventory->AddItemintoBag(ItemID);
+	}
 	Destroy();
 }
 
@@ -72,37 +80,45 @@ FName AItemBase::GetItemID() const
 	return ItemID;
 }
 
-void AItemBase::OnConstruction(const FTransform& Transform)
+void AItemBase::SetItemID(FName NewItemID)
 {
-	Super::OnConstruction(Transform);
-	// Set Item Using DataTable;
-	if (!ItemDataTable) return;
+	ItemID = NewItemID;
+}
 
-	FString ContextString(TEXT("Not Found Item"));
-	FItemDatatable* FoundRow = ItemDataTable->FindRow<FItemDatatable>(ItemID, ContextString);
-
-	if (FoundRow)
+void AItemBase::UpdateItemAppearance()
+{
+	if (UMainGameInstance* GameInstance = Cast<UMainGameInstance>(GetGameInstance()))
 	{
-		// 찾아온 알맹이 데이터 적용
-		StaticMeshComponent->SetStaticMesh(FoundRow->ItemMesh.LoadSynchronous());
+		if (UDataTable* ItemDataTables = GameInstance->ItemDataTable)
+		{
+			FString ContextString(TEXT("BeginPlay Read"));
+			FItemDatatable* FoundRow = ItemDataTables->FindRow<FItemDatatable>(ItemID, ContextString);
+			UE_LOG(LogTemp, Warning, TEXT("DatatableValid"));
+			if (FoundRow)
+			{
+				if (FoundRow->ItemMesh)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("GET MESH"));
+					bMagneticOnOff = FoundRow->MagneticOnOff;
+					StaticMeshComponent->SetStaticMesh(FoundRow->ItemMesh.LoadSynchronous());
+				}
+				else
+				{
+					UE_LOG(LogTemp, Warning, TEXT("GET NIAGARA"));
+					bMagneticOnOff = FoundRow->MagneticOnOff;
+					UNiagaraSystem* LoadNiagara = FoundRow->ItemEffect.LoadSynchronous();
+					NiagaraComponent->SetAsset(LoadNiagara);
+					NiagaraComponent->Activate(true);
+				}
+			}
+		}
 	}
-
 }
 
 void AItemBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (ItemDataTable)
-	{
-		FString ContextString(TEXT("BeginPlay Read"));
-		FItemDatatable* FoundRow = ItemDataTable->FindRow<FItemDatatable>(ItemID, ContextString);
-
-		if (FoundRow)
-		{
-			bMagneticOnOff = FoundRow->MagneticOnOff;
-		}
-	}
 }
 
 void AItemBase::Tick(float DeltaTime)
@@ -124,7 +140,7 @@ void AItemBase::ItemToPlayerVinterP(float DeltaSeconds)
 	FVector TargetLocation = TargetPlayer->GetActorLocation();
 	//FVector TargetDir = (TargetLocation - NowLocation).GetSafeNormal();
 	//SetActorLocation(NowLocation + TargetDir * CurrentMageticSpeed * DeltaSeconds);
-	CurrentMageticSpeed += (5.f * DeltaSeconds);
+	CurrentMageticSpeed += (1.f * DeltaSeconds);
 	SetActorLocation(FMath::VInterpTo(
 		NowLocation,
 		TargetLocation,

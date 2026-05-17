@@ -10,6 +10,11 @@ enum class EItemType : uint8
 	EQUIPMENT
 };
 
+class UStaticMesh;
+class UNiagaraSystem;
+class UTexture2D;
+class USoundBase;
+
 USTRUCT(BlueprintType)
 struct FItemDatatable: public FTableRowBase
 {
@@ -25,6 +30,8 @@ public:
 	bool MagneticOnOff;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Visual")
 	TSoftObjectPtr<UStaticMesh> ItemMesh;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Visual")
+	TSoftObjectPtr<UNiagaraSystem> ItemEffect;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Visual")
 	TSoftObjectPtr<UTexture2D> ItemIcon;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")

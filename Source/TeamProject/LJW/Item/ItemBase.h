@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "NiagaraComponent.h"
 #include "LJW/Item/ItemInterface.h"
 #include "ItemBase.generated.h"
 
@@ -19,13 +20,15 @@ class TEAMPROJECT_API AItemBase
 public:	
 	AItemBase();
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<USceneComponent> SceneComponent;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UStaticMeshComponent> StaticMeshComponent;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UNiagaraComponent> NiagaraComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<USphereComponent> Magnetic_SphereComponent;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<USphereComponent> Activate_SphereComponent;
 
 	virtual void OnMagneticSphereOverlap(
@@ -52,18 +55,14 @@ public:
 	float CurrentMageticSpeed = 2.f;
 
 	virtual FName GetItemID() const override;
+	virtual void SetItemID(FName NewItemID) override;
 
-	virtual void OnConstruction(const FTransform& Transform) override;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Setting")
-	TObjectPtr<UDataTable> ItemDataTable;
+	void UpdateItemAppearance();
 protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName ItemID;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Amount;
 
 	bool bMagneticOnOff = false;
 };
