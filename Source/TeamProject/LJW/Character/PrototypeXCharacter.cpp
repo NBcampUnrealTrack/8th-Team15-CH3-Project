@@ -318,6 +318,23 @@ void APrototypeXCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	}
 }
 
+void APrototypeXCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	if (APrototypeXPlayerController* PC = Cast<APrototypeXPlayerController>(NewController))
+	{
+		CachedCameraManager = PC->PlayerCameraManager;
+	}
+}
+
+void APrototypeXCharacter::UnPossessed()
+{
+	Super::UnPossessed();
+
+	CachedCameraManager = nullptr;
+}
+
 void APrototypeXCharacter::Move_Start(const FInputActionValue& value)
 {
 	if (!Controller) return;
@@ -500,8 +517,14 @@ void APrototypeXCharacter::ApplyNormalModeSettings()
 
 	//SpringArmComponent->bEnableCameraRotationLag = true;
 	//SpringArmComponent->CameraRotationLagSpeed = 10.f;
-
+	// ======================== CAMERA MANAGER =============================
 	CameraComponent->bUsePawnControlRotation = false;
+	if (CachedCameraManager)
+	{
+		CachedCameraManager->ViewPitchMax = 30.f;
+		CachedCameraManager->ViewPitchMin = -60.f;
+	}
+	// ======================== CAMERA MANAGER =============================
 	//============================================================================================
 	MouseSensibiliy = 0.5f;
 	Normal_Speed = 450.f;
@@ -531,6 +554,11 @@ void APrototypeXCharacter::ApplyAttackModeSettings()
 
 	SpringArmComponent->bEnableCameraLag = false;
 	//SpringArmComponent->CameraLagSpeed = 8.f;
+	if (CachedCameraManager)
+	{
+		CachedCameraManager->ViewPitchMin = -89.9f;
+		CachedCameraManager->ViewPitchMax = 89.9f;
+	}
 	//============================================================================================
 	MouseSensibiliy = 0.5f;
 	Normal_Speed = 450.f;

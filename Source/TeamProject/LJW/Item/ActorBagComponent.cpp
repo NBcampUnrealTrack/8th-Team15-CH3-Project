@@ -6,6 +6,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "LJW/Item/ItemBase.h"
 #include "LJW/Character/PrototypeXCharacter.h"
+
 UActorBagComponent::UActorBagComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
