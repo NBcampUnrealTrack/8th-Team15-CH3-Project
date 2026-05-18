@@ -52,7 +52,12 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	void ItemToPlayerVinterP(float DeltaSeconds);
 	AActor* TargetPlayer = nullptr;
+
+	bool TakeTwoVinterp = false;
 	float CurrentMageticSpeed = 2.f;
+
+	bool TakeOneVinterp = true;
+	float ReverseCurrentMageticSpeed = 4.f;
 
 	virtual FName GetItemID() const override;
 	virtual void SetItemID(FName NewItemID) override;
