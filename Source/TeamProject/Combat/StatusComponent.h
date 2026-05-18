@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Engine/DataTable.h"
 #include "StatusComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathSignature);
@@ -23,7 +24,7 @@ protected:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, 
 		FActorComponentTickFunction* ThisTickFunction) override;
-
+// Status
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Health")
 	float HP;
@@ -38,10 +39,10 @@ private:
 	float Stamina;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Stamina")
-	float RegenStaminaValue = 20.0f;
+	float MaxStamina = 100.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Stamina")
-	float MaxStamina = 100.0f;
+	float RegenStaminaValue = 20.0f;
 
 	float StaminaRegenDelay;
 
@@ -76,6 +77,17 @@ public:
 
 private:
 	void ResetRegenDelay();
+
+// DataTable
+public:
+	UPROPERTY(EditDefaultsOnly, Category = "DataTable")
+	UDataTable* StatTable;
+
+	UPROPERTY(EditDefaultsOnly, Category = "DataTable")
+	FName RowName;
+
+private:
+	void InitializeFromDataTable();
 
 public:
 	// Getter 

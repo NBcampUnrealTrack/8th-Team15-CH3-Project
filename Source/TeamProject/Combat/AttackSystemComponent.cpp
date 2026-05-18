@@ -3,6 +3,7 @@
 
 #include "Combat/AttackSystemComponent.h"
 #include "Combat/StatusComponent.h"
+#include "Combat/DataTable/AttackStatRow.h"
 #include "PrototypeXMob.h"
 #include "LJW/Character/PrototypeXCharacter.h"
 #include "Components/StaticMeshComponent.h"
@@ -19,15 +20,71 @@ void UAttackSystemComponent::BeginPlay()
 	Super::BeginPlay();
 	
 	CurrentWeapon = Cast<UStaticMeshComponent>(GetWeapon());
+
+	InitializeFromDataTable();
+}
+
+void UAttackSystemComponent::PerformHitTrace(FVector point1, FVector point2)
+{
+	if (!bIsTracing)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("bIsTracing is false!"));
+		return;
+	}
+	UE_LOG(LogTemp, Warning, TEXT("bIsTracing is true!"));
+	UStaticMeshComponent* OwnerStaticMeshComp = GetOwner()->GetComponentByClass<UStaticMeshComponent>();
+
+	if (!OwnerStaticMeshComp)
+	{
+		return;
+	}
+
+	FVector CurrentPoint = point1;
+	FVector TargetPoint = point2;
+
+	TArray<AActor*> IgnoreActors;
+	IgnoreActors.Add(GetOwner());
+
+	FHitResult HitResult;
+
+	bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), CurrentPoint,
+		TargetPoint, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false, IgnoreActors, EDrawDebugTrace::ForDuration, HitResult, true);
+
+	if (bHit)
+	{
+		if (HitActors.Contains(HitResult.GetActor()))
+		{
+			return;
+		}
+
+		HitActors.Add(HitResult.GetActor());
+
+		CameraShake();
+		ApplyDamage(HitResult.GetActor());
+	}
+
+	WeaponFirstPoint = CurrentPoint;
+}
+
+void UAttackSystemComponent::BeginAttackTrace()
+{
+	HitActors.Empty();
+	bIsTracing = true;
+}
+
+void UAttackSystemComponent::EndAttackTrace()
+{
+	bIsTracing = false;
 }
 
 void UAttackSystemComponent::ApplyDamage(AActor* TargetActor, float ParryDamageMultipiler)
 {
 	if (!TargetActor)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("ApplyDamage Call Failed"));
 		return;
 	}
-
+	UE_LOG(LogTemp, Warning, TEXT("ApplyDamage Called!"));
 	UStatusComponent* TargetStatusComp = TargetActor->FindComponentByClass<UStatusComponent>();
 
 	if (!TargetStatusComp)
@@ -57,109 +114,10 @@ void UAttackSystemComponent::ApplyDamage(AActor* TargetActor, float ParryDamageM
 	}
 }
 
-void UAttackSystemComponent::CheckParry()
-{
-	TArray<AActor*> Mob; 
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APrototypeXMob::StaticClass(), Mob);
-
-	if (Mob.IsEmpty())
-	{
-		return;
-	}
-
-	AActor* ClosestMob = FindClosestActor(Mob);
-
-	if (!ClosestMob)
-	{
-		return;
-	}
-
-	UAttackSystemComponent* MobAttackSystemComp = ClosestMob->GetComponentByClass<UAttackSystemComponent>();
-
-	if (!MobAttackSystemComp)
-	{
-		return;
-	}
-	
-	AActor* Owner = GetOwner();
-
-	if (!Owner)
-	{
-		return;
-	}
-
-	if (FVector::Dist(ClosestMob->GetActorLocation(), Owner->GetActorLocation()) <= ParryRange)
-	{
-		if (MobAttackSystemComp->bIsParryWindowOpen)
-		{
-			OnParrySuccess.Broadcast();
-			ApplyDamage(ClosestMob, ParryDamageMultiplier);
-			UE_LOG(LogTemp, Warning, TEXT("Your Parry Success!"))
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Your Parry Failed!"))
-			return;
-		}
-	}
-}
-
-void UAttackSystemComponent::PerformHitTrace(FVector point1, FVector point2)
-{
-	if (!bIsTracing)
-	{
-		return;
-	}
-
-	UStaticMeshComponent* OwnerStaticMeshComp = GetOwner()->GetComponentByClass<UStaticMeshComponent>();
-
-	if (!OwnerStaticMeshComp)
-	{
-		return;
-	}
-
-	FVector CurrentPoint = point1;
-	FVector TargetPoint = point2;
-
-	TArray<AActor*> IgnoreActors;
-	IgnoreActors.Add(GetOwner());
-
-	FHitResult HitResult;
-
-	bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), CurrentPoint, 
-		TargetPoint, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false, IgnoreActors, EDrawDebugTrace::ForDuration, HitResult, true);
-
-	if (bHit)
-	{
-		if (HitActors.Contains(HitResult.GetActor()))
-		{
-			return;
-		}
-		
-		HitActors.Add(HitResult.GetActor());
-
-		CameraShake();
-		ApplyDamage(HitResult.GetActor());
-	}
-
-	WeaponFirstPoint = CurrentPoint;
-}
-
-void UAttackSystemComponent::BeginAttackTrace()
-{
-	HitActors.Empty();
-	bIsTracing = true;
-}
-
-void UAttackSystemComponent::EndAttackTrace()
-{
-	bIsTracing = false;
-}
-
 TWeakObjectPtr<UActorComponent> UAttackSystemComponent::GetWeapon()
 {
 	TArray<UActorComponent*> Weapon;
-	
+
 	TArray<UActorComponent*> MyWeapon = GetOwner()->GetComponentsByTag(UStaticMeshComponent::StaticClass(), WeaponTag);
 
 	if (MyWeapon.Num())
@@ -289,10 +247,51 @@ void UAttackSystemComponent::HitSlow(AActor* TargetActor)
 	}
 }
 
-
-void UAttackSystemComponent::SetbIsParryWindowOpen(bool bOpen)
+void UAttackSystemComponent::CheckParry()
 {
-	bIsParryWindowOpen = bOpen;
+	TArray<AActor*> Mob;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APrototypeXMob::StaticClass(), Mob);
+
+	if (Mob.IsEmpty())
+	{
+		return;
+	}
+
+	AActor* ClosestMob = FindClosestActor(Mob);
+
+	if (!ClosestMob)
+	{
+		return;
+	}
+
+	UAttackSystemComponent* MobAttackSystemComp = ClosestMob->GetComponentByClass<UAttackSystemComponent>();
+
+	if (!MobAttackSystemComp)
+	{
+		return;
+	}
+
+	AActor* Owner = GetOwner();
+
+	if (!Owner)
+	{
+		return;
+	}
+
+	if (FVector::Dist(ClosestMob->GetActorLocation(), Owner->GetActorLocation()) <= ParryRange)
+	{
+		if (MobAttackSystemComp->bIsParryWindowOpen)
+		{
+			OnParrySuccess.Broadcast();
+			ApplyDamage(ClosestMob, ParryDamageMultiplier);
+			UE_LOG(LogTemp, Warning, TEXT("Your Parry Success!"))
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Your Parry Failed!"))
+				return;
+		}
+	}
 }
 
 AActor* UAttackSystemComponent::FindClosestActor(TArray<AActor*> Actors)
@@ -317,3 +316,31 @@ AActor* UAttackSystemComponent::FindClosestActor(TArray<AActor*> Actors)
 
 	return FindActor;
 }
+
+void UAttackSystemComponent::SetbIsParryWindowOpen(bool bOpen)
+{
+	bIsParryWindowOpen = bOpen;
+}
+
+void UAttackSystemComponent::InitializeFromDataTable()
+{
+	if (!StatTable)
+	{
+		return;
+	}
+
+	FAttackStatRow* Row = StatTable->FindRow<FAttackStatRow>(RowName, TEXT("Not Find RowName"));
+
+	if (!Row)
+	{
+		return;
+	}
+
+	ParryRange = Row->ParryRange;
+	ParryDamageMultiplier = Row->ParryDamageMultiplier;
+	HitStopDelayTime = Row->HitStopDelayTime;
+	HitSlowDelayTime = Row->HitSlowDelayTime;
+	HitSlowPlayerTime = Row->HitSlowPlayerTime;
+	HitSlowMobTime = Row->HitSlowMobTime;
+}
+

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Engine/DataTable.h"
 #include "AttackSystemComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnParrySuccessSignature);
@@ -22,14 +23,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-private:
-	UPROPERTY()
-	UStatusComponent* OwnerStatusComp;
-
-	FTimerHandle Timer;
-
+// Hit
 public:
-	// Hit
 	UPROPERTY()
 	FVector WeaponFirstPoint;
 
@@ -45,14 +40,45 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit")
 	TWeakObjectPtr<UStaticMeshComponent> CurrentWeapon;
 
-	// Hit Stop
+private:
+	UPROPERTY()
+	UStatusComponent* OwnerStatusComp;
+
+public:
+	UFUNCTION(BlueprintCallable)
+	void PerformHitTrace(FVector point1, FVector point2);
+
+	UFUNCTION(BlueprintCallable)
+	void BeginAttackTrace();
+
+	UFUNCTION(BlueprintCallable)
+	void EndAttackTrace();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void CameraShake();
+
+private:
+	void ApplyDamage(AActor* TargetActor, float ParryDamageMultipiler = 1.0f);
+
+	UFUNCTION()
+	TWeakObjectPtr<UActorComponent> GetWeapon();
+
+	UStatusComponent* GetAttackerStatusComponent();
+
+// Hit Stop
+public:
 	UPROPERTY(EditDefaultsOnly, Category = "HitStop")
 	bool bUseHitStop = false;
 
 	UPROPERTY(EditDefaultsOnly, Category = "HitStop")
 	float HitStopDelayTime = 0.2f;
 
-	// Hit Slow
+private:
+	UFUNCTION()
+	void HitStop(AActor* TargetActor);
+
+// Hit Slow
+public:
 	UPROPERTY(EditDefaultsOnly, Category = "HitSlow")
 	bool bUseHitSlow = false;
 
@@ -66,11 +92,16 @@ public:
 	float HitSlowMobTime = 0.3f;
 
 private:
+	FTimerHandle Timer;
+
 	UPROPERTY()
 	TMap<AActor*, FTimerHandle> HitSlowTimers;
 
+private:
+	void HitSlow(AActor* TargetActor);
+
+// Parry
 public:
-	// Parry
 	UPROPERTY(BlueprintAssignable, Category = "Parry")
 	FOnParrySuccessSignature OnParrySuccess;
 
@@ -87,34 +118,21 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void CheckParry();
 
-	UFUNCTION(BlueprintCallable)
-	void PerformHitTrace(FVector point1, FVector point2);
-
-	UFUNCTION(BlueprintCallable)
-	void BeginAttackTrace();
-
-	UFUNCTION(BlueprintCallable)
-	void EndAttackTrace();
-
-	UFUNCTION()
-	TWeakObjectPtr<UActorComponent> GetWeapon();
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void CameraShake();
-
-private:
-	void HitStop(AActor* TargetActor);
-
-	void HitSlow(AActor* TargetActor);
-
-	void ApplyDamage(AActor* TargetActor, float ParryDamageMultipiler = 1.0f);
-
-	UStatusComponent* GetAttackerStatusComponent();
-
 	AActor* FindClosestActor(TArray<AActor*> Actors);
 
 public:
 	// Setter
 	UFUNCTION(BlueprintCallable, Category = "Parry")
 	void SetbIsParryWindowOpen(bool bOpen);
+
+// DataTable
+public:
+	UPROPERTY(EditDefaultsOnly, Category = "DataTable")
+	UDataTable* StatTable;
+
+	UPROPERTY(EditDefaultsOnly, Category = "DataTable")
+	FName RowName;
+
+private:
+	void InitializeFromDataTable();
 };

@@ -2,6 +2,7 @@
 
 
 #include "Combat/StatusComponent.h"
+#include "Combat/DataTable/CharacterStatRow.h"
 
 UStatusComponent::UStatusComponent()
 {
@@ -11,7 +12,11 @@ UStatusComponent::UStatusComponent()
 void UStatusComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	InitializeFromDataTable();
+
 	HP = MaxHP;
+	OnHPChanged.Broadcast(HP);
 	Stamina = MaxStamina;
 	bIsDead = false;
 }
@@ -42,6 +47,7 @@ void UStatusComponent::ReceiveDamage(float AttackerATK)
 	}
 
 	HP = FMath::Max(HP - AttackerATK, 0.0f);
+	UE_LOG(LogTemp, Warning, TEXT("HP: %f"), HP);
 	OnHPChanged.Broadcast(HP);
 
 	if (HP <= 0.0f)
@@ -73,6 +79,27 @@ void UStatusComponent::RegenStamina(float DeltaTime)
 void UStatusComponent::ResetRegenDelay()
 {
 	StaminaRegenDelay = 0.0f;
+}
+
+void UStatusComponent::InitializeFromDataTable()
+{
+	if (!StatTable)
+	{
+		return;
+	}
+
+	FCharacterStatRow* Row = StatTable->FindRow<FCharacterStatRow>(RowName, TEXT("Not Find RowName"));
+
+	if (!Row)
+	{
+		return;
+	}
+
+	MaxHP = Row->MaxHP;
+	MaxStamina = Row->MaxStamina;
+	RegenStaminaValue = Row->RegenStaminaValue;
+	StaminaRegenDelayTime = Row->StaminaRegenDelayTime;
+	ATK = Row->ATK;
 }
 
 // getter
