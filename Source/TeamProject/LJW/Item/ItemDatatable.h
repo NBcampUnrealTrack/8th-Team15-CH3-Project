@@ -14,6 +14,7 @@ class UStaticMesh;
 class UNiagaraSystem;
 class UTexture2D;
 class USoundBase;
+class UAminMontage;
 
 USTRUCT(BlueprintType)
 struct FItemDatatable: public FTableRowBase
@@ -36,4 +37,6 @@ public:
 	TSoftObjectPtr<UTexture2D> ItemIcon;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
 	TSoftObjectPtr<USoundBase> ItemSound;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+	TSoftObjectPtr<UAnimMontage> UseItemAnim;
 };

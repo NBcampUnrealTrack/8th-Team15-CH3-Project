@@ -11,7 +11,8 @@
 #include "Kismet/KismetMathLibrary.h"
 
 #include "Combat/StatusComponent.h"
-
+#include "LJW/Item/ItemDatatable.h"
+#include "MainGameInstance.h"
 APrototypeXCharacter::APrototypeXCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -51,42 +52,69 @@ void APrototypeXCharacter::BeginPlay()
 	checkf(StatusComponent, TEXT("Must have StatusComponents"));
 }
 
-void APrototypeXCharacter::ItemUse_Start(const FInputActionValue& value)
+//void APrototypeXCharacter::ItemUse_Start(const FInputActionValue& value)
+//{
+//	if (IsRollingMontagePlaying || bIsAttacking || bIsOnJumpping || IsItemUsing) return;
+//
+//	UAnimInstance* Animbackground = GetMesh()->GetAnimInstance();
+//	if (!ensureMsgf(Animbackground, TEXT("Invalid AnimInstance"))) return;
+//
+//	if (!ensureMsgf(ItemUseMontage[0], TEXT("Invalid UseItemMontage"))) return;
+//	// change item?
+//	UStaticMeshComponent* SwordComp = nullptr;
+//	TArray<UStaticMeshComponent*> MeshComp;
+//	GetComponents<UStaticMeshComponent>(MeshComp);
+//	for (UStaticMeshComponent* Meshs : MeshComp)
+//	{
+//		if (Meshs->GetName() == TEXT("SwordComponent"))
+//		{
+//			SwordComp = Meshs;
+//			break;
+//		}
+//	}
+//	if (ensureMsgf(SwordComp, TEXT("SwordSocket is Invalid")))
+//	{
+//		// =============
+//		SwordComp->SetHiddenInGame(true);
+//		//static ConstructorHelpers::FObjectFinder<UStaticMesh> Potion
+//		//SwordComp->SetStaticMesh(UStaticMesh* StaticMesh);
+//		Animbackground->Montage_Play(ItemUseMontage[0]);
+//		IsItemUsing = true;
+//
+//		FOnMontageEnded EndDelegate;
+//		EndDelegate.BindUObject(this, &APrototypeXCharacter::ItemUse_End, SwordComp);
+//		Animbackground->Montage_SetEndDelegate(EndDelegate, ItemUseMontage[0]);
+//	}
+//	else
+//	{
+//		return;
+//	}
+//}
+
+bool APrototypeXCharacter::ItemUse_MontagePlay(FName GetItemID)
 {
-	if (IsRollingMontagePlaying || bIsAttacking || bIsOnJumpping || IsItemUsing) return;
-
-	UAnimInstance* Animbackground = GetMesh()->GetAnimInstance();
-	if (!ensureMsgf(Animbackground, TEXT("Invalid AnimInstance"))) return;
-
-	if (!ensureMsgf(ItemUseMontage[0], TEXT("Invalid UseItemMontage"))) return;
-	// change item?
-	UStaticMeshComponent* SwordComp = nullptr;
-	TArray<UStaticMeshComponent*> MeshComp;
-	GetComponents<UStaticMeshComponent>(MeshComp);
-	for (UStaticMeshComponent* Meshs : MeshComp)
+	if (IsRollingMontagePlaying || bIsAttacking || bIsOnJumpping || IsItemUsing)
 	{
-		if (Meshs->GetName() == TEXT("SwordComponent"))
-		{
-			SwordComp = Meshs;
-			break;
-		}
-	}
-	if (ensureMsgf(SwordComp, TEXT("SwordSocket is Invalid")))
-	{
-		// =============
-		SwordComp->SetHiddenInGame(true);
-		//static ConstructorHelpers::FObjectFinder<UStaticMesh> Potion
-		//SwordComp->SetStaticMesh(UStaticMesh* StaticMesh);
-		Animbackground->Montage_Play(ItemUseMontage[0]);
-		IsItemUsing = true;
-
-		FOnMontageEnded EndDelegate;
-		EndDelegate.BindUObject(this, &APrototypeXCharacter::ItemUse_End, SwordComp);
-		Animbackground->Montage_SetEndDelegate(EndDelegate, ItemUseMontage[0]);
+		// no mongtage play;
+		return false;
 	}
 	else
 	{
-		return;
+		UAnimInstance* Animbackground = GetMesh()->GetAnimInstance();
+		if (!ensureMsgf(Animbackground, TEXT("Invalid AnimInstance"))) return false;
+
+		if (UMainGameInstance* GameInstance = Cast<UMainGameInstance>(GetGameInstance()))
+		{
+			FString DebugString(TEXT("Montage is Invalid When PlayingMontage On Player"));
+			if (FItemDatatable* FoundRow = GameInstance->ItemDataTable->FindRow<FItemDatatable>(GetItemID, DebugString))
+			{
+				if (UAnimMontage* PlayMontage = FoundRow->UseItemAnim.LoadSynchronous())
+				{
+					Animbackground->Montage_Play(PlayMontage);
+				}
+			}
+		}
+		return true;
 	}
 }
 
@@ -253,7 +281,7 @@ void APrototypeXCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 			{
 				EnhancedInput->BindAction(
 					PlayerController->IA_Jump,
-					ETriggerEvent::Triggered,
+					ETriggerEvent::Started,
 					this,
 					&APrototypeXCharacter::Jump_Start
 				);
@@ -277,15 +305,15 @@ void APrototypeXCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 				);
 			}
 
-			if (PlayerController->IA_ItemUse)
-			{
-				EnhancedInput->BindAction(
-					PlayerController->IA_ItemUse,
-					ETriggerEvent::Triggered,
-					this,
-					&APrototypeXCharacter::ItemUse_Start
-				);
-			}
+			//if (PlayerController->IA_ItemUse)
+			//{
+			//	EnhancedInput->BindAction(
+			//		PlayerController->IA_ItemUse,
+			//		ETriggerEvent::Triggered,
+			//		this,
+			//		&APrototypeXCharacter::ItemUse_Start
+			//	);
+			//}
 		}
 	}
 }

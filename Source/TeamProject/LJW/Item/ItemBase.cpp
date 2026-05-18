@@ -136,16 +136,41 @@ void AItemBase::ItemToPlayerVinterP(float DeltaSeconds)
 		SetActorTickEnabled(false);
 		return;
 	}
-	FVector NowLocation = GetActorLocation();
-	FVector TargetLocation = TargetPlayer->GetActorLocation();
-	//FVector TargetDir = (TargetLocation - NowLocation).GetSafeNormal();
-	//SetActorLocation(NowLocation + TargetDir * CurrentMageticSpeed * DeltaSeconds);
-	CurrentMageticSpeed += (1.f * DeltaSeconds);
-	SetActorLocation(FMath::VInterpTo(
-		NowLocation,
-		TargetLocation,
-		DeltaSeconds,
-		CurrentMageticSpeed
-	));
+
+	if (TakeOneVinterp)
+	{
+		FVector NowLocation = GetActorLocation();
+		FVector TargetLocation = TargetPlayer->GetActorLocation();
+
+		FVector Dir = ((TargetLocation - NowLocation).GetSafeNormal2D()) * -1;
+		Dir.Z += 100.f;
+
+		ReverseCurrentMageticSpeed += (1.f * DeltaSeconds);
+
+		SetActorLocation(FMath::VInterpTo(
+			NowLocation,
+			TargetLocation,
+			DeltaSeconds,
+			CurrentMageticSpeed
+		));
+
+		if (FMath::IsNearlyEqual(GetActorLocation().Z, Dir.Z))
+		{
+			TakeOneVinterp = false;
+			TakeTwoVinterp = true;
+		}
+	}
+	if (TakeTwoVinterp)
+	{
+		FVector NowLocation = GetActorLocation();
+		FVector TargetLocation = TargetPlayer->GetActorLocation();
+		CurrentMageticSpeed += (1.f * DeltaSeconds);
+		SetActorLocation(FMath::VInterpTo(
+			NowLocation,
+			TargetLocation,
+			DeltaSeconds,
+			CurrentMageticSpeed
+		));
+	}
 }
 

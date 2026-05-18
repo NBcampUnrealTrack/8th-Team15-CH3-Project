@@ -119,12 +119,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "States|Use")
 	TArray<UAnimMontage*> ItemUseMontage;
 
-	void ItemUse_Start(const FInputActionValue& value);
+	//void ItemUse_Start(const FInputActionValue& value);
 	void ItemUse_End(UAnimMontage*, bool bInterrupted, UStaticMeshComponent* GetSwordComp);
 	bool IsItemUsing = false;
 
 	//================================
 public:	
+	bool ItemUse_MontagePlay(FName GetItemID);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "States|Roll")
 	bool IsRollingMontagePlaying = false;
