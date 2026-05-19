@@ -26,4 +26,10 @@ struct FCharacterStatRow : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float ATK;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float DEF;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Absorption;
+
 };

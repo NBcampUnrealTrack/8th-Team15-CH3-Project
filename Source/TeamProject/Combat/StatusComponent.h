@@ -24,6 +24,7 @@ protected:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, 
 		FActorComponentTickFunction* ThisTickFunction) override;
+
 // Status
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Health")
@@ -34,6 +35,12 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	float ATK = 10.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	float DEF = 5.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	float Absorption = 0.1f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Stamina")
 	float Stamina;
@@ -52,6 +59,7 @@ private:
 	UPROPERTY()
 	bool bIsDead = false;
 
+// DeleGate
 public:
 	UPROPERTY(BlueprintAssignable, Category = "Health")
 	FOnHPChangedSignature OnHPChanged;
@@ -100,19 +108,31 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Health")
 	float GetMaxHP() const;
 
-	UFUNCTION(BlueprintPure, Category = "Health")
+	UFUNCTION(BlueprintPure, Category = "Combat")
 	float GetATK() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Statmina")
+	UFUNCTION(BlueprintPure, Category = "Statmina")
 	float GetStamina() const;
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure, Category = "Stamina")
 	float GetMaxStamina() const;
 
 	// setter
 	UFUNCTION(BlueprintCallable, Category = "Health")
+	void SetbIsDead(bool NewbIsDead);
+
+	UFUNCTION(BlueprintCallable, Category = "Health")
 	void SetHP(float NewHP);
 
 	UFUNCTION(BlueprintCallable, Category = "Health")
+	void SetMaxHP(float NewMaxHP);
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void SetATK(float NewATK);
+
+	UFUNCTION(BlueprintCallable, Category = "Stamina")
+	void SetStamina(float NewStamina);
+
+	UFUNCTION(BlueprintCallable, Category = "Stamina")
+	void SetMaxStamina(float NewMaxStamina);
 };

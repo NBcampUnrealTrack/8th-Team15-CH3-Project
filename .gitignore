@@ -27,3 +27,7 @@ contant/*
 .vs/
 *.ipch
 .vsconfig
+
+# Claude Code
+CLAUDE.md
+.claude/

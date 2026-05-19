@@ -7,10 +7,10 @@
 #include "Engine/DataTable.h"
 #include "AttackSystemComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnParrySuccessSignature);
-
 class UStatusComponent;
 class UStaticMeshComponent;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnParrySuccessSignature);
 
 UCLASS( ClassGroup=(Custom), Blueprintable, meta=(BlueprintSpawnableComponent) )
 class TEAMPROJECT_API UAttackSystemComponent : public UActorComponent
@@ -111,6 +111,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Parry")
 	float ParryDamageMultiplier = 3.0f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Parry")
+	float ParryDotThreshold = 0.7f;
+
 private:
 	bool bIsParryWindowOpen;
 
@@ -121,6 +124,10 @@ public:
 	AActor* FindClosestActor(TArray<AActor*> Actors);
 
 public:
+	// Getter
+	UFUNCTION(BlueprintCallable, Category = "Parry")
+	bool GetbIsParryWindowOpen();
+
 	// Setter
 	UFUNCTION(BlueprintCallable, Category = "Parry")
 	void SetbIsParryWindowOpen(bool bOpen);
