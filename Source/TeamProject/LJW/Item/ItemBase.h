@@ -9,6 +9,7 @@
 class USceneComponent;
 class UStaticMeshComponent;
 class USphereComponent;
+class USoundWave;
 
 UCLASS(ABSTRACT)
 class TEAMPROJECT_API AItemBase
@@ -30,6 +31,8 @@ public:
 	TObjectPtr<USphereComponent> Magnetic_SphereComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<USphereComponent> Activate_SphereComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<USoundWave> ActiveSound;
 
 	virtual void OnMagneticSphereOverlap(
 		UPrimitiveComponent* OverlappedComponent,
@@ -52,7 +55,12 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	void ItemToPlayerVinterP(float DeltaSeconds);
 	AActor* TargetPlayer = nullptr;
+
+	bool TakeTwoVinterp = false;
 	float CurrentMageticSpeed = 2.f;
+
+	bool TakeOneVinterp = true;
+	float ReverseCurrentMageticSpeed = 4.f;
 
 	virtual FName GetItemID() const override;
 	virtual void SetItemID(FName NewItemID) override;
@@ -65,4 +73,8 @@ protected:
 	FName ItemID;
 
 	bool bMagneticOnOff = false;
+	// ============================================
+
+	FVector SpawnLocation;
+	FVector UpVector;
 };

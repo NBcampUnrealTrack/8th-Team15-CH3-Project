@@ -9,6 +9,8 @@
 #include "LJW/Item/ItemDatatable.h"
 #include "LJW/Item/ActorBagComponent.h"
 #include "MainGameInstance.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundWave.h"
 AItemBase::AItemBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -39,6 +41,7 @@ void AItemBase::OnMagneticSphereOverlap(
 	{
 		if (bMagneticOnOff)
 		{
+			UpVector = SpawnLocation + ((SpawnLocation - Player->GetActorLocation()).GetSafeNormal() * 100.f);
 			SetActorTickEnabled(true);
 		}
 		TargetPlayer = Player;
@@ -71,6 +74,7 @@ void AItemBase::ActivateItem(AActor* Activator)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Activate Item: %s"), *this->GetName());
 		ActivatorInventory->AddItemintoBag(ItemID);
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), ActiveSound, GetActorLocation());
 	}
 	Destroy();
 }
@@ -93,23 +97,27 @@ void AItemBase::UpdateItemAppearance()
 		{
 			FString ContextString(TEXT("BeginPlay Read"));
 			FItemDatatable* FoundRow = ItemDataTables->FindRow<FItemDatatable>(ItemID, ContextString);
-			UE_LOG(LogTemp, Warning, TEXT("DatatableValid"));
 			if (FoundRow)
 			{
-				if (FoundRow->ItemMesh)
+
+				UE_LOG(LogTemp, Warning, TEXT("DatatableValid"));
+				UStaticMesh* NewMesh = FoundRow->ItemMesh.LoadSynchronous();
+				if (NewMesh)
 				{
 					UE_LOG(LogTemp, Warning, TEXT("GET MESH"));
-					bMagneticOnOff = FoundRow->MagneticOnOff;
-					StaticMeshComponent->SetStaticMesh(FoundRow->ItemMesh.LoadSynchronous());
+					StaticMeshComponent->SetStaticMesh(NewMesh);
 				}
-				else
+
+				UNiagaraSystem* NewNiagara = FoundRow->ItemEffect.LoadSynchronous();
+				if (NewNiagara)
 				{
 					UE_LOG(LogTemp, Warning, TEXT("GET NIAGARA"));
-					bMagneticOnOff = FoundRow->MagneticOnOff;
-					UNiagaraSystem* LoadNiagara = FoundRow->ItemEffect.LoadSynchronous();
-					NiagaraComponent->SetAsset(LoadNiagara);
+					NiagaraComponent->SetAsset(NewNiagara);
 					NiagaraComponent->Activate(true);
 				}
+
+				bMagneticOnOff = FoundRow->MagneticOnOff;
+
 			}
 		}
 	}
@@ -118,7 +126,7 @@ void AItemBase::UpdateItemAppearance()
 void AItemBase::BeginPlay()
 {
 	Super::BeginPlay();
-
+	SpawnLocation = GetActorLocation();
 }
 
 void AItemBase::Tick(float DeltaTime)
@@ -136,16 +144,38 @@ void AItemBase::ItemToPlayerVinterP(float DeltaSeconds)
 		SetActorTickEnabled(false);
 		return;
 	}
-	FVector NowLocation = GetActorLocation();
-	FVector TargetLocation = TargetPlayer->GetActorLocation();
-	//FVector TargetDir = (TargetLocation - NowLocation).GetSafeNormal();
-	//SetActorLocation(NowLocation + TargetDir * CurrentMageticSpeed * DeltaSeconds);
-	CurrentMageticSpeed += (1.f * DeltaSeconds);
-	SetActorLocation(FMath::VInterpTo(
-		NowLocation,
-		TargetLocation,
-		DeltaSeconds,
-		CurrentMageticSpeed
-	));
+
+	if (TakeOneVinterp)
+	{
+		FVector NowLocation = GetActorLocation();
+		FVector TargetLocation = TargetPlayer->GetActorLocation();
+
+		ReverseCurrentMageticSpeed += (1.f * DeltaSeconds);
+
+		SetActorLocation(FMath::VInterpTo(
+			NowLocation,
+			UpVector,
+			DeltaSeconds,
+			CurrentMageticSpeed
+		));
+
+		if (NowLocation.Z >= (UpVector.Z - 20.f))
+		{
+			TakeOneVinterp = false;
+			TakeTwoVinterp = true;
+		}
+	}
+	if (TakeTwoVinterp)
+	{
+		FVector NowLocation = GetActorLocation();
+		FVector TargetLocation = TargetPlayer->GetActorLocation();
+		CurrentMageticSpeed += (1.f * DeltaSeconds);
+		SetActorLocation(FMath::VInterpTo(
+			NowLocation,
+			TargetLocation,
+			DeltaSeconds,
+			CurrentMageticSpeed
+		));
+	}
 }
 

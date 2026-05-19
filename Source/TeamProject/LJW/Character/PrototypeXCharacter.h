@@ -119,12 +119,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "States|Use")
 	TArray<UAnimMontage*> ItemUseMontage;
 
-	void ItemUse_Start(const FInputActionValue& value);
+	//void ItemUse_Start(const FInputActionValue& value);
 	void ItemUse_End(UAnimMontage*, bool bInterrupted, UStaticMeshComponent* GetSwordComp);
 	bool IsItemUsing = false;
 
 	//================================
 public:	
+	bool ItemUse_MontagePlay(FName GetItemID);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "States|Roll")
 	bool IsRollingMontagePlaying = false;
@@ -132,4 +133,11 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void UnPossessed() override;
+
+private:
+	UPROPERTY()
+	class APlayerCameraManager* CachedCameraManager;
 };

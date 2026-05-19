@@ -5,6 +5,8 @@
 #include "GameFramework/Character.h"
 #include "Components/StaticMeshComponent.h"
 #include "LJW/Item/ItemBase.h"
+#include "LJW/Character/PrototypeXCharacter.h"
+
 UActorBagComponent::UActorBagComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -139,38 +141,36 @@ void UActorBagComponent::UseItemIndexOnUI(int32 ArrayIndex)
 		{
 			if (UStatusComponent* StatusCompoent = GetOwner()->FindComponentByClass<UStatusComponent>())
 			{
-				EItemType ItemType = FoundRow->ItemType;
-
-				switch (ItemType)
+				if (APrototypeXCharacter* Player = Cast<APrototypeXCharacter>(GetOwner()))
 				{
-				case EItemType::POTION:
-					// heal
-				{
-					StatusCompoent->SetHP(StatusCompoent->GetHP() + FoundRow->Amount);
-					ActorBag[ArrayIndex].Count--;
-
-					if (ActorBag[ArrayIndex].Count <= 0)
+					if (Player->ItemUse_MontagePlay(ActorBag[ArrayIndex].ItemID)) // MontagePlayFunction
 					{
-						ActorBag.RemoveAt(ArrayIndex);
-					}
+						// (IsRollingMontagePlaying || bIsAttacking || bIsOnJumpping || IsItemUsing) CANNOT USE ITEM
+										// amount가 공격이면 공격력에 힐량이면 hp에
+						EItemType SetItemType = FoundRow->ItemType;
 
-					break;
-				}
-				case EItemType::EQUIPMENT:
-					// set socket mesh
-					StatusCompoent->SetATK(StatusCompoent->GetATK() + FoundRow->Amount);
-					ActorBag[ArrayIndex].Count--;
+						switch (SetItemType)
+						{
+						case EItemType::POTION:
 
-					if (ActorBag[ArrayIndex].Count <= 0)
-					{
-						ActorBag.RemoveAt(ArrayIndex);
+							StatusCompoent->SetHP(StatusCompoent->GetHP() + FoundRow->Amount);
+							break;
+						case EItemType::EQUIPMENT:
+
+							StatusCompoent->SetATK(FoundRow->Amount);
+							break;
+						}
+
+						ActorBag[ArrayIndex].Count--;
+						if (ActorBag[ArrayIndex].Count <= 0)
+						{
+							ActorBag.RemoveAt(ArrayIndex);
+						}
+						OnBagChanged.Broadcast();
 					}
-					break;
-				default:
-					break;
 				}
+
 			}
-			OnBagChanged.Broadcast();
 		}
 	}
 }
