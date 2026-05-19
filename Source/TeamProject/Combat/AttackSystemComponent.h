@@ -124,13 +124,26 @@ public:
 	AActor* FindClosestActor(TArray<AActor*> Actors);
 
 public:
-	// Getter
 	UFUNCTION(BlueprintCallable, Category = "Parry")
 	bool GetbIsParryWindowOpen();
 
-	// Setter
 	UFUNCTION(BlueprintCallable, Category = "Parry")
 	void SetbIsParryWindowOpen(bool bOpen);
+
+// Boss Pattern
+public:
+	UPROPERTY(EditDefaultsOnly, Category = "BossRadialAttack")
+	float BossRadialAttackFirstRadius = 36.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "BossRadialAttack")
+	float BossRadialAttackMaxRadius = 200.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "BossRadialAttack")
+	float BossRadialAttackDamageMutiplier = 1.5f;
+
+public:
+	UFUNCTION(BlueprintCallable, Category = "BossPattern")
+	void PerformRadialAttack(float Radius);
 
 // DataTable
 public:

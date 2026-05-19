@@ -8,6 +8,7 @@
 #include "StatusComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHalfHealthReached, AActor*, Owner);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHPChangedSignature, float, NewHP);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStaminaChangedSignature, float, NewStamina);
 
@@ -64,11 +65,17 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Health")
 	FOnHPChangedSignature OnHPChanged;
 
+	UPROPERTY(BlueprintAssignable, Category = "Health")
+	FOnHalfHealthReached OnOnHalfHealthReached;
+
 	UPROPERTY(BlueprintAssignable, Category = "Stamina")
 	FOnStaminaChangedSignature OnStaminaChanged;
 
 	UPROPERTY(BlueprintAssignable, Category = "Health")
 	FOnDeathSignature OnDeath;
+
+private:
+	bool bHalfHealthDelegateFired = false;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Health")

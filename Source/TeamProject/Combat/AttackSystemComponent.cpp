@@ -10,6 +10,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
 
+// Hit
 UAttackSystemComponent::UAttackSystemComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -136,6 +137,7 @@ UStatusComponent* UAttackSystemComponent::GetAttackerStatusComponent()
 	return OwnerStatusComp;
 }
 
+//Hit Stop
 void UAttackSystemComponent::HitStop(AActor* TargetActor)
 {
 	AActor* Owner = GetOwner();
@@ -197,6 +199,7 @@ void UAttackSystemComponent::HitStop(AActor* TargetActor)
 		false);
 }
 
+// Hit Slow
 void UAttackSystemComponent::HitSlow(AActor* TargetActor)
 {
 	AActor* Owner = GetOwner();
@@ -264,6 +267,7 @@ void UAttackSystemComponent::HitSlow(AActor* TargetActor)
 		false);
 }
 
+// Parry
 void UAttackSystemComponent::CheckParry()
 {
 	TArray<AActor*> IgnoreActors;
@@ -358,18 +362,37 @@ AActor* UAttackSystemComponent::FindClosestActor(TArray<AActor*> Actors)
 	return FindActor;
 }
 
-// Getter
 bool UAttackSystemComponent::GetbIsParryWindowOpen()
 {
 	return bIsParryWindowOpen;
 }
 
-// Setter
 void UAttackSystemComponent::SetbIsParryWindowOpen(bool bOpen)
 {
 	bIsParryWindowOpen = bOpen;
 }
 
+// Boss Pattern
+void UAttackSystemComponent::PerformRadialAttack(float Radius)
+{
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_GameTraceChannel1));
+
+	TArray<AActor*> ActorToIgnore;
+	ActorToIgnore.Add(GetOwner());
+
+	TArray<AActor*> OutActors;
+
+	UKismetSystemLibrary::SphereOverlapActors(GetWorld(), GetOwner()->GetActorLocation(), Radius, 
+		ObjectTypes, nullptr, ActorToIgnore, OutActors);
+
+	for (int i = 0; i < OutActors.Num(); ++i)
+	{
+		ApplyDamage(OutActors[i], BossRadialAttackDamageMutiplier);
+	}
+}
+
+// DataTable
 void UAttackSystemComponent::InitializeFromDataTable()
 {
 	if (!StatTable)

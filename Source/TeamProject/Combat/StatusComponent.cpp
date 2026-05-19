@@ -36,8 +36,7 @@ void UStatusComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 			OnStaminaChanged.Broadcast(Stamina);
 		}
 	}
-} 
-
+}
 
 void UStatusComponent::ReceiveDamage(float AttackerATK)
 {
@@ -48,6 +47,15 @@ void UStatusComponent::ReceiveDamage(float AttackerATK)
 
 	float TrueDamage = FMath::Max((AttackerATK - DEF) * (1 - Absorption), AttackerATK * 0.1f);
 	SetHP(HP - TrueDamage);
+
+	if (!bHalfHealthDelegateFired)
+	{
+		if (GetHP() <= GetMaxHP() * 0.5f)
+		{
+			OnOnHalfHealthReached.Broadcast(GetOwner());
+			bHalfHealthDelegateFired = true;
+		}
+	}
 
 	if (GetHP() <= 0.0f)
 	{
