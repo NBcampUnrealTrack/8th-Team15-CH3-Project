@@ -46,11 +46,10 @@ void UStatusComponent::ReceiveDamage(float AttackerATK)
 		return;
 	}
 
-	HP = FMath::Max(HP - AttackerATK, 0.0f);
-	UE_LOG(LogTemp, Warning, TEXT("HP: %f"), HP);
-	OnHPChanged.Broadcast(HP);
+	float TrueDamage = FMath::Max((AttackerATK - DEF) * (1 - Absorption), AttackerATK * 0.1f);
+	SetHP(HP - TrueDamage);
 
-	if (HP <= 0.0f)
+	if (GetHP() <= 0.0f)
 	{
 		bIsDead = true;
 		OnDeath.Broadcast();
@@ -59,21 +58,21 @@ void UStatusComponent::ReceiveDamage(float AttackerATK)
 
 void UStatusComponent::DrainStamina(float Amount, float DeltaTime)
 {
-	Stamina = FMath::Max(Stamina - Amount * DeltaTime, 0.0f);
-	OnStaminaChanged.Broadcast(Stamina);
+	SetStamina(Stamina - Amount * DeltaTime);
+	
 	ResetRegenDelay();
 }
 
 void UStatusComponent::ConsumeStamina(float Amount)
 {
-	Stamina = FMath::Max(Stamina - Amount, 0.0f);
-	OnStaminaChanged.Broadcast(Stamina);
+	SetStamina(Stamina - Amount);
+	
 	ResetRegenDelay();
 }
 
 void UStatusComponent::RegenStamina(float DeltaTime)
 {
-	Stamina = FMath::Min(Stamina + RegenStaminaValue * DeltaTime, MaxStamina);
+	SetStamina(Stamina + RegenStaminaValue * DeltaTime);
 }
 
 void UStatusComponent::ResetRegenDelay()
@@ -100,6 +99,8 @@ void UStatusComponent::InitializeFromDataTable()
 	RegenStaminaValue = Row->RegenStaminaValue;
 	StaminaRegenDelayTime = Row->StaminaRegenDelayTime;
 	ATK = Row->ATK;
+	DEF = Row->DEF;
+	Absorption = Row->Absorption;
 }
 
 // getter
@@ -134,14 +135,35 @@ float UStatusComponent::GetMaxStamina() const
 }
 
 // setter
+void UStatusComponent::SetbIsDead(bool NewbIsDead)
+{
+	bIsDead = NewbIsDead;
+}
+
 void UStatusComponent::SetHP(float NewHP)
 {
-	HP = NewHP;
+	HP = FMath::Clamp(NewHP, 0.0f, MaxHP);
 	OnHPChanged.Broadcast(HP);
-	return;
+}
+
+void UStatusComponent::SetMaxHP(float NewMaxHP)
+{
+	MaxHP = NewMaxHP;
 }
 
 void UStatusComponent::SetATK(float NewATK)
 {
 	ATK = NewATK;
 }
+
+void UStatusComponent::SetStamina(float NewStamina)
+{
+	Stamina = FMath::Clamp(NewStamina, 0.0f, MaxStamina);
+	OnStaminaChanged.Broadcast(Stamina);
+}
+
+void UStatusComponent::SetMaxStamina(float NewMaxStamina)
+{
+	MaxStamina = NewMaxStamina;
+}
+

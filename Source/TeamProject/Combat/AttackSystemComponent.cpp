@@ -18,7 +18,7 @@ UAttackSystemComponent::UAttackSystemComponent()
 void UAttackSystemComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	CurrentWeapon = Cast<UStaticMeshComponent>(GetWeapon());
 
 	InitializeFromDataTable();
@@ -27,14 +27,6 @@ void UAttackSystemComponent::BeginPlay()
 void UAttackSystemComponent::PerformHitTrace(FVector point1, FVector point2)
 {
 	if (!bIsTracing)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("bIsTracing is false!"));
-		return;
-	}
-	UE_LOG(LogTemp, Warning, TEXT("bIsTracing is true!"));
-	UStaticMeshComponent* OwnerStaticMeshComp = GetOwner()->GetComponentByClass<UStaticMeshComponent>();
-
-	if (!OwnerStaticMeshComp)
 	{
 		return;
 	}
@@ -48,7 +40,8 @@ void UAttackSystemComponent::PerformHitTrace(FVector point1, FVector point2)
 	FHitResult HitResult;
 
 	bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), CurrentPoint,
-		TargetPoint, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false, IgnoreActors, EDrawDebugTrace::ForDuration, HitResult, true);
+		TargetPoint, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false,
+		IgnoreActors, EDrawDebugTrace::ForDuration, HitResult, true);
 
 	if (bHit)
 	{
@@ -62,8 +55,6 @@ void UAttackSystemComponent::PerformHitTrace(FVector point1, FVector point2)
 		CameraShake();
 		ApplyDamage(HitResult.GetActor());
 	}
-
-	WeaponFirstPoint = CurrentPoint;
 }
 
 void UAttackSystemComponent::BeginAttackTrace()
@@ -81,10 +72,9 @@ void UAttackSystemComponent::ApplyDamage(AActor* TargetActor, float ParryDamageM
 {
 	if (!TargetActor)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("ApplyDamage Call Failed"));
 		return;
 	}
-	UE_LOG(LogTemp, Warning, TEXT("ApplyDamage Called!"));
+
 	UStatusComponent* TargetStatusComp = TargetActor->FindComponentByClass<UStatusComponent>();
 
 	if (!TargetStatusComp)
@@ -101,17 +91,16 @@ void UAttackSystemComponent::ApplyDamage(AActor* TargetActor, float ParryDamageM
 
 	TargetStatusComp->ReceiveDamage(AttackerStatusComp->GetATK() * ParryDamageMultipiler);
 
-	if (Cast<APrototypeXCharacter>(GetOwner()))
+
+	if (bUseHitStop)
 	{
-		if (bUseHitStop)
-		{
-			HitStop(TargetActor);
-		}
-		if (bUseHitSlow)
-		{
-			HitSlow(TargetActor);
-		}
+		HitStop(TargetActor);
 	}
+	if (bUseHitSlow)
+	{
+		HitSlow(TargetActor);
+	}
+
 }
 
 TWeakObjectPtr<UActorComponent> UAttackSystemComponent::GetWeapon()
@@ -156,38 +145,56 @@ void UAttackSystemComponent::HitStop(AActor* TargetActor)
 		return;
 	}
 
-	if (Cast<APrototypeXCharacter>(Owner))
+	TWeakObjectPtr<AActor> WeakOwner(Owner);
+
+	if (!TargetActor)
 	{
-		Owner->CustomTimeDilation = 0.0f;
-
-		if (!TargetActor)
-		{
-			return;
-		}
-
-		TargetActor->CustomTimeDilation = 0.0f;
-
-		GetWorld()->GetTimerManager().SetTimer(
-			Timer,
-			[this, Owner, TargetActor]()
-			{
-				if (!IsValid(Owner))
-				{
-					return;
-				}
-
-				Owner->CustomTimeDilation = 1.0f;
-
-				if (!IsValid(TargetActor))
-				{
-					return;
-				}
-
-				TargetActor->CustomTimeDilation = 1.0f;
-			},
-			HitStopDelayTime,
-			false);
+		return;
 	}
+
+	TWeakObjectPtr<AActor> WeakTargetActor(TargetActor);
+
+	if (!WeakOwner.IsValid())
+	{
+		return;
+	}
+
+	WeakOwner->CustomTimeDilation = 0.0f;
+
+	if (!WeakTargetActor.IsValid())
+	{
+		return;
+	}
+
+	WeakTargetActor->CustomTimeDilation = 0.0f;
+
+	TWeakObjectPtr<UAttackSystemComponent> WeakThis(this);
+
+	if (!WeakThis.IsValid())
+	{
+		return;
+	}
+
+	GetWorld()->GetTimerManager().SetTimer(
+		Timer,
+		[WeakThis, WeakOwner, WeakTargetActor]()
+		{
+			if (!WeakOwner.IsValid())
+			{
+				return;
+			}
+
+			WeakOwner->CustomTimeDilation = 1.0f;
+
+			if (!WeakTargetActor.IsValid())
+			{
+				return;
+			}
+
+			WeakTargetActor->CustomTimeDilation = 1.0f;
+		},
+		HitStopDelayTime,
+		false);
 }
 
 void UAttackSystemComponent::HitSlow(AActor* TargetActor)
@@ -199,65 +206,101 @@ void UAttackSystemComponent::HitSlow(AActor* TargetActor)
 		return;
 	}
 
-	if (Cast<APrototypeXCharacter>(Owner))
+	TWeakObjectPtr<AActor> WeakOwner(Owner);
+
+	if (!WeakOwner.IsValid())
 	{
-		Owner->CustomTimeDilation = HitSlowPlayerTime;
-
-		if (!TargetActor)
-		{
-			return;
-		}
-
-		TargetActor->CustomTimeDilation = HitSlowMobTime;
-
-		FTimerHandle& Handle = HitSlowTimers.FindOrAdd(TargetActor);
-
-		GetWorld()->GetTimerManager().ClearTimer(Handle);
-
-		TWeakObjectPtr<UAttackSystemComponent> WeakThis(this);
-
-		GetWorld()->GetTimerManager().SetTimer(
-			Handle,
-			[WeakThis, Owner, TargetActor]()
-			{
-				if (!WeakThis.IsValid())
-				{
-					return;
-				}
-
-				UE_LOG(LogTemp, Warning, TEXT("Call!"))
-
-				if (!IsValid(Owner))
-				{
-					return;
-				}
-
-				Owner->CustomTimeDilation = 1.0f;
-
-				if (!IsValid(TargetActor))
-				{
-					UE_LOG(LogTemp, Warning, TEXT("TargetActor Not Valid"))
-					return;
-				}
-
-				TargetActor->CustomTimeDilation = 1.0f;
-			},
-			HitSlowDelayTime,
-			false);
+		return;
 	}
+
+	WeakOwner->CustomTimeDilation = HitSlowPlayerTime;
+
+	if (!TargetActor)
+	{
+		return;
+	}
+
+	TWeakObjectPtr<AActor> WeakTargetActor(TargetActor);
+	
+	if (!WeakTargetActor.IsValid())
+	{
+		return;
+	}
+
+	WeakTargetActor->CustomTimeDilation = HitSlowMobTime;
+
+	FTimerHandle& Handle = HitSlowTimers.FindOrAdd(WeakTargetActor.Get());
+
+	GetWorld()->GetTimerManager().ClearTimer(Handle);
+
+	TWeakObjectPtr<UAttackSystemComponent> WeakThis(this);
+
+	if (!WeakThis.IsValid())
+	{
+		return;
+	}
+
+	GetWorld()->GetTimerManager().SetTimer(
+		Handle,
+		[WeakThis, WeakOwner, WeakTargetActor]()
+		{
+			if (!WeakOwner.IsValid())
+			{
+				return;
+			}
+
+			WeakOwner->CustomTimeDilation = 1.0f;
+
+			if (!WeakTargetActor.IsValid())
+			{
+				return;
+			}
+
+			WeakTargetActor->CustomTimeDilation = 1.0f;
+			WeakThis.Get()->HitSlowTimers.Remove(WeakTargetActor.Get()); 
+			
+		},
+		HitSlowDelayTime,
+		false);
 }
 
 void UAttackSystemComponent::CheckParry()
 {
+	TArray<AActor*> IgnoreActors;
 	TArray<AActor*> Mob;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APrototypeXMob::StaticClass(), Mob);
+
+	TArray<FHitResult> Mobs;
+
+	UKismetSystemLibrary::SphereTraceMulti(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation(),
+		ParryRange, TraceTypeQuery2, false, IgnoreActors, EDrawDebugTrace::ForDuration, Mobs, true, FLinearColor::Blue);
+
+	for (int i = 0; i < Mobs.Num(); ++i)
+	{
+		Mob.Add(Mobs[i].GetActor());
+	}
 
 	if (Mob.IsEmpty())
 	{
 		return;
 	}
 
-	AActor* ClosestMob = FindClosestActor(Mob);
+	TArray<AActor*> FilteredMob;
+
+	for (int i = 0; i < Mob.Num(); ++i)
+	{
+		if (FVector::DotProduct(GetOwner()->GetActorForwardVector(), 
+			(Mob[i]->GetActorLocation() - GetOwner()->GetActorLocation()).GetSafeNormal()) > ParryDotThreshold)
+		{
+			FilteredMob.Add(Mob[i]);
+		}
+	}
+
+	if (FilteredMob.IsEmpty())
+	{
+		return;
+	}
+
+	AActor* ClosestMob = FindClosestActor(FilteredMob);
 
 	if (!ClosestMob)
 	{
@@ -278,20 +321,18 @@ void UAttackSystemComponent::CheckParry()
 		return;
 	}
 
-	if (FVector::Dist(ClosestMob->GetActorLocation(), Owner->GetActorLocation()) <= ParryRange)
+	if (MobAttackSystemComp->GetbIsParryWindowOpen())
 	{
-		if (MobAttackSystemComp->bIsParryWindowOpen)
-		{
-			OnParrySuccess.Broadcast();
-			ApplyDamage(ClosestMob, ParryDamageMultiplier);
-			UE_LOG(LogTemp, Warning, TEXT("Your Parry Success!"))
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Your Parry Failed!"))
-				return;
-		}
+		OnParrySuccess.Broadcast();
+		ApplyDamage(ClosestMob, ParryDamageMultiplier);
+		UE_LOG(LogTemp, Warning, TEXT("Your Parry Success!"))
 	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Your Parry Failed!"))
+		return;
+	}
+
 }
 
 AActor* UAttackSystemComponent::FindClosestActor(TArray<AActor*> Actors)
@@ -317,6 +358,13 @@ AActor* UAttackSystemComponent::FindClosestActor(TArray<AActor*> Actors)
 	return FindActor;
 }
 
+// Getter
+bool UAttackSystemComponent::GetbIsParryWindowOpen()
+{
+	return bIsParryWindowOpen;
+}
+
+// Setter
 void UAttackSystemComponent::SetbIsParryWindowOpen(bool bOpen)
 {
 	bIsParryWindowOpen = bOpen;
@@ -342,5 +390,6 @@ void UAttackSystemComponent::InitializeFromDataTable()
 	HitSlowDelayTime = Row->HitSlowDelayTime;
 	HitSlowPlayerTime = Row->HitSlowPlayerTime;
 	HitSlowMobTime = Row->HitSlowMobTime;
+	ParryDotThreshold = Row->ParryDotThreshold;
 }
 

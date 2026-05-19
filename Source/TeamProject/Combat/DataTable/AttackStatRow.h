@@ -28,4 +28,7 @@ struct FAttackStatRow : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float HitSlowMobTime;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float ParryDotThreshold;
 };
