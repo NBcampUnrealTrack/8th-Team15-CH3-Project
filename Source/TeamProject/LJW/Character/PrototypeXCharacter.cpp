@@ -144,7 +144,7 @@ bool APrototypeXCharacter::ItemUse_MontagePlay(FName GetItemID)
 					PlayerSwordComponent->SetRelativeLocationAndRotation(FoundRow->ItemRelativeOffset.Location, FoundRow->ItemRelativeOffset.Rotation);
 					PlayerSwordComponent->SetRelativeScale3D(FoundRow->ItemRelativeOffset.Scale);
 					// ============================== walk speed ===================================
-					GetCharacterMovement()->MaxWalkSpeed = 300.f;
+					GetCharacterMovement()->MaxWalkSpeed = 400.f;
 					// ============================== walk speed ===================================
 
 					Animbackground->Montage_Play(PlayMontage);
