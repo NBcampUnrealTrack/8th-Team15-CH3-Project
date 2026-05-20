@@ -12,23 +12,23 @@ struct FAttackStatRow : public FTableRowBase
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float ParryRange;
+	float ParryRange = 0.0f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float ParryDamageMultiplier;
+	float ParryDamageMultiplier = 0.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float HitStopDelayTime;
+	float HitStopDelayTime = 0.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float HitSlowDelayTime;
+	float HitSlowDelayTime = 0.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float HitSlowPlayerTime;
+	float HitSlowPlayerTime = 0.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float HitSlowMobTime;
+	float HitSlowMobTime = 0.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float ParryDotThreshold;
+	float ParryDotThreshold = 0.0f;
 };

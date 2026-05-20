@@ -10,7 +10,7 @@
 class UStatusComponent;
 class UStaticMeshComponent;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnParrySuccessSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnParrySuccessSignature, AActor*, ParriedMob);
 
 UCLASS( ClassGroup=(Custom), Blueprintable, meta=(BlueprintSpawnableComponent) )
 class TEAMPROJECT_API UAttackSystemComponent : public UActorComponent
@@ -132,13 +132,19 @@ public:
 
 // Boss Pattern
 public:
-	UPROPERTY(EditDefaultsOnly, Category = "BossRadialAttack")
-	float BossRadialAttackFirstRadius = 36.0f;
+	UPROPERTY(BlueprintReadWrite, Category = "BossRadialAttack")
+	float BossRadialAttackCurrentRadius;
 
-	UPROPERTY(EditDefaultsOnly, Category = "BossRadialAttack")
-	float BossRadialAttackMaxRadius = 200.0f;
+	UPROPERTY(BlueprintReadWrite, Category = "BossRadialAttack")
+	float BossRadialAttackFirstRadius = 400.0f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "BossRadialAttack")
+	UPROPERTY(BlueprintReadWrite, Category = "BossRadialAttack")
+	float BossRadialAttackMaxRadius = 1000.0f;
+
+	UPROPERTY(BlueprintReadWrite, Category = "BossRadialAttack")
+	float BossRadialAttackExpandSpeed = 100.0f;
+
+	UPROPERTY(BlueprintReadWrite, Category = "BossRadialAttack")
 	float BossRadialAttackDamageMutiplier = 1.5f;
 
 public:

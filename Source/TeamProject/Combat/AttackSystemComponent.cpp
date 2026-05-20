@@ -327,7 +327,7 @@ void UAttackSystemComponent::CheckParry()
 
 	if (MobAttackSystemComp->GetbIsParryWindowOpen())
 	{
-		OnParrySuccess.Broadcast();
+		OnParrySuccess.Broadcast(ClosestMob);
 		ApplyDamage(ClosestMob, ParryDamageMultiplier);
 		UE_LOG(LogTemp, Warning, TEXT("Your Parry Success!"))
 	}
@@ -383,8 +383,10 @@ void UAttackSystemComponent::PerformRadialAttack(float Radius)
 
 	TArray<AActor*> OutActors;
 
-	UKismetSystemLibrary::SphereOverlapActors(GetWorld(), GetOwner()->GetActorLocation(), Radius, 
+	UKismetSystemLibrary::SphereOverlapActors(GetWorld(), GetOwner()->GetActorLocation(), Radius,
 		ObjectTypes, nullptr, ActorToIgnore, OutActors);
+
+	DrawDebugSphere(GetWorld(), GetOwner()->GetActorLocation(), Radius, 12, FColor::Red, false, 0.1f);
 
 	for (int i = 0; i < OutActors.Num(); ++i)
 	{
