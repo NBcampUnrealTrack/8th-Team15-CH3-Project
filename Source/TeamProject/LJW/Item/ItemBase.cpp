@@ -100,13 +100,13 @@ void AItemBase::UpdateItemAppearance()
 			if (FoundRow)
 			{
 
-				UE_LOG(LogTemp, Warning, TEXT("DatatableValid"));
-				UStaticMesh* NewMesh = FoundRow->ItemMesh.LoadSynchronous();
-				if (NewMesh)
-				{
-					UE_LOG(LogTemp, Warning, TEXT("GET MESH"));
-					StaticMeshComponent->SetStaticMesh(NewMesh);
-				}
+				//UE_LOG(LogTemp, Warning, TEXT("DatatableValid"));
+				//UStaticMesh* NewMesh = FoundRow->ItemMesh.LoadSynchronous();
+				//if (NewMesh)
+				//{
+				//	UE_LOG(LogTemp, Warning, TEXT("GET MESH"));
+				//	StaticMeshComponent->SetStaticMesh(NewMesh);
+				//}
 
 				UNiagaraSystem* NewNiagara = FoundRow->ItemEffect.LoadSynchronous();
 				if (NewNiagara)

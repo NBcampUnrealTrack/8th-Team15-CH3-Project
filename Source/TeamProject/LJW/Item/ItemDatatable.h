@@ -14,7 +14,20 @@ class UStaticMesh;
 class UNiagaraSystem;
 class UTexture2D;
 class USoundBase;
-class UAminMontage;
+class UAnimMontage;
+
+USTRUCT(BlueprintType)
+struct FRelativeOffset
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector Location = FVector::ZeroVector;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FRotator Rotation = FRotator::ZeroRotator;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector Scale = FVector::OneVector;
+};
 
 USTRUCT(BlueprintType)
 struct FItemDatatable: public FTableRowBase
@@ -39,4 +52,7 @@ public:
 	TSoftObjectPtr<USoundBase> ItemSound;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	TSoftObjectPtr<UAnimMontage> UseItemAnim;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Location")
+	FRelativeOffset ItemRelativeOffset;
+
 };

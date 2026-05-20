@@ -105,12 +105,16 @@ void UActorBagComponent::AddItemintoBag(FName itemid, int32 itemcount)
 			{
 				UE_LOG(LogTemp, Warning, TEXT("Add Count"));
 				Slots.Count += itemcount;
+				// DELEGATE ===================
+				OnBagChanged.Broadcast();
 				return;
 			}
 		}
 		UE_LOG(LogTemp, Warning, TEXT("Add Item"));
 		FInventorySlot Item({ itemid, itemcount });
 		ActorBag.Add(Item);
+		// DELEGATE ===================
+		OnBagChanged.Broadcast();
 		return;
 	}
 	else
@@ -120,7 +124,6 @@ void UActorBagComponent::AddItemintoBag(FName itemid, int32 itemcount)
 			GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("FULL INVENTORY BAG")));
 		}
 	}
-	OnBagChanged.Broadcast();
 }
 
 void UActorBagComponent::UseItemIndexOnUI(int32 ArrayIndex)
@@ -167,6 +170,13 @@ void UActorBagComponent::UseItemIndexOnUI(int32 ArrayIndex)
 							ActorBag.RemoveAt(ArrayIndex);
 						}
 						OnBagChanged.Broadcast();
+					}
+					else
+					{
+						if (GEngine)
+						{
+							GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("YOU CANNOT USE ITEM WHEN MOVING")));
+						}
 					}
 				}
 

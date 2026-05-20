@@ -14,6 +14,9 @@ struct FInputActionValue;
 class UAnimMontage;
 
 class UStatusComponent;
+class UAttackSystemComponent;
+
+struct FRelativeOffset;
 
 UENUM(BlueprintType)
 enum class EPlayerMode : uint8
@@ -70,7 +73,11 @@ public:
 	// ==================================
 
 	UPROPERTY()
-	UStatusComponent* StatusComponent;
+	UStatusComponent* PlayerStatusComponent;
+	UPROPERTY()
+	UAttackSystemComponent* PlayerAttackSystemComp;
+	UPROPERTY()
+	UStaticMeshComponent* PlayerSwordComponent = nullptr;
 protected:
 	virtual void BeginPlay() override;
 	void Move_Start(const FInputActionValue& value);
@@ -120,11 +127,12 @@ protected:
 	TArray<UAnimMontage*> ItemUseMontage;
 
 	//void ItemUse_Start(const FInputActionValue& value);
-	void ItemUse_End(UAnimMontage*, bool bInterrupted, UStaticMeshComponent* GetSwordComp);
+	void ItemUse_End(UAnimMontage*, bool bInterrupted, UStaticMesh* GetSwordComp, FRelativeOffset SetOffset);
 	bool IsItemUsing = false;
 
 	//================================
 public:	
+	UFUNCTION(BlueprintCallable)
 	bool ItemUse_MontagePlay(FName GetItemID);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "States|Roll")

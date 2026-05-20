@@ -11,6 +11,7 @@
 #include "Kismet/KismetMathLibrary.h"
 
 #include "Combat/StatusComponent.h"
+#include "Combat/AttackSystemComponent.h"
 #include "LJW/Item/ItemDatatable.h"
 #include "MainGameInstance.h"
 APrototypeXCharacter::APrototypeXCharacter()
@@ -28,7 +29,7 @@ APrototypeXCharacter::APrototypeXCharacter()
 	// 계층 구조 설정: SpringArm을 Root에 부착하고 Absolute Rotation 설정
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent_0"));
 	SpringArmComponent->SetupAttachment(RootComponent);
-	SpringArmComponent->TargetArmLength = 300.f;
+	SpringArmComponent->TargetArmLength = 400.f;
 	//SpringArmComponent->bUsePawnControlRotation = true; // 컨트롤러 회전 사용
 	 // 캐릭터 회전에 카메라 축이 뒤틀리지 않게 고정
 
@@ -47,9 +48,22 @@ void APrototypeXCharacter::BeginPlay()
 	Super::BeginPlay();
 	SetPlayerMode(EPlayerMode::Normal);
 
-	StatusComponent = FindComponentByClass<UStatusComponent>();
-	UE_LOG(LogTemp, Log, TEXT("%s"), *StatusComponent->GetName());
-	checkf(StatusComponent, TEXT("Must have StatusComponents"));
+	PlayerStatusComponent = FindComponentByClass<UStatusComponent>();
+	PlayerAttackSystemComp = FindComponentByClass<UAttackSystemComponent>();
+
+	TArray<UStaticMeshComponent*> MeshComponents;
+	GetComponents<UStaticMeshComponent>(MeshComponents);
+	for (UStaticMeshComponent* TargetMeshComponent : MeshComponents)
+	{
+		if (TargetMeshComponent->GetName() == TEXT("SwordComponent"))
+		{
+			PlayerSwordComponent = TargetMeshComponent;
+			break;
+		}
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("%s"), *PlayerStatusComponent->GetName());
+	checkf(PlayerStatusComponent, TEXT("Must have StatusComponents"));
 }
 
 //void APrototypeXCharacter::ItemUse_Start(const FInputActionValue& value)
@@ -95,7 +109,7 @@ bool APrototypeXCharacter::ItemUse_MontagePlay(FName GetItemID)
 {
 	if (IsRollingMontagePlaying || bIsAttacking || bIsOnJumpping || IsItemUsing)
 	{
-		// no mongtage play;
+		// no mongtage play when moving;
 		return false;
 	}
 	else
@@ -110,23 +124,58 @@ bool APrototypeXCharacter::ItemUse_MontagePlay(FName GetItemID)
 			{
 				if (UAnimMontage* PlayMontage = FoundRow->UseItemAnim.LoadSynchronous())
 				{
+					IsItemUsing = true;
+					 // mesh change
+
+					// find component
+					UStaticMesh* NowHaveStaticMesh = nullptr;
+
+					if (PlayerSwordComponent->GetStaticMesh())
+					{
+						NowHaveStaticMesh = PlayerSwordComponent->GetStaticMesh();
+					}
+
+					FRelativeOffset BeforeChangeOffset;
+					BeforeChangeOffset.Location = PlayerSwordComponent->GetRelativeLocation();
+					BeforeChangeOffset.Rotation = PlayerSwordComponent->GetRelativeRotation();
+					BeforeChangeOffset.Scale = PlayerSwordComponent->GetRelativeScale3D();
+
+					PlayerSwordComponent->SetStaticMesh(FoundRow->ItemMesh.LoadSynchronous());
+					PlayerSwordComponent->SetRelativeLocationAndRotation(FoundRow->ItemRelativeOffset.Location, FoundRow->ItemRelativeOffset.Rotation);
+					PlayerSwordComponent->SetRelativeScale3D(FoundRow->ItemRelativeOffset.Scale);
+					// ============================== walk speed ===================================
+					GetCharacterMovement()->MaxWalkSpeed = 300.f;
+					// ============================== walk speed ===================================
+
 					Animbackground->Montage_Play(PlayMontage);
+
+					FOnMontageEnded EndDelegate;
+					EndDelegate.BindUObject(this, &APrototypeXCharacter::ItemUse_End, NowHaveStaticMesh, BeforeChangeOffset);
+					Animbackground->Montage_SetEndDelegate(EndDelegate, PlayMontage);
+
+					return true;
 				}
 			}
 		}
-		return true;
 	}
+	return false;
 }
 
-void APrototypeXCharacter::ItemUse_End(UAnimMontage*, bool bInterrupted, UStaticMeshComponent* GetSwordComp)
+void APrototypeXCharacter::ItemUse_End(UAnimMontage*, bool bInterrupted, UStaticMesh* GetSwordComp, FRelativeOffset SetOffset)
 {
 	IsItemUsing = false;
-	GetSwordComp->SetHiddenInGame(false);
+	PlayerSwordComponent->SetStaticMesh(GetSwordComp);
+	PlayerSwordComponent->SetRelativeLocationAndRotation(SetOffset.Location, SetOffset.Rotation);
+	PlayerSwordComponent->SetRelativeScale3D(SetOffset.Scale);
+
+	GetCharacterMovement()->MaxWalkSpeed = Normal_Speed;
 }
 
 void APrototypeXCharacter::ApplyRollingAtMode(EPlayerMode InMode)
 {
 	if (IsRollingMontagePlaying || bIsOnJumpping) return;
+	if (PlayerStatusComponent->GetStamina() < 13.f) return;
+
 	UAnimInstance* Animbackground = GetMesh()->GetAnimInstance();
 
 	SetPlayerMode(EPlayerMode::Normal);
@@ -156,7 +205,7 @@ void APrototypeXCharacter::ApplyRollingAtMode(EPlayerMode InMode)
 			//DesiredDir방향(Rotation) 회전하라(SetActorRotation)
 
 			// ============================ STEMINA =================================
-			StatusComponent->ConsumeStamina(13.f);
+			PlayerStatusComponent->ConsumeStamina(13.f);
 			// ============================ STEMINA =================================
 
 			Animbackground->Montage_Play(RollMontage);
@@ -402,6 +451,10 @@ void APrototypeXCharacter::Roll_Stop(const FInputActionValue& value)
 
 void APrototypeXCharacter::Sprint_Start(const FInputActionValue& value)
 {
+	if (IsItemUsing) return;
+
+	if (PlayerStatusComponent->GetStamina() < 2.f) return;
+
 	GetCharacterMovement()->MaxWalkSpeed = Sprint_Speed;
 	SpringArmComponent->bEnableCameraLag = true;
 	TargetLagSpeed = 10.f;
@@ -412,9 +465,9 @@ void APrototypeXCharacter::Sprint_Start(const FInputActionValue& value)
 		RunningTimeCheck,
 		[this]()
 		{
-			if (StatusComponent)
+			if (PlayerStatusComponent)
 			{
-				StatusComponent->ConsumeStamina(2.f);
+				PlayerStatusComponent->ConsumeStamina(2.f);
 			}
 		},
 		1.0f,
@@ -426,6 +479,7 @@ void APrototypeXCharacter::Sprint_Start(const FInputActionValue& value)
 
 void APrototypeXCharacter::Sprint_Stop(const FInputActionValue& value)
 {
+	if (IsItemUsing) return;
 	GetCharacterMovement()->MaxWalkSpeed = Normal_Speed;
 	TargetLagSpeed = 50.f;
 
@@ -437,10 +491,12 @@ void APrototypeXCharacter::Sprint_Stop(const FInputActionValue& value)
 void APrototypeXCharacter::Jump_Start(const FInputActionValue& value)
 {
 	if (IsRollingMontagePlaying || bIsAttacking || bIsOnDefencing) return;
+	if (PlayerStatusComponent->GetStamina() < 10.f)  return;
+
 	UE_LOG(LogTemp, Warning, TEXT("Jumping"));
 	bIsOnJumpping = true;
 	// ======================== Stemina =============================
-	StatusComponent->ConsumeStamina(10.f);
+	PlayerStatusComponent->ConsumeStamina(10.f);
 	// ======================== Stemina =============================
 	Jump();
 }
@@ -465,10 +521,18 @@ void APrototypeXCharacter::Defence_Start(const FInputActionValue& value)
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (!ensureMsgf(AnimInstance, TEXT("None AnimInstance"))) return;
 	if (bIsOnDefencing || IsRollingMontagePlaying || bIsOnJumpping) return;
+	if (PlayerStatusComponent->GetStamina() < 15.f) return;
+
 	// =========================== STEMINA ==============================
-	StatusComponent->ConsumeStamina(15.f);
+	PlayerStatusComponent->ConsumeStamina(15.f);
 	// =========================== STEMINA ==============================
 	bIsOnDefencing = true;
+	// =========================== PARRY ===============================
+	if (PlayerAttackSystemComp)
+	{
+		PlayerAttackSystemComp->CheckParry();
+	}
+	// =========================== PARRY ===============================
 	AnimInstance->Montage_Play(DefenceMontage);
 	FOnMontageEnded EndDelegate;
 	EndDelegate.BindUObject(this, &APrototypeXCharacter::Defence_Ended);
