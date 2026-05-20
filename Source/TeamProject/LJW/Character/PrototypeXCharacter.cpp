@@ -144,7 +144,7 @@ bool APrototypeXCharacter::ItemUse_MontagePlay(FName GetItemID)
 					PlayerSwordComponent->SetRelativeLocationAndRotation(FoundRow->ItemRelativeOffset.Location, FoundRow->ItemRelativeOffset.Rotation);
 					PlayerSwordComponent->SetRelativeScale3D(FoundRow->ItemRelativeOffset.Scale);
 					// ============================== walk speed ===================================
-					GetCharacterMovement()->MaxWalkSpeed = 300.f;
+					GetCharacterMovement()->MaxWalkSpeed = 400.f;
 					// ============================== walk speed ===================================
 
 					Animbackground->Montage_Play(PlayMontage);
@@ -164,6 +164,7 @@ bool APrototypeXCharacter::ItemUse_MontagePlay(FName GetItemID)
 void APrototypeXCharacter::ItemUse_End(UAnimMontage*, bool bInterrupted, UStaticMesh* GetSwordComp, FRelativeOffset SetOffset)
 {
 	IsItemUsing = false;
+	IsPlayerDrinking = false;
 	PlayerSwordComponent->SetStaticMesh(GetSwordComp);
 	PlayerSwordComponent->SetRelativeLocationAndRotation(SetOffset.Location, SetOffset.Rotation);
 	PlayerSwordComponent->SetRelativeScale3D(SetOffset.Scale);
@@ -492,7 +493,7 @@ void APrototypeXCharacter::Jump_Start(const FInputActionValue& value)
 {
 	if (IsRollingMontagePlaying || bIsAttacking || bIsOnDefencing) return;
 	if (PlayerStatusComponent->GetStamina() < 10.f)  return;
-
+	if (bIsOnJumpping) return;
 	UE_LOG(LogTemp, Warning, TEXT("Jumping"));
 	bIsOnJumpping = true;
 	// ======================== Stemina =============================
