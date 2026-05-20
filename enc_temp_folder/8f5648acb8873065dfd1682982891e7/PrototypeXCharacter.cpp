@@ -506,11 +506,11 @@ void APrototypeXCharacter::Landed(const FHitResult& Hit)
 {
 	bIsOnJumpping = false;
 	StopJumping();
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (AnimInstance)
-	{
-		AnimInstance->SetRootMotionMode(ERootMotionMode::RootMotionFromMontagesOnly);
-	}
+	//UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	//if (AnimInstance)
+	//{
+	//	AnimInstance->SetRootMotionMode(ERootMotionMode::RootMotionFromMontagesOnly);
+	//}
 }
 
 void APrototypeXCharacter::Jump_Stop(const FInputActionValue& value)

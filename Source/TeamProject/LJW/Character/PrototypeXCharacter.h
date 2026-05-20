@@ -145,6 +145,8 @@ public:
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void UnPossessed() override;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Enemey|BD")
+	bool IsPlayerDrinking = false;
 private:
 	UPROPERTY()
 	class APlayerCameraManager* CachedCameraManager;

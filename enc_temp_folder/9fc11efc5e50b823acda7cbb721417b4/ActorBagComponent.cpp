@@ -97,20 +97,19 @@ TArray<FInventorySlot> UActorBagComponent::GetActorBag() const
 
 void UActorBagComponent::AddItemintoBag(FName itemid, int32 itemcount)
 {
-	for (FInventorySlot& Slots : ActorBag)
-	{
-		if (Slots.ItemID == itemid)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Add Count"));
-			Slots.Count += itemcount;
-			// DELEGATE ===================
-			OnBagChanged.Broadcast();
-			return;
-		}
-	}
-
 	if (MaxBagSlot > ActorBag.Num())
 	{
+		for (FInventorySlot& Slots : ActorBag)
+		{
+			if (Slots.ItemID == itemid)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Add Count"));
+				Slots.Count += itemcount;
+				// DELEGATE ===================
+				OnBagChanged.Broadcast();
+				return;
+			}
+		}
 		UE_LOG(LogTemp, Warning, TEXT("Add Item"));
 		FInventorySlot Item({ itemid, itemcount });
 		ActorBag.Add(Item);
