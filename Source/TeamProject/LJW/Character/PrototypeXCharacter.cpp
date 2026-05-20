@@ -12,6 +12,7 @@
 
 #include "Combat/StatusComponent.h"
 #include "Combat/AttackSystemComponent.h"
+#include "LJW/Item/ActorBagComponent.h"
 #include "LJW/Item/ItemDatatable.h"
 #include "MainGameInstance.h"
 APrototypeXCharacter::APrototypeXCharacter()
@@ -50,6 +51,7 @@ void APrototypeXCharacter::BeginPlay()
 
 	PlayerStatusComponent = FindComponentByClass<UStatusComponent>();
 	PlayerAttackSystemComp = FindComponentByClass<UAttackSystemComponent>();
+	PlayerActorBagComponent = FindComponentByClass<UActorBagComponent>();
 
 	TArray<UStaticMeshComponent*> MeshComponents;
 	GetComponents<UStaticMeshComponent>(MeshComponents);
@@ -355,15 +357,15 @@ void APrototypeXCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 				);
 			}
 
-			//if (PlayerController->IA_ItemUse)
-			//{
-			//	EnhancedInput->BindAction(
-			//		PlayerController->IA_ItemUse,
-			//		ETriggerEvent::Triggered,
-			//		this,
-			//		&APrototypeXCharacter::ItemUse_Start
-			//	);
-			//}
+			if (PlayerController->IA_ItemQuickUse)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->IA_ItemQuickUse,
+					ETriggerEvent::Triggered,
+					this,
+					&APrototypeXCharacter::ItemUse_QuickSlot
+				);
+			}
 		}
 	}
 }
@@ -543,6 +545,19 @@ void APrototypeXCharacter::Defence_Start(const FInputActionValue& value)
 void APrototypeXCharacter::Defence_Ended(UAnimMontage* Montage, bool bInterrupted)
 {
 	bIsOnDefencing = false;
+}
+
+void APrototypeXCharacter::ItemUse_QuickSlot(const FInputActionValue& value)
+{
+	if (PlayerActorBagComponent)
+	{
+		int32 TargetIndex = PlayerActorBagComponent->GetQuickSlotItemIndex(); // 변수 Getter 함수 필요
+
+		if (TargetIndex != -1)
+		{
+			PlayerActorBagComponent->UseItemIndexOnUI(TargetIndex);
+		}
+	}
 }
 
 void APrototypeXCharacter::SetPlayerMode(EPlayerMode NewMode)
