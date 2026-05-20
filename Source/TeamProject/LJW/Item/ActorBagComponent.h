@@ -35,6 +35,7 @@ public:
 	// ====================== getitemingame ======================
 	UFUNCTION(BlueprintCallable)
 	TArray<FInventorySlot> GetActorBag() const;
+	UFUNCTION(BlueprintCallable)
 	void AddItemintoBag(FName itemid, int32 itemcount = 1);
 	// ====================== getitemingame ======================
 

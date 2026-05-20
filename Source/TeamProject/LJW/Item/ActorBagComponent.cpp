@@ -150,7 +150,6 @@ void UActorBagComponent::UseItemIndexOnUI(int32 ArrayIndex)
 					if (Player->ItemUse_MontagePlay(ActorBag[ArrayIndex].ItemID)) // MontagePlayFunction
 					{
 						// (IsRollingMontagePlaying || bIsAttacking || bIsOnJumpping || IsItemUsing) CANNOT USE ITEM
-										// amount가 공격이면 공격력에 힐량이면 hp에
 						EItemType SetItemType = FoundRow->ItemType;
 
 						switch (SetItemType)
