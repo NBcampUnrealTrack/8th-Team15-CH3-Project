@@ -21,5 +21,5 @@ struct FBossAttackStatRow : public FTableRowBase
 	float BossRadialAttackExpandSpeed = 0.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BossRadialAttack")
-	float BossRadialAttackDamageMutiplier = 0.0f;
+	float BossRadialAttackDamageMultiplier = 0.0f;
 };

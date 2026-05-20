@@ -58,7 +58,7 @@ public:
 	void CameraShake();
 
 private:
-	void ApplyDamage(AActor* TargetActor, float ParryDamageMultipiler = 1.0f);
+	void ApplyDamage(AActor* TargetActor, float ParryDamageMultiplier = 1.0f);
 
 	UFUNCTION()
 	TWeakObjectPtr<UActorComponent> GetWeapon();
@@ -115,13 +115,14 @@ public:
 	float ParryDotThreshold = 0.7f;
 
 private:
-	bool bIsParryWindowOpen;
+	UPROPERTY()
+	bool bIsParryWindowOpen = false;
 
 public:
 	UFUNCTION(BlueprintCallable)
 	void CheckParry();
 
-	AActor* FindClosestActor(TArray<AActor*> Actors);
+	AActor* FindClosestActor(const TArray<AActor*> &Actors);
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Parry")
@@ -145,7 +146,7 @@ public:
 	float BossRadialAttackExpandSpeed = 100.0f;
 
 	UPROPERTY(BlueprintReadWrite, Category = "BossRadialAttack")
-	float BossRadialAttackDamageMutiplier = 1.5f;
+	float BossRadialAttackDamageMultiplier = 1.5f;
 
 public:
 	UPROPERTY(BlueprintReadWrite, Category = "BossRadialAttack")

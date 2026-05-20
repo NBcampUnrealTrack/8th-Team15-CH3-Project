@@ -70,7 +70,7 @@ void UAttackSystemComponent::EndAttackTrace()
 	bIsTracing = false;
 }
 
-void UAttackSystemComponent::ApplyDamage(AActor* TargetActor, float ParryDamageMultipiler)
+void UAttackSystemComponent::ApplyDamage(AActor* TargetActor, float ParryDamageMultiplier)
 {
 	if (!TargetActor)
 	{
@@ -79,33 +79,32 @@ void UAttackSystemComponent::ApplyDamage(AActor* TargetActor, float ParryDamageM
 
 	UStatusComponent* TargetStatusComp = TargetActor->FindComponentByClass<UStatusComponent>();
 
-	if (!TargetStatusComp)
+	if (!IsValid(TargetStatusComp))
 	{
 		return;
 	}
 
 	UStatusComponent* AttackerStatusComp = GetAttackerStatusComponent();
 
-	if (!AttackerStatusComp)
+	if (!IsValid(AttackerStatusComp))
 	{
 		return;
 	}
 
 	if (!TargetStatusComp->GetbIsInvincible())
 	{
-		TargetStatusComp->ReceiveDamage(AttackerStatusComp->GetATK() * ParryDamageMultipiler);
+		TargetStatusComp->ReceiveDamage(AttackerStatusComp->GetATK() * ParryDamageMultiplier);
 	}
-
 
 	if (bUseHitStop)
 	{
 		HitStop(TargetActor);
 	}
+
 	if (bUseHitSlow)
 	{
 		HitSlow(TargetActor);
 	}
-
 }
 
 TWeakObjectPtr<UActorComponent> UAttackSystemComponent::GetWeapon()
@@ -133,7 +132,7 @@ UStatusComponent* UAttackSystemComponent::GetAttackerStatusComponent()
 		return nullptr;
 	}
 
-	if (!OwnerStatusComp)
+	if (!IsValid(OwnerStatusComp))
 	{
 		OwnerStatusComp = Owner->GetComponentByClass<UStatusComponent>();
 	}
@@ -146,44 +145,26 @@ void UAttackSystemComponent::HitStop(AActor* TargetActor)
 {
 	AActor* Owner = GetOwner();
 
-	if (!Owner)
+	if (!IsValid(Owner))
 	{
 		return;
 	}
+
+	if (!IsValid(TargetActor))
+	{
+		return;
+	}
+
+	Owner->CustomTimeDilation = 0.0f;
+
+	TargetActor->CustomTimeDilation = 0.0f;
 
 	TWeakObjectPtr<AActor> WeakOwner(Owner);
-
-	if (!TargetActor)
-	{
-		return;
-	}
-
 	TWeakObjectPtr<AActor> WeakTargetActor(TargetActor);
-
-	if (!WeakOwner.IsValid())
-	{
-		return;
-	}
-
-	WeakOwner->CustomTimeDilation = 0.0f;
-
-	if (!WeakTargetActor.IsValid())
-	{
-		return;
-	}
-
-	WeakTargetActor->CustomTimeDilation = 0.0f;
-
-	TWeakObjectPtr<UAttackSystemComponent> WeakThis(this);
-
-	if (!WeakThis.IsValid())
-	{
-		return;
-	}
 
 	GetWorld()->GetTimerManager().SetTimer(
 		Timer,
-		[WeakThis, WeakOwner, WeakTargetActor]()
+		[WeakOwner, WeakTargetActor]()
 		{
 			if (!WeakOwner.IsValid())
 			{
@@ -208,44 +189,27 @@ void UAttackSystemComponent::HitSlow(AActor* TargetActor)
 {
 	AActor* Owner = GetOwner();
 
-	if (!Owner)
+	if (!IsValid(Owner))
 	{
 		return;
 	}
 
-	TWeakObjectPtr<AActor> WeakOwner(Owner);
+	Owner->CustomTimeDilation = HitSlowPlayerTime;
 
-	if (!WeakOwner.IsValid())
+	if (!IsValid(TargetActor))
 	{
 		return;
 	}
 
-	WeakOwner->CustomTimeDilation = HitSlowPlayerTime;
+	TargetActor->CustomTimeDilation = HitSlowMobTime;
 
-	if (!TargetActor)
-	{
-		return;
-	}
-
-	TWeakObjectPtr<AActor> WeakTargetActor(TargetActor);
-	
-	if (!WeakTargetActor.IsValid())
-	{
-		return;
-	}
-
-	WeakTargetActor->CustomTimeDilation = HitSlowMobTime;
-
-	FTimerHandle& Handle = HitSlowTimers.FindOrAdd(WeakTargetActor.Get());
+	FTimerHandle& Handle = HitSlowTimers.FindOrAdd(TargetActor);
 
 	GetWorld()->GetTimerManager().ClearTimer(Handle);
 
 	TWeakObjectPtr<UAttackSystemComponent> WeakThis(this);
-
-	if (!WeakThis.IsValid())
-	{
-		return;
-	}
+	TWeakObjectPtr<AActor> WeakOwner(Owner);
+	TWeakObjectPtr<AActor> WeakTargetActor(TargetActor);
 
 	GetWorld()->GetTimerManager().SetTimer(
 		Handle,
@@ -264,8 +228,8 @@ void UAttackSystemComponent::HitSlow(AActor* TargetActor)
 			}
 
 			WeakTargetActor->CustomTimeDilation = 1.0f;
-			WeakThis.Get()->HitSlowTimers.Remove(WeakTargetActor.Get()); 
-			
+			WeakThis.Get()->HitSlowTimers.Remove(WeakTargetActor.Get());
+
 		},
 		HitSlowDelayTime,
 		false);
@@ -292,39 +256,29 @@ void UAttackSystemComponent::CheckParry()
 		return;
 	}
 
-	TArray<AActor*> FilteredMob;
+	AActor* ClosestMob = FindClosestActor(Mob);
 
-	for (int i = 0; i < Mob.Num(); ++i)
-	{
-		if (FVector::DotProduct(GetOwner()->GetActorForwardVector(), 
-			(Mob[i]->GetActorLocation() - GetOwner()->GetActorLocation()).GetSafeNormal()) > ParryDotThreshold)
-		{
-			FilteredMob.Add(Mob[i]);
-		}
-	}
-
-	if (FilteredMob.IsEmpty())
+	if (!IsValid(ClosestMob))
 	{
 		return;
 	}
 
-	AActor* ClosestMob = FindClosestActor(FilteredMob);
-
-	if (!ClosestMob)
+	if (FVector::DotProduct(GetOwner()->GetActorForwardVector(),
+		(ClosestMob->GetActorLocation() - GetOwner()->GetActorLocation()).GetSafeNormal()) <= ParryDotThreshold)
 	{
 		return;
 	}
 
 	UAttackSystemComponent* MobAttackSystemComp = ClosestMob->GetComponentByClass<UAttackSystemComponent>();
 
-	if (!MobAttackSystemComp)
+	if (!IsValid(MobAttackSystemComp))
 	{
 		return;
 	}
 
 	AActor* Owner = GetOwner();
 
-	if (!Owner)
+	if (!IsValid(Owner))
 	{
 		return;
 	}
@@ -340,10 +294,9 @@ void UAttackSystemComponent::CheckParry()
 		UE_LOG(LogTemp, Warning, TEXT("Your Parry Failed!"))
 		return;
 	}
-
 }
 
-AActor* UAttackSystemComponent::FindClosestActor(TArray<AActor*> Actors)
+AActor* UAttackSystemComponent::FindClosestActor(const TArray<AActor*> &Actors)
 {
 	if (Actors.IsEmpty())
 	{
@@ -396,7 +349,7 @@ void UAttackSystemComponent::PerformRadialAttack(float Radius)
 	{
 		if (!DamagedActors.Contains(OutActors[i]))
 		{
-			ApplyDamage(OutActors[i], BossRadialAttackDamageMutiplier);
+			ApplyDamage(OutActors[i], BossRadialAttackDamageMultiplier);
 			DamagedActors.Add(OutActors[i]);
 		}
 	}
@@ -405,41 +358,31 @@ void UAttackSystemComponent::PerformRadialAttack(float Radius)
 // DataTable
 void UAttackSystemComponent::InitializeFromDataTable()
 {
-	if (!StatTable)
+	if (StatTable)
 	{
-		return;
+		FAttackStatRow* AttackStatRow = StatTable->FindRow<FAttackStatRow>(RowName, TEXT("Not Find RowName"));
+		if (AttackStatRow)
+		{
+			ParryRange = AttackStatRow->ParryRange;
+			ParryDamageMultiplier = AttackStatRow->ParryDamageMultiplier;
+			HitStopDelayTime = AttackStatRow->HitStopDelayTime;
+			HitSlowDelayTime = AttackStatRow->HitSlowDelayTime;
+			HitSlowPlayerTime = AttackStatRow->HitSlowPlayerTime;
+			HitSlowMobTime = AttackStatRow->HitSlowMobTime;
+			ParryDotThreshold = AttackStatRow->ParryDotThreshold;
+		}
 	}
 
-	FAttackStatRow* AttackStatRow = StatTable->FindRow<FAttackStatRow>(RowName, TEXT("Not Find RowName"));
-
-	if (!AttackStatRow)
+	if (BossAttackStatTable)
 	{
-		return;
+		FBossAttackStatRow* BossAttackStatRow = BossAttackStatTable->FindRow<FBossAttackStatRow>(BossRowName, TEXT("Not Find RowName"));
+		if (BossAttackStatRow)
+		{
+			BossRadialAttackFirstRadius = BossAttackStatRow->BossRadialAttackFirstRadius;
+			BossRadialAttackMaxRadius = BossAttackStatRow->BossRadialAttackMaxRadius;
+			BossRadialAttackExpandSpeed = BossAttackStatRow->BossRadialAttackExpandSpeed;
+			BossRadialAttackDamageMultiplier = BossAttackStatRow->BossRadialAttackDamageMultiplier;
+		}
 	}
-
-	if (!BossAttackStatTable)
-	{
-		return;
-	}
-
-	FBossAttackStatRow* BossAttackStatRow = BossAttackStatTable->FindRow<FBossAttackStatRow>(BossRowName, TEXT("Not Find RowName"));
-
-	if (!BossAttackStatRow)
-	{
-		return;
-	}
-
-	ParryRange = AttackStatRow->ParryRange;
-	ParryDamageMultiplier = AttackStatRow->ParryDamageMultiplier;
-	HitStopDelayTime = AttackStatRow->HitStopDelayTime;
-	HitSlowDelayTime = AttackStatRow->HitSlowDelayTime;
-	HitSlowPlayerTime = AttackStatRow->HitSlowPlayerTime;
-	HitSlowMobTime = AttackStatRow->HitSlowMobTime;
-	ParryDotThreshold = AttackStatRow->ParryDotThreshold;
-
-	BossRadialAttackFirstRadius = BossAttackStatRow->BossRadialAttackFirstRadius;
-	BossRadialAttackMaxRadius = BossAttackStatRow->BossRadialAttackMaxRadius;
-	BossRadialAttackExpandSpeed = BossAttackStatRow->BossRadialAttackExpandSpeed;
-	BossRadialAttackDamageMutiplier = BossAttackStatRow->BossRadialAttackDamageMutiplier;
 }
 

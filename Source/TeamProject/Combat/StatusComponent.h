@@ -125,7 +125,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Combat")
 	float GetATK() const;
 
-	UFUNCTION(BlueprintPure, Category = "Statmina")
+	UFUNCTION(BlueprintPure, Category = "Stamina")
 	float GetStamina() const;
 
 	UFUNCTION(BlueprintPure, Category = "Stamina")
