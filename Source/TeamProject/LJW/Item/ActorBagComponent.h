@@ -44,6 +44,13 @@ public:
 	void UseItemIndexOnUI(int32 ArrayIndex);
 	// ====================== useiteminUI ========================
 
+	// ====================== QuickSlot =======================
+	UFUNCTION(BlueprintCallable)
+	void SetQuickSlotItemIndexOnUI(int32 QuickSlotIndex);
+	UFUNCTION()
+	int32 QuickSlotItemIndex;
+	UFUNCTION(BlueprintCallable)
+	int32 GetQuickSlotItemIndex();
 	UFUNCTION(BlueprintCallable)
 	int32 GetMaxBagSlot() const;
 	UFUNCTION(BlueprintCallable)

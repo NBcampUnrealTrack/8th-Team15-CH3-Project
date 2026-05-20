@@ -165,8 +165,17 @@ void UActorBagComponent::UseItemIndexOnUI(int32 ArrayIndex)
 						}
 
 						ActorBag[ArrayIndex].Count--;
+
 						if (ActorBag[ArrayIndex].Count <= 0)
 						{
+							if (QuickSlotItemIndex == ArrayIndex)
+							{
+								QuickSlotItemIndex = -1;
+							}
+							else if (QuickSlotItemIndex > ArrayIndex)
+							{
+								QuickSlotItemIndex--;
+							}
 							ActorBag.RemoveAt(ArrayIndex);
 						}
 						OnBagChanged.Broadcast();
@@ -183,6 +192,18 @@ void UActorBagComponent::UseItemIndexOnUI(int32 ArrayIndex)
 			}
 		}
 	}
+}
+
+// Have to Position Last Logic On UI
+void UActorBagComponent::SetQuickSlotItemIndexOnUI(int32 QuickSlotIndex)
+{
+	QuickSlotItemIndex = QuickSlotIndex;
+	OnBagChanged.Broadcast();
+}
+
+int32 UActorBagComponent::GetQuickSlotItemIndex()
+{
+	return QuickSlotItemIndex;
 }
 
 int32 UActorBagComponent::GetMaxBagSlot() const

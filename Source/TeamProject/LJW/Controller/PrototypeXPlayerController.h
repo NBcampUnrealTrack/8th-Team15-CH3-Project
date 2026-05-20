@@ -36,8 +36,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
 	TObjectPtr<UInputAction> IA_Jump;
 	// =============================================================
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
-	//TObjectPtr<UInputAction> IA_ItemUse;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
+	TObjectPtr<UInputAction> IA_ItemQuickUse;
 
 
 protected:
