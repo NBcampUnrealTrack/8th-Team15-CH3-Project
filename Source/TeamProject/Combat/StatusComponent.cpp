@@ -47,6 +47,7 @@ void UStatusComponent::ReceiveDamage(float AttackerATK)
 
 	float TrueDamage = FMath::Max((AttackerATK - DEF) * (1 - Absorption), AttackerATK * 0.1f);
 	SetHP(HP - TrueDamage);
+	OnHealthChanged.Broadcast(GetOwner());
 
 	if (!bHalfHealthDelegateFired)
 	{
@@ -142,6 +143,11 @@ float UStatusComponent::GetMaxStamina() const
 	return MaxStamina;
 }
 
+bool UStatusComponent::GetbIsInvincible() const
+{
+	return bIsInvincible;
+}
+
 // setter
 void UStatusComponent::SetbIsDead(bool NewbIsDead)
 {
@@ -173,5 +179,10 @@ void UStatusComponent::SetStamina(float NewStamina)
 void UStatusComponent::SetMaxStamina(float NewMaxStamina)
 {
 	MaxStamina = NewMaxStamina;
+}
+
+void UStatusComponent::SetbIsInvincible(bool NewbInvincible)
+{
+	bIsInvincible = NewbInvincible;
 }
 

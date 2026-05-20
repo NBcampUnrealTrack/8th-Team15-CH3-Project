@@ -7,10 +7,11 @@
 #include "Engine/DataTable.h"
 #include "StatusComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHalfHealthReached, AActor*, Owner);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHPChangedSignature, float, NewHP);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStaminaChangedSignature, float, NewStamina);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathSignature); // GameMode
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHalfHealthReached, AActor*, Boss); // Boss
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthChanged, AActor*, Character); // Character
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHPChangedSignature, float, NewHP); // UI
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStaminaChangedSignature, float, NewStamina); // UI
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class TEAMPROJECT_API UStatusComponent : public UActorComponent
@@ -60,6 +61,9 @@ private:
 	UPROPERTY()
 	bool bIsDead = false;
 
+	UPROPERTY()
+	bool bIsInvincible = false;
+
 // DeleGate
 public:
 	UPROPERTY(BlueprintAssignable, Category = "Health")
@@ -73,6 +77,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Health")
 	FOnDeathSignature OnDeath;
+
+	UPROPERTY(BlueprintAssignable, Category = "Health")
+	FOnHealthChanged OnHealthChanged;
 
 private:
 	bool bHalfHealthDelegateFired = false;
@@ -124,6 +131,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Stamina")
 	float GetMaxStamina() const;
 
+	UFUNCTION(BlueprintPure, Category = "Invincibility")
+	bool GetbIsInvincible() const;
+
 	// setter
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	void SetbIsDead(bool NewbIsDead);
@@ -142,4 +152,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Stamina")
 	void SetMaxStamina(float NewMaxStamina);
+
+	UFUNCTION(BlueprintCallable, Category = "Invincibility")
+	void SetbIsInvincible(bool NewbInvincible);
 };

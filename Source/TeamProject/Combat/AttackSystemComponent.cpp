@@ -4,6 +4,7 @@
 #include "Combat/AttackSystemComponent.h"
 #include "Combat/StatusComponent.h"
 #include "Combat/DataTable/AttackStatRow.h"
+#include "Combat/DataTable/BossAttackStatRow.h"
 #include "PrototypeXMob.h"
 #include "LJW/Character/PrototypeXCharacter.h"
 #include "Components/StaticMeshComponent.h"
@@ -90,7 +91,10 @@ void UAttackSystemComponent::ApplyDamage(AActor* TargetActor, float ParryDamageM
 		return;
 	}
 
-	TargetStatusComp->ReceiveDamage(AttackerStatusComp->GetATK() * ParryDamageMultipiler);
+	if (!TargetStatusComp->GetbIsInvincible())
+	{
+		TargetStatusComp->ReceiveDamage(AttackerStatusComp->GetATK() * ParryDamageMultipiler);
+	}
 
 
 	if (bUseHitStop)
@@ -376,7 +380,7 @@ void UAttackSystemComponent::SetbIsParryWindowOpen(bool bOpen)
 void UAttackSystemComponent::PerformRadialAttack(float Radius)
 {
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
-	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_GameTraceChannel1));
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_Pawn));
 
 	TArray<AActor*> ActorToIgnore;
 	ActorToIgnore.Add(GetOwner());
@@ -390,7 +394,11 @@ void UAttackSystemComponent::PerformRadialAttack(float Radius)
 
 	for (int i = 0; i < OutActors.Num(); ++i)
 	{
-		ApplyDamage(OutActors[i], BossRadialAttackDamageMutiplier);
+		if (!DamagedActors.Contains(OutActors[i]))
+		{
+			ApplyDamage(OutActors[i], BossRadialAttackDamageMutiplier);
+			DamagedActors.Add(OutActors[i]);
+		}
 	}
 }
 
@@ -402,19 +410,36 @@ void UAttackSystemComponent::InitializeFromDataTable()
 		return;
 	}
 
-	FAttackStatRow* Row = StatTable->FindRow<FAttackStatRow>(RowName, TEXT("Not Find RowName"));
+	FAttackStatRow* AttackStatRow = StatTable->FindRow<FAttackStatRow>(RowName, TEXT("Not Find RowName"));
 
-	if (!Row)
+	if (!AttackStatRow)
 	{
 		return;
 	}
 
-	ParryRange = Row->ParryRange;
-	ParryDamageMultiplier = Row->ParryDamageMultiplier;
-	HitStopDelayTime = Row->HitStopDelayTime;
-	HitSlowDelayTime = Row->HitSlowDelayTime;
-	HitSlowPlayerTime = Row->HitSlowPlayerTime;
-	HitSlowMobTime = Row->HitSlowMobTime;
-	ParryDotThreshold = Row->ParryDotThreshold;
+	if (!BossAttackStatTable)
+	{
+		return;
+	}
+
+	FBossAttackStatRow* BossAttackStatRow = BossAttackStatTable->FindRow<FBossAttackStatRow>(BossRowName, TEXT("Not Find RowName"));
+
+	if (!BossAttackStatRow)
+	{
+		return;
+	}
+
+	ParryRange = AttackStatRow->ParryRange;
+	ParryDamageMultiplier = AttackStatRow->ParryDamageMultiplier;
+	HitStopDelayTime = AttackStatRow->HitStopDelayTime;
+	HitSlowDelayTime = AttackStatRow->HitSlowDelayTime;
+	HitSlowPlayerTime = AttackStatRow->HitSlowPlayerTime;
+	HitSlowMobTime = AttackStatRow->HitSlowMobTime;
+	ParryDotThreshold = AttackStatRow->ParryDotThreshold;
+
+	BossRadialAttackFirstRadius = BossAttackStatRow->BossRadialAttackFirstRadius;
+	BossRadialAttackMaxRadius = BossAttackStatRow->BossRadialAttackMaxRadius;
+	BossRadialAttackExpandSpeed = BossAttackStatRow->BossRadialAttackExpandSpeed;
+	BossRadialAttackDamageMutiplier = BossAttackStatRow->BossRadialAttackDamageMutiplier;
 }
 

@@ -136,16 +136,20 @@ public:
 	float BossRadialAttackCurrentRadius;
 
 	UPROPERTY(BlueprintReadWrite, Category = "BossRadialAttack")
-	float BossRadialAttackFirstRadius = 400.0f;
+	float BossRadialAttackFirstRadius = 38.0f;
 
 	UPROPERTY(BlueprintReadWrite, Category = "BossRadialAttack")
-	float BossRadialAttackMaxRadius = 1000.0f;
+	float BossRadialAttackMaxRadius = 500.0f;
 
 	UPROPERTY(BlueprintReadWrite, Category = "BossRadialAttack")
 	float BossRadialAttackExpandSpeed = 100.0f;
 
 	UPROPERTY(BlueprintReadWrite, Category = "BossRadialAttack")
 	float BossRadialAttackDamageMutiplier = 1.5f;
+
+public:
+	UPROPERTY(BlueprintReadWrite, Category = "BossRadialAttack")
+	TArray<AActor*> DamagedActors;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "BossPattern")
@@ -158,6 +162,12 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "DataTable")
 	FName RowName;
+
+	UPROPERTY(EditDefaultsOnly, Category = "BossDataTable")
+	UDataTable* BossAttackStatTable;
+
+	UPROPERTY(EditDefaultsOnly, Category = "BossDataTable")
+	FName BossRowName;
 
 private:
 	void InitializeFromDataTable();
