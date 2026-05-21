@@ -221,7 +221,7 @@ void UActorBagComponent::MoveItemSlot(int32 FromIndex, int32 ToIndex)
 	ActorBag[FromIndex] = Temp;
 
 	OnBagChanged.Broadcast();
-	}
+	
 }
 
 // Have to Position Last Logic On UI
