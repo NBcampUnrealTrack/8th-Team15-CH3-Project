@@ -11,6 +11,7 @@ class UStatusComponent;
 class UStaticMeshComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnParrySuccessSignature, AActor*, ParriedMob);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnParryCounterReady);
 
 UCLASS( ClassGroup=(Custom), Blueprintable, meta=(BlueprintSpawnableComponent) )
 class TEAMPROJECT_API UAttackSystemComponent : public UActorComponent
@@ -58,7 +59,7 @@ public:
 	void CameraShake();
 
 private:
-	void ApplyDamage(AActor* TargetActor, float ParryDamageMultiplier = 1.0f);
+	void ApplyDamage(AActor* TargetActor, float InParryDamageMultiplier = 1.0f);
 
 	UFUNCTION()
 	TWeakObjectPtr<UActorComponent> GetWeapon();
@@ -105,6 +106,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Parry")
 	FOnParrySuccessSignature OnParrySuccess;
 
+	UPROPERTY(BlueprintAssignable, Category = "Parry")
+	FOnParryCounterReady OnParryCounterReady;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Parry")
 	float ParryRange = 150.0f;
 
@@ -118,6 +122,12 @@ private:
 	UPROPERTY()
 	bool bIsParryWindowOpen = false;
 
+	UPROPERTY()
+	bool bIsParryAttack = false;
+
+	UPROPERTY()
+	bool bIsParrySuccess = false;
+
 public:
 	UFUNCTION(BlueprintCallable)
 	void CheckParry();
@@ -126,10 +136,22 @@ public:
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Parry")
-	bool GetbIsParryWindowOpen();
+	bool GetbIsParryWindowOpen() const;
+
+	UFUNCTION(BlueprintPure, Category = "Parry")
+	bool GetbIsParryAttack() const;
+
+	UFUNCTION(BlueprintPure, Category = "Parry")
+	bool GetbIsParrySuccess() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Parry")
-	void SetbIsParryWindowOpen(bool bOpen);
+	void SetbIsParryWindowOpen(bool NewbIsParryWindowOpen);
+
+	UFUNCTION(BlueprintCallable, Category = "Parry")
+	void SetbIsParryAttack(bool NewbIsParryAttack);
+
+	UFUNCTION(BlueprintCallable, Category = "Parry")
+	void SetbIsParrySuccess(bool NewbIsParrySuccess);
 
 // Boss Pattern
 public:

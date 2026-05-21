@@ -55,7 +55,17 @@ void UAttackSystemComponent::PerformHitTrace(FVector point1, FVector point2)
 		HitActors.Add(HitResult.GetActor());
 
 		CameraShake();
-		ApplyDamage(HitResult.GetActor());
+
+		if (Cast<APrototypeXCharacter>(GetOwner()) && GetbIsParryAttack())
+		{
+			ApplyDamage(HitResult.GetActor(), ParryDamageMultiplier);
+			SetbIsParryAttack(false);
+		}
+
+		else
+		{
+			ApplyDamage(HitResult.GetActor());
+		}
 	}
 }
 
@@ -70,7 +80,7 @@ void UAttackSystemComponent::EndAttackTrace()
 	bIsTracing = false;
 }
 
-void UAttackSystemComponent::ApplyDamage(AActor* TargetActor, float ParryDamageMultiplier)
+void UAttackSystemComponent::ApplyDamage(AActor* TargetActor, float InParryDamageMultiplier)
 {
 	if (!TargetActor)
 	{
@@ -93,7 +103,7 @@ void UAttackSystemComponent::ApplyDamage(AActor* TargetActor, float ParryDamageM
 
 	if (!TargetStatusComp->GetbIsInvincible())
 	{
-		TargetStatusComp->ReceiveDamage(AttackerStatusComp->GetATK() * ParryDamageMultiplier);
+		TargetStatusComp->ReceiveDamage(AttackerStatusComp->GetATK() * InParryDamageMultiplier);
 	}
 
 	if (bUseHitStop)
@@ -244,7 +254,7 @@ void UAttackSystemComponent::CheckParry()
 	TArray<FHitResult> Mobs;
 
 	UKismetSystemLibrary::SphereTraceMulti(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation(),
-		ParryRange, TraceTypeQuery2, false, IgnoreActors, EDrawDebugTrace::ForDuration, Mobs, true, FLinearColor::Blue);
+		ParryRange, TraceTypeQuery1, false, IgnoreActors, EDrawDebugTrace::ForDuration, Mobs, true, FLinearColor::Blue);
 
 	for (int i = 0; i < Mobs.Num(); ++i)
 	{
@@ -286,7 +296,8 @@ void UAttackSystemComponent::CheckParry()
 	if (MobAttackSystemComp->GetbIsParryWindowOpen())
 	{
 		OnParrySuccess.Broadcast(ClosestMob);
-		ApplyDamage(ClosestMob, ParryDamageMultiplier);
+		SetbIsParrySuccess(true);
+		OnParryCounterReady.Broadcast();
 		UE_LOG(LogTemp, Warning, TEXT("Your Parry Success!"))
 	}
 	else
@@ -319,15 +330,36 @@ AActor* UAttackSystemComponent::FindClosestActor(const TArray<AActor*> &Actors)
 	return FindActor;
 }
 
-bool UAttackSystemComponent::GetbIsParryWindowOpen()
+bool UAttackSystemComponent::GetbIsParryWindowOpen() const
 {
 	return bIsParryWindowOpen;
 }
 
-void UAttackSystemComponent::SetbIsParryWindowOpen(bool bOpen)
+bool UAttackSystemComponent::GetbIsParryAttack() const
 {
-	bIsParryWindowOpen = bOpen;
+	return bIsParryAttack;
 }
+
+bool UAttackSystemComponent::GetbIsParrySuccess() const
+{
+	return bIsParrySuccess;
+}
+
+void UAttackSystemComponent::SetbIsParryWindowOpen(bool NewbIsParryWindowOpen)
+{
+	bIsParryWindowOpen = NewbIsParryWindowOpen;
+}
+
+void UAttackSystemComponent::SetbIsParryAttack(bool NewbIsParryAttack)
+{
+	bIsParryAttack = NewbIsParryAttack;
+}
+
+void UAttackSystemComponent::SetbIsParrySuccess(bool NewbIsParrySuccess)
+{
+	bIsParrySuccess = NewbIsParrySuccess;
+}
+
 
 // Boss Pattern
 void UAttackSystemComponent::PerformRadialAttack(float Radius)
