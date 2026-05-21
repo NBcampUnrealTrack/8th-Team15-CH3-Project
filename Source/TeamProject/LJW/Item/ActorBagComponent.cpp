@@ -95,6 +95,12 @@ TArray<FInventorySlot> UActorBagComponent::GetActorBag() const
 	return ActorBag;
 }
 
+void UActorBagComponent::SetActorBag(TArray<FInventorySlot> SetBagWhenGameStart)
+{
+	ActorBag = SetBagWhenGameStart;
+	OnBagChanged.Broadcast();
+}
+
 void UActorBagComponent::AddItemintoBag(FName itemid, int32 itemcount)
 {
 	while (ActorBag.Num() < MaxBagSlot)
@@ -167,9 +173,19 @@ void UActorBagComponent::UseItemIndexOnUI(int32 ArrayIndex)
 						}
 
 						ActorBag[ArrayIndex].Count--;
+
 						if (ActorBag[ArrayIndex].Count <= 0)
 						{
 							ActorBag[ArrayIndex] = FInventorySlot();
+							if (QuickSlotItemIndex == ArrayIndex)
+							{
+								QuickSlotItemIndex = -1;
+							}
+							else if (QuickSlotItemIndex > ArrayIndex)
+							{
+								QuickSlotItemIndex--;
+							}
+							ActorBag.RemoveAt(ArrayIndex);
 						}
 						OnBagChanged.Broadcast();
 					}
@@ -205,6 +221,19 @@ void UActorBagComponent::MoveItemSlot(int32 FromIndex, int32 ToIndex)
 	ActorBag[FromIndex] = Temp;
 
 	OnBagChanged.Broadcast();
+	}
+}
+
+// Have to Position Last Logic On UI
+void UActorBagComponent::SetQuickSlotItemIndexOnUI(int32 QuickSlotIndex)
+{
+	QuickSlotItemIndex = QuickSlotIndex;
+	OnBagChanged.Broadcast();
+}
+
+int32 UActorBagComponent::GetQuickSlotItemIndex()
+{
+	return QuickSlotItemIndex;
 }
 
 int32 UActorBagComponent::GetMaxBagSlot() const

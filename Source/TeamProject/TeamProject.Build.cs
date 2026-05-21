@@ -15,8 +15,10 @@ public class TeamProject : ModuleRules
 			"InputCore",
 			"EnhancedInput",
 			"UMG",
-			"Niagara"
-		});
+			"Niagara",
+			"LevelSequence",
+			"MovieScene"
+        });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

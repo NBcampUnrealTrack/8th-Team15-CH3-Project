@@ -15,6 +15,7 @@ class UAnimMontage;
 
 class UStatusComponent;
 class UAttackSystemComponent;
+class UActorBagComponent;
 
 struct FRelativeOffset;
 
@@ -31,6 +32,9 @@ class TEAMPROJECT_API APrototypeXCharacter : public ACharacter
 
 public:
 	APrototypeXCharacter();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnParryCounterAttack();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	TObjectPtr<UCapsuleComponent> UCapsuleComponent;
@@ -50,6 +54,7 @@ public:
 	// ================================
 	UPROPERTY()
 	FTimerHandle RunningTimeCheck;
+	bool RunningTime = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Velocitys|Speed")
 	float Normal_Speed;
@@ -77,6 +82,8 @@ public:
 	UPROPERTY()
 	UAttackSystemComponent* PlayerAttackSystemComp;
 	UPROPERTY()
+	UActorBagComponent* PlayerActorBagComponent;
+	UPROPERTY()
 	UStaticMeshComponent* PlayerSwordComponent = nullptr;
 protected:
 	virtual void BeginPlay() override;
@@ -95,6 +102,9 @@ protected:
 
 	void Defence_Start(const FInputActionValue& value);
 	void Defence_Ended(UAnimMontage* Montage, bool bInterrupted);
+
+	void ItemUse_QuickSlot(const FInputActionValue& value);
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "States|Defence")
 	UAnimMontage* DefenceMontage;
 	bool bIsOnDefencing = false;

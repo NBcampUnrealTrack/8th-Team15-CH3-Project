@@ -12,6 +12,7 @@
 
 #include "Combat/StatusComponent.h"
 #include "Combat/AttackSystemComponent.h"
+#include "LJW/Item/ActorBagComponent.h"
 #include "LJW/Item/ItemDatatable.h"
 #include "MainGameInstance.h"
 APrototypeXCharacter::APrototypeXCharacter()
@@ -50,6 +51,7 @@ void APrototypeXCharacter::BeginPlay()
 
 	PlayerStatusComponent = FindComponentByClass<UStatusComponent>();
 	PlayerAttackSystemComp = FindComponentByClass<UAttackSystemComponent>();
+	PlayerActorBagComponent = FindComponentByClass<UActorBagComponent>();
 
 	TArray<UStaticMeshComponent*> MeshComponents;
 	GetComponents<UStaticMeshComponent>(MeshComponents);
@@ -64,6 +66,18 @@ void APrototypeXCharacter::BeginPlay()
 
 	UE_LOG(LogTemp, Log, TEXT("%s"), *PlayerStatusComponent->GetName());
 	checkf(PlayerStatusComponent, TEXT("Must have StatusComponents"));
+
+	if (PlayerActorBagComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GAMEMODE::PlayerActorBagComponent Is Valid"));
+		// get bag from gameinstance
+		UMainGameInstance* GameInstance = Cast<UMainGameInstance>(GetGameInstance());
+		if (GameInstance)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("GAMEMODE::GameInstance Is Valid"));
+			PlayerActorBagComponent->SetActorBag(GameInstance->GetPlayerInventory());
+		}
+	}
 }
 
 //void APrototypeXCharacter::ItemUse_Start(const FInputActionValue& value)
@@ -314,7 +328,7 @@ void APrototypeXCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 			{
 				EnhancedInput->BindAction(
 					PlayerController->IA_Sprint,
-					ETriggerEvent::Started,
+					ETriggerEvent::Triggered,
 					this,
 					&APrototypeXCharacter::Sprint_Start
 				);
@@ -355,15 +369,15 @@ void APrototypeXCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 				);
 			}
 
-			//if (PlayerController->IA_ItemUse)
-			//{
-			//	EnhancedInput->BindAction(
-			//		PlayerController->IA_ItemUse,
-			//		ETriggerEvent::Triggered,
-			//		this,
-			//		&APrototypeXCharacter::ItemUse_Start
-			//	);
-			//}
+			if (PlayerController->IA_ItemQuickUse)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->IA_ItemQuickUse,
+					ETriggerEvent::Triggered,
+					this,
+					&APrototypeXCharacter::ItemUse_QuickSlot
+				);
+			}
 		}
 	}
 }
@@ -454,7 +468,11 @@ void APrototypeXCharacter::Sprint_Start(const FInputActionValue& value)
 {
 	if (IsItemUsing) return;
 
-	if (PlayerStatusComponent->GetStamina() < 2.f) return;
+	if (PlayerStatusComponent->GetStamina() < 5.f)
+	{
+		Sprint_Stop(value);
+		return;
+	}
 
 	GetCharacterMovement()->MaxWalkSpeed = Sprint_Speed;
 	SpringArmComponent->bEnableCameraLag = true;
@@ -462,18 +480,23 @@ void APrototypeXCharacter::Sprint_Start(const FInputActionValue& value)
 	OnLagSpeed = true;
 
 	// ========================== STEMINA ==============================
-	GetWorldTimerManager().SetTimer(
-		RunningTimeCheck,
-		[this]()
-		{
-			if (PlayerStatusComponent)
-			{
-				PlayerStatusComponent->ConsumeStamina(2.f);
-			}
-		},
-		1.0f,
-		true
-	);
+	//if (!RunningTime)
+	//{
+	//	RunningTime = true;
+	//	GetWorldTimerManager().SetTimer(
+	//		RunningTimeCheck,
+	//		[this]()
+	//		{
+	//			if (PlayerStatusComponent)
+	//			{
+					PlayerStatusComponent->ConsumeStamina(0.3f);
+	//				RunningTime = false;
+	//			}
+	//		},
+	//		1.0f,
+	//		false
+	//	);
+	//}
 	// ========================== STEMINA ==============================
 
 }
@@ -543,6 +566,19 @@ void APrototypeXCharacter::Defence_Start(const FInputActionValue& value)
 void APrototypeXCharacter::Defence_Ended(UAnimMontage* Montage, bool bInterrupted)
 {
 	bIsOnDefencing = false;
+}
+
+void APrototypeXCharacter::ItemUse_QuickSlot(const FInputActionValue& value)
+{
+	if (PlayerActorBagComponent)
+	{
+		int32 TargetIndex = PlayerActorBagComponent->GetQuickSlotItemIndex(); // 변수 Getter 함수 필요
+
+		if (TargetIndex != -1)
+		{
+			PlayerActorBagComponent->UseItemIndexOnUI(TargetIndex);
+		}
+	}
 }
 
 void APrototypeXCharacter::SetPlayerMode(EPlayerMode NewMode)

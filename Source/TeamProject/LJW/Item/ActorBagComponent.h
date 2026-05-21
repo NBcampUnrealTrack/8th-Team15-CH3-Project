@@ -35,6 +35,8 @@ public:
 	// ====================== getitemingame ======================
 	UFUNCTION(BlueprintCallable)
 	TArray<FInventorySlot> GetActorBag() const;
+	UFUNCTION()
+	void SetActorBag(TArray<FInventorySlot> SetBagWhenGameStart);
 	UFUNCTION(BlueprintCallable)
 	void AddItemintoBag(FName itemid, int32 itemcount = 1);
 	// ====================== getitemingame ======================
@@ -49,6 +51,13 @@ public:
 	void MoveItemSlot(int32 FromIndex, int32 ToIndex);
 	// ====================== moveitemslot ========================
 
+	// ====================== QuickSlot =======================
+	UFUNCTION(BlueprintCallable)
+	void SetQuickSlotItemIndexOnUI(int32 QuickSlotIndex);
+	UPROPERTY()
+	int32 QuickSlotItemIndex;
+	UFUNCTION(BlueprintCallable)
+	int32 GetQuickSlotItemIndex();
 	UFUNCTION(BlueprintCallable)
 	int32 GetMaxBagSlot() const;
 	UFUNCTION(BlueprintCallable)
