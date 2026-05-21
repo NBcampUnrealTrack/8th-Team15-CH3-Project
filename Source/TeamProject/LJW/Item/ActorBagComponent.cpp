@@ -97,33 +97,35 @@ TArray<FInventorySlot> UActorBagComponent::GetActorBag() const
 
 void UActorBagComponent::AddItemintoBag(FName itemid, int32 itemcount)
 {
-	for (FInventorySlot& Slots : ActorBag)
+	while (ActorBag.Num() < MaxBagSlot)
 	{
-		if (Slots.ItemID == itemid)
+		ActorBag.Add(FInventorySlot());
+	}
+
+	for (FInventorySlot& Slot : ActorBag)
+	{
+		if (Slot.ItemID == itemid)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Add Count"));
-			Slots.Count += itemcount;
-			// DELEGATE ===================
+			Slot.Count += itemcount;
 			OnBagChanged.Broadcast();
 			return;
 		}
 	}
 
-	if (MaxBagSlot > ActorBag.Num())
+	for (FInventorySlot& Slot : ActorBag)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Add Item"));
-		FInventorySlot Item({ itemid, itemcount });
-		ActorBag.Add(Item);
-		// DELEGATE ===================
-		OnBagChanged.Broadcast();
-		return;
-	}
-	else
-	{
-		if (GEngine)
+		if (Slot.ItemID == NAME_None)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("FULL INVENTORY BAG")));
+			Slot.ItemID = itemid;
+			Slot.Count = itemcount;
+			OnBagChanged.Broadcast();
+			return;
 		}
+	}
+
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("FULL INVENTORY BAG"));
 	}
 }
 
@@ -167,7 +169,7 @@ void UActorBagComponent::UseItemIndexOnUI(int32 ArrayIndex)
 						ActorBag[ArrayIndex].Count--;
 						if (ActorBag[ArrayIndex].Count <= 0)
 						{
-							ActorBag.RemoveAt(ArrayIndex);
+							ActorBag[ArrayIndex] = FInventorySlot();
 						}
 						OnBagChanged.Broadcast();
 					}
@@ -183,6 +185,26 @@ void UActorBagComponent::UseItemIndexOnUI(int32 ArrayIndex)
 			}
 		}
 	}
+}
+
+void UActorBagComponent::MoveItemSlot(int32 FromIndex, int32 ToIndex)
+{
+	if (FromIndex == ToIndex) return;
+	if (FromIndex < 0 || ToIndex < 0) return;
+	if (FromIndex >= MaxBagSlot || ToIndex >= MaxBagSlot) return;
+
+	while (ActorBag.Num() < MaxBagSlot)
+	{
+		ActorBag.Add(FInventorySlot());
+	}
+
+	if (ActorBag[FromIndex].ItemID == NAME_None) return;
+
+	FInventorySlot Temp = ActorBag[ToIndex];
+	ActorBag[ToIndex] = ActorBag[FromIndex];
+	ActorBag[FromIndex] = Temp;
+
+	OnBagChanged.Broadcast();
 }
 
 int32 UActorBagComponent::GetMaxBagSlot() const

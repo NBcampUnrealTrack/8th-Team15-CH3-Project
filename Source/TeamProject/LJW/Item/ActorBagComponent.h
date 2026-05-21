@@ -44,6 +44,11 @@ public:
 	void UseItemIndexOnUI(int32 ArrayIndex);
 	// ====================== useiteminUI ========================
 
+	// ====================== moveitemslot ========================
+	UFUNCTION(BlueprintCallable)
+	void MoveItemSlot(int32 FromIndex, int32 ToIndex);
+	// ====================== moveitemslot ========================
+
 	UFUNCTION(BlueprintCallable)
 	int32 GetMaxBagSlot() const;
 	UFUNCTION(BlueprintCallable)
