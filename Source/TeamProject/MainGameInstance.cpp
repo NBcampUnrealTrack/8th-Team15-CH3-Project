@@ -4,7 +4,7 @@
 #include "MainGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "Combat/StatusComponent.h"
-
+#include "LJW/Item/ActorBagComponent.h"
 void UMainGameInstance::SavePlayerStatus(AActor* Player)
 {
 	if (!Player)
@@ -39,4 +39,14 @@ void UMainGameInstance::SetPlayerStatus(AActor* Player)
 
 	PlayerStatusComp->SetHP(PlayerCurrentHP);
 	PlayerStatusComp->SetATK(PlayerCurrentATK);
+}
+
+void UMainGameInstance::SetPlayerInventory(TArray<FInventorySlot> Inventory)
+{
+	PlayerInventory = Inventory;
+}
+
+TArray<FInventorySlot> UMainGameInstance::GetPlayerInventory()
+{
+	return PlayerInventory;
 }

@@ -95,6 +95,12 @@ TArray<FInventorySlot> UActorBagComponent::GetActorBag() const
 	return ActorBag;
 }
 
+void UActorBagComponent::SetActorBag(TArray<FInventorySlot> SetBagWhenGameStart)
+{
+	ActorBag = SetBagWhenGameStart;
+	OnBagChanged.Broadcast();
+}
+
 void UActorBagComponent::AddItemintoBag(FName itemid, int32 itemcount)
 {
 	for (FInventorySlot& Slots : ActorBag)

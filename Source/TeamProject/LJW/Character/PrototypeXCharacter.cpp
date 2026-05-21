@@ -66,6 +66,18 @@ void APrototypeXCharacter::BeginPlay()
 
 	UE_LOG(LogTemp, Log, TEXT("%s"), *PlayerStatusComponent->GetName());
 	checkf(PlayerStatusComponent, TEXT("Must have StatusComponents"));
+
+	if (PlayerActorBagComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GAMEMODE::PlayerActorBagComponent Is Valid"));
+		// get bag from gameinstance
+		UMainGameInstance* GameInstance = Cast<UMainGameInstance>(GetGameInstance());
+		if (GameInstance)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("GAMEMODE::GameInstance Is Valid"));
+			PlayerActorBagComponent->SetActorBag(GameInstance->GetPlayerInventory());
+		}
+	}
 }
 
 //void APrototypeXCharacter::ItemUse_Start(const FInputActionValue& value)
@@ -316,7 +328,7 @@ void APrototypeXCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 			{
 				EnhancedInput->BindAction(
 					PlayerController->IA_Sprint,
-					ETriggerEvent::Started,
+					ETriggerEvent::Triggered,
 					this,
 					&APrototypeXCharacter::Sprint_Start
 				);
@@ -456,7 +468,11 @@ void APrototypeXCharacter::Sprint_Start(const FInputActionValue& value)
 {
 	if (IsItemUsing) return;
 
-	if (PlayerStatusComponent->GetStamina() < 2.f) return;
+	if (PlayerStatusComponent->GetStamina() < 5.f)
+	{
+		Sprint_Stop(value);
+		return;
+	}
 
 	GetCharacterMovement()->MaxWalkSpeed = Sprint_Speed;
 	SpringArmComponent->bEnableCameraLag = true;
@@ -464,18 +480,23 @@ void APrototypeXCharacter::Sprint_Start(const FInputActionValue& value)
 	OnLagSpeed = true;
 
 	// ========================== STEMINA ==============================
-	GetWorldTimerManager().SetTimer(
-		RunningTimeCheck,
-		[this]()
-		{
-			if (PlayerStatusComponent)
-			{
-				PlayerStatusComponent->ConsumeStamina(2.f);
-			}
-		},
-		1.0f,
-		true
-	);
+	//if (!RunningTime)
+	//{
+	//	RunningTime = true;
+	//	GetWorldTimerManager().SetTimer(
+	//		RunningTimeCheck,
+	//		[this]()
+	//		{
+	//			if (PlayerStatusComponent)
+	//			{
+					PlayerStatusComponent->ConsumeStamina(0.3f);
+	//				RunningTime = false;
+	//			}
+	//		},
+	//		1.0f,
+	//		false
+	//	);
+	//}
 	// ========================== STEMINA ==============================
 
 }

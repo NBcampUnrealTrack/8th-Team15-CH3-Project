@@ -39,8 +39,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inputs")
 	TObjectPtr<UInputAction> IA_ItemQuickUse;
 
-
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
+	TObjectPtr<class UUserWidget> MyUserWidgetInstance;
 protected:
 	virtual void BeginPlay() override;
-
 };

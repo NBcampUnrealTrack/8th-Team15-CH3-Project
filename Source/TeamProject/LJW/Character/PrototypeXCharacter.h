@@ -33,6 +33,9 @@ class TEAMPROJECT_API APrototypeXCharacter : public ACharacter
 public:
 	APrototypeXCharacter();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnParryCounterAttack();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	TObjectPtr<UCapsuleComponent> UCapsuleComponent;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
@@ -51,6 +54,7 @@ public:
 	// ================================
 	UPROPERTY()
 	FTimerHandle RunningTimeCheck;
+	bool RunningTime = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Velocitys|Speed")
 	float Normal_Speed;
