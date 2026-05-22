@@ -36,4 +36,6 @@ public:
 	void SetPlayerInventory(TArray<FInventorySlot> Inventory);
 	UFUNCTION()
 	TArray<FInventorySlot> GetPlayerInventory();
+
+	virtual void Init() override;
 };

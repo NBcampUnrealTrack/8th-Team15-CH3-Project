@@ -40,7 +40,7 @@ void UActorBagComponent::DropItemOnDeath()
 			OriginSpawnLocation = FloorLocation;
 		}
 	}
-
+	UE_LOG(LogTemp, Warning, TEXT("DropItem Called."));
 	if (UMainGameInstance* GameInstance = Cast<UMainGameInstance>(GetWorld()->GetGameInstance()))
 	{
 		FString DebugString(TEXT("Cant Find Item On Bag When Spawning"));
@@ -51,6 +51,7 @@ void UActorBagComponent::DropItemOnDeath()
 				continue;
 			}
 
+			UE_LOG(LogTemp, Warning, TEXT("Item Will Spanwed"));
 			if (FItemDatatable* FoundRow = GameInstance->ItemDataTable->FindRow<FItemDatatable>(Slots.ItemID, DebugString))
 			{
 				FActorSpawnParameters SpawnParams;
@@ -112,9 +113,12 @@ void UActorBagComponent::AddItemintoBag(FName itemid, int32 itemcount)
 	//{
 	//	ActorBag.Add(FInventorySlot());
 	//}
-
+	UE_LOG(LogTemp, Error, TEXT("[%s] AddItemintoBag CALLED - Bag Address: %p, Bag Size: %d"), 
+		*GetOwner()->GetName(), this, ActorBag.Num());
+	UE_LOG(LogTemp, Error, TEXT("AddItemintoBagFUNCTION CALLED."));
 	for (FInventorySlot& Slot : ActorBag)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("IN BAG CHECKING SLOT ID == itemid"));
 		if (Slot.ItemID == itemid)
 		{
 			Slot.Count += itemcount;
@@ -125,6 +129,7 @@ void UActorBagComponent::AddItemintoBag(FName itemid, int32 itemcount)
 
 	for (FInventorySlot& Slot : ActorBag)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("IN BAG CHECKING SLOT ID == NAME_None"));
 		if (Slot.ItemID == NAME_None)
 		{
 			Slot.ItemID = itemid;
@@ -292,5 +297,8 @@ int32 UActorBagComponent::GetItemCount() const
 void UActorBagComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	ActorBag.Init(FInventorySlot(), MaxBagSlot);
+	//ActorBag.Init(FInventorySlot(), MaxBagSlot);
+	//UE_LOG(LogTemp, Error, TEXT("[%s] BeginPlay - Bag Address: %p, Bag Size: %d"),
+	//	*GetOwner()->GetName(), this, ActorBag.Num());
+	//OnBagChanged.Broadcast();
 }

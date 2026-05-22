@@ -72,7 +72,7 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"), Category = "Inventory")
 	TArray<FInventorySlot> ActorBag;
 	UPROPERTY()
-	int32 MaxBagSlot = 54;
+	int32 MaxBagSlot = 54; // 임시로 게임인스턴스에 54
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Inventory")
 	TSubclassOf<AActor> ItemBaseClass;
 };

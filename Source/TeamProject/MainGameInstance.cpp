@@ -50,3 +50,10 @@ TArray<FInventorySlot> UMainGameInstance::GetPlayerInventory()
 {
 	return PlayerInventory;
 }
+
+void UMainGameInstance::Init()
+{
+	Super::Init();
+
+	PlayerInventory.Init(FInventorySlot(), 54);
+}
