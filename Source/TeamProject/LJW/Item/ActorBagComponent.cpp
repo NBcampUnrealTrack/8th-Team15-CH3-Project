@@ -46,6 +46,11 @@ void UActorBagComponent::DropItemOnDeath()
 		FString DebugString(TEXT("Cant Find Item On Bag When Spawning"));
 		for (FInventorySlot& Slots : ActorBag)
 		{
+			if (Slots.ItemID == NAME_None || Slots.Count <= 0)
+			{
+				continue;
+			}
+
 			if (FItemDatatable* FoundRow = GameInstance->ItemDataTable->FindRow<FItemDatatable>(Slots.ItemID, DebugString))
 			{
 				FActorSpawnParameters SpawnParams;
@@ -103,10 +108,10 @@ void UActorBagComponent::SetActorBag(TArray<FInventorySlot> SetBagWhenGameStart)
 
 void UActorBagComponent::AddItemintoBag(FName itemid, int32 itemcount)
 {
-	while (ActorBag.Num() < MaxBagSlot)
-	{
-		ActorBag.Add(FInventorySlot());
-	}
+	//while (ActorBag.Num() < MaxBagSlot)
+	//{
+	//	ActorBag.Add(FInventorySlot());
+	//}
 
 	for (FInventorySlot& Slot : ActorBag)
 	{
@@ -137,11 +142,30 @@ void UActorBagComponent::AddItemintoBag(FName itemid, int32 itemcount)
 
 void UActorBagComponent::UseItemIndexOnUI(int32 ArrayIndex)
 {
-	if (!ActorBag.IsValidIndex(ArrayIndex)) //index check
+	if (!ActorBag.IsValidIndex(ArrayIndex)) // maxslot넘어가는 index일때
 	{
 		if (GEngine)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("ItemCount is %d... OverLoad Slot"), ActorBag.Num()));
+			GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("Invalid Item Index")));
+		}
+		return;
+	}
+
+	if (ActorBag[ArrayIndex].ItemID == FName(TEXT("NAME_None")))//index check
+	{
+
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("This Slot Is NAME_NONE Item")));
+		}
+		return;
+	}
+
+	if (ActorBag[ArrayIndex].Count <= 0) // count 0이하일때
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("This Slot is ZERO COUNT")));
 		}
 		return;
 	}
@@ -177,15 +201,17 @@ void UActorBagComponent::UseItemIndexOnUI(int32 ArrayIndex)
 						if (ActorBag[ArrayIndex].Count <= 0)
 						{
 							ActorBag[ArrayIndex] = FInventorySlot();
-							if (QuickSlotItemIndex == ArrayIndex)
-							{
-								QuickSlotItemIndex = -1;
-							}
-							else if (QuickSlotItemIndex > ArrayIndex)
-							{
-								QuickSlotItemIndex--;
-							}
-							ActorBag.RemoveAt(ArrayIndex);
+
+							//ActorBag[ArrayIndex] = FInventorySlot();
+							//if (QuickSlotItemIndex == ArrayIndex)
+							//{
+							//	QuickSlotItemIndex = -1;
+							//}
+							//else if (QuickSlotItemIndex > ArrayIndex)
+							//{
+							//	QuickSlotItemIndex--;
+							//}
+							//ActorBag.RemoveAt(ArrayIndex);
 						}
 						OnBagChanged.Broadcast();
 					}
@@ -209,10 +235,10 @@ void UActorBagComponent::MoveItemSlot(int32 FromIndex, int32 ToIndex)
 	if (FromIndex < 0 || ToIndex < 0) return;
 	if (FromIndex >= MaxBagSlot || ToIndex >= MaxBagSlot) return;
 
-	while (ActorBag.Num() < MaxBagSlot)
-	{
-		ActorBag.Add(FInventorySlot());
-	}
+	//while (ActorBag.Num() < MaxBagSlot)
+	//{
+	//	ActorBag.Add(FInventorySlot());
+	//}
 
 	if (ActorBag[FromIndex].ItemID == NAME_None) return;
 
@@ -220,8 +246,17 @@ void UActorBagComponent::MoveItemSlot(int32 FromIndex, int32 ToIndex)
 	ActorBag[ToIndex] = ActorBag[FromIndex];
 	ActorBag[FromIndex] = Temp;
 
+	if (QuickSlotItemIndex == FromIndex) // 양방향 퀵슬롯 체크
+	{
+		QuickSlotItemIndex = ToIndex;
+	}
+	else if (QuickSlotItemIndex == ToIndex)
+	{
+		QuickSlotItemIndex = FromIndex;
+	}
+
 	OnBagChanged.Broadcast();
-	
+
 }
 
 // Have to Position Last Logic On UI
@@ -243,10 +278,19 @@ int32 UActorBagComponent::GetMaxBagSlot() const
 
 int32 UActorBagComponent::GetItemCount() const
 {
-	return ActorBag.Num();
+	int32 ItemCountInBag = 0;
+	for (const FInventorySlot& Slot : ActorBag)
+	{
+		if (Slot.ItemID != NAME_None)
+		{
+			ItemCountInBag++;
+		}
+	}
+	return ItemCountInBag;
 }
 
 void UActorBagComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	ActorBag.Init(FInventorySlot(), MaxBagSlot);
 }
