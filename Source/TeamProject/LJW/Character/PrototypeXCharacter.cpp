@@ -74,8 +74,10 @@ void APrototypeXCharacter::BeginPlay()
 		UMainGameInstance* GameInstance = Cast<UMainGameInstance>(GetGameInstance());
 		if (GameInstance)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("GAMEMODE::GameInstance Is Valid"));
+			UE_LOG(LogTemp, Error, TEXT("GameInstance Is Valid :: SET BAG FROM GAMEINSTANCE BEFORE :: %d"), PlayerActorBagComponent->GetActorBag().Num());
 			PlayerActorBagComponent->SetActorBag(GameInstance->GetPlayerInventory());
+			UE_LOG(LogTemp, Error, TEXT("7SET BAG FROM GAMEINSTANCE AFTER :: %d"), PlayerActorBagComponent->GetActorBag().Num());
+
 		}
 	}
 }
@@ -373,7 +375,7 @@ void APrototypeXCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 			{
 				EnhancedInput->BindAction(
 					PlayerController->IA_ItemQuickUse,
-					ETriggerEvent::Triggered,
+					ETriggerEvent::Started,
 					this,
 					&APrototypeXCharacter::ItemUse_QuickSlot
 				);
@@ -573,9 +575,11 @@ void APrototypeXCharacter::ItemUse_QuickSlot(const FInputActionValue& value)
 	if (PlayerActorBagComponent)
 	{
 		int32 TargetIndex = PlayerActorBagComponent->GetQuickSlotItemIndex(); // 변수 Getter 함수 필요
-
+		UE_LOG(LogTemp, Error, TEXT("GETQUICKSLOTITEMINDEX :: %d"), TargetIndex);
 		if (TargetIndex != -1)
 		{
+			UE_LOG(LogTemp, Error, TEXT("USEITEMINDEX :: %d"), TargetIndex);
+
 			PlayerActorBagComponent->UseItemIndexOnUI(TargetIndex);
 		}
 	}

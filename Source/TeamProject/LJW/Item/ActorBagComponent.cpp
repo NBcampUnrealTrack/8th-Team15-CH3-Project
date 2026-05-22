@@ -244,7 +244,7 @@ void UActorBagComponent::MoveItemSlot(int32 FromIndex, int32 ToIndex)
 	//{
 	//	ActorBag.Add(FInventorySlot());
 	//}
-
+	UE_LOG(LogTemp, Error, TEXT("NowQuickIndex :: %d // FromIndex :: %d // ToIndex :: %d"), QuickSlotItemIndex, FromIndex, ToIndex);
 	if (ActorBag[FromIndex].ItemID == NAME_None) return;
 
 	FInventorySlot Temp = ActorBag[ToIndex];
@@ -259,6 +259,7 @@ void UActorBagComponent::MoveItemSlot(int32 FromIndex, int32 ToIndex)
 	{
 		QuickSlotItemIndex = FromIndex;
 	}
+UE_LOG(LogTemp, Error, TEXT("AfterQuickIndex :: %d // FromIndex :: %d // ToIndex :: %d"), QuickSlotItemIndex, FromIndex, ToIndex);
 
 	OnBagChanged.Broadcast();
 
@@ -267,6 +268,8 @@ void UActorBagComponent::MoveItemSlot(int32 FromIndex, int32 ToIndex)
 // Have to Position Last Logic On UI
 void UActorBagComponent::SetQuickSlotItemIndexOnUI(int32 QuickSlotIndex)
 {
+	UE_LOG(LogTemp, Error, TEXT("SETQUICKSLOTITEMINDEXONUI CALLED UI :: GETNUMER > %d"), QuickSlotIndex);
+
 	QuickSlotItemIndex = QuickSlotIndex;
 	OnBagChanged.Broadcast();
 }
@@ -297,8 +300,15 @@ int32 UActorBagComponent::GetItemCount() const
 void UActorBagComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	UE_LOG(LogTemp, Error, TEXT("BagActorComponent Begin :: Owner :: %s // BAG NUMBER :: %d"), *GetOwner()->GetName(), ActorBag.Num());
+
 	//ActorBag.Init(FInventorySlot(), MaxBagSlot);
 	//UE_LOG(LogTemp, Error, TEXT("[%s] BeginPlay - Bag Address: %p, Bag Size: %d"),
 	//	*GetOwner()->GetName(), this, ActorBag.Num());
 	//OnBagChanged.Broadcast();
+	for (int i = ActorBag.Num(); i < MaxBagSlot; i++)
+	{
+		ActorBag.Add(FInventorySlot());
+	}
+	OnBagChanged.Broadcast();
 }

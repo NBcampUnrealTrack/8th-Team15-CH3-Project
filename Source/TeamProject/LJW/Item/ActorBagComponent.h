@@ -55,7 +55,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetQuickSlotItemIndexOnUI(int32 QuickSlotIndex);
 	UPROPERTY()
-	int32 QuickSlotItemIndex;
+	int32 QuickSlotItemIndex = -1;
 	UFUNCTION(BlueprintCallable)
 	int32 GetQuickSlotItemIndex();
 	UFUNCTION(BlueprintCallable)

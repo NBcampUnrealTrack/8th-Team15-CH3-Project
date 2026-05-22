@@ -54,6 +54,7 @@ TArray<FInventorySlot> UMainGameInstance::GetPlayerInventory()
 void UMainGameInstance::Init()
 {
 	Super::Init();
+	UE_LOG(LogTemp, Error, TEXT("GAMEINSTANCE :: SET PLAYERINVENT 54"));
 
 	PlayerInventory.Init(FInventorySlot(), 54);
 }

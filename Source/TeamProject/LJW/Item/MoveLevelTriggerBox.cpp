@@ -12,6 +12,7 @@
 
 #include "Blueprint/UserWidget.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
+#include "LevelSquenceTriggerBox.h"
 
 AMoveLevelTriggerBox::AMoveLevelTriggerBox()
 {

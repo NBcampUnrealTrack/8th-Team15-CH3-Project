@@ -14,7 +14,6 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     class UBoxComponent* TriggerVolume;
 
-    // ?? 에디터에서 다음 레벨을 마음대로 바꿀 수 있도록 노출!
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Level")
     TSoftObjectPtr<UWorld> NextLevel;
 
