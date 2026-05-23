@@ -580,6 +580,11 @@ void APrototypeXCharacter::Defence_Start(const FInputActionValue& value)
 void APrototypeXCharacter::Defence_Ended(UAnimMontage* Montage, bool bInterrupted)
 {
 	bIsOnDefencing = false;
+	if (PlayerAttackSystemComp->GetbIsParrySuccess())
+	{
+		OnParryCounterAttack();
+		PlayerAttackSystemComp->SetbIsParrySuccess(false);
+	}
 }
 
 void APrototypeXCharacter::ItemUse_QuickSlot(const FInputActionValue& value)
