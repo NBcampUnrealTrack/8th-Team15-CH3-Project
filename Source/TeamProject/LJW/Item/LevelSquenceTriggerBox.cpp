@@ -4,7 +4,8 @@
 #include "GameFramework/Controller.h"
 #include "LevelSequenceActor.h"
 #include "LevelSequencePlayer.h"
-
+#include "Blueprint/WidgetBlueprintLibrary.h"
+#include "Blueprint/UserWidget.h"
 ALevelSquenceTriggerBox::ALevelSquenceTriggerBox()
 {
     UShapeComponent* TriggerShape = GetCollisionComponent();
@@ -25,12 +26,21 @@ void ALevelSquenceTriggerBox::OnOverlapBegin(
 {
     if (APrototypeXCharacter* PlayerCharacter = Cast<APrototypeXCharacter>(OtherActor))
     {
+
         SavePlayerCharacter = PlayerCharacter;
         SavePlayerController = PlayerCharacter->GetController();
+        APlayerController* PC = Cast<APlayerController>(SavePlayerCharacter);
 
         if (SavePlayerController)
         {
-            SavePlayerController->UnPossess();
+            PlayerCharacter->DisableInput(PC);
+
+            TArray<UUserWidget*> FoundWidgets;
+            UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), FoundWidgets, UUserWidget::StaticClass(), false);
+            for (UUserWidget* Widget : FoundWidgets)
+            {
+                Widget->SetVisibility(ESlateVisibility::Hidden);
+            }
 		}
 
         if (TargetSequenceActor)
@@ -48,7 +58,19 @@ void ALevelSquenceTriggerBox::OnSequenceFinished()
 {
     if (SavePlayerController && SavePlayerCharacter)
     {
-        SavePlayerController->Possess(SavePlayerCharacter);
+        APlayerController* PC = Cast<APlayerController>(SavePlayerCharacter);
+
+        if (SavePlayerController)
+        {
+            SavePlayerCharacter->EnableInput(PC);
+
+            TArray<UUserWidget*> FoundWidgets;
+            UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), FoundWidgets, UUserWidget::StaticClass(), false);
+            for (UUserWidget* Widget : FoundWidgets)
+            {
+                Widget->SetVisibility(ESlateVisibility::Visible);
+            }
+        }
 	}
 
     UShapeComponent* TriggerShape = GetCollisionComponent();
