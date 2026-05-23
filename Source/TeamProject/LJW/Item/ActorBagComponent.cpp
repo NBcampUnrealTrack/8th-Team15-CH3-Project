@@ -118,7 +118,7 @@ void UActorBagComponent::AddItemintoBag(FName itemid, int32 itemcount)
 	UE_LOG(LogTemp, Error, TEXT("AddItemintoBagFUNCTION CALLED."));
 	for (FInventorySlot& Slot : ActorBag)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("IN BAG CHECKING SLOT ID == itemid"));
+		//UE_LOG(LogTemp, Warning, TEXT("IN BAG CHECKING SLOT ID == itemid"));
 		if (Slot.ItemID == itemid)
 		{
 			Slot.Count += itemcount;
