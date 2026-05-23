@@ -1,7 +1,8 @@
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Engine/DataTable.h"
 #include "PrototypeXCharacter.generated.h"
 
 class UCapsuleComponent;
@@ -141,7 +142,7 @@ protected:
 	bool IsItemUsing = false;
 
 	//================================
-public:	
+public:
 	UFUNCTION(BlueprintCallable)
 	bool ItemUse_MontagePlay(FName GetItemID);
 
@@ -160,4 +161,38 @@ public:
 private:
 	UPROPERTY()
 	class APlayerCameraManager* CachedCameraManager;
+
+	// 승하가 추가한 부분 ======================================
+
+	// StaminaCostValue=============================
+public:
+	UPROPERTY(EditDefaultsOnly, Category = "StaminaCost")
+	float RollStamina = 13.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "StaminaCost")
+	float SprintStamina = 2.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "StaminaCost")
+	float JumpStamina = 10.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "StaminaCost")
+	float ParryStamina = 15.0f;
+
+private:
+	UPROPERTY()
+	bool bIsSprinting = false;
+
+	// DataTable=============================
+public:
+	UPROPERTY(EditDefaultsOnly, Category = "StaminaCostDataTable")
+	UDataTable* StaminaCostTable;
+
+	UPROPERTY(EditDefaultsOnly, Category = "StaminaCostDataTable")
+	FName StaminaCostRowName;
+
+private:
+	UFUNCTION()
+	void InitializeFromDataTable();
+
+	// 여기까지 =====================================================
 };

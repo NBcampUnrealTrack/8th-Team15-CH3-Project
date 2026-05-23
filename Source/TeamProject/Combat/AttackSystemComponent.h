@@ -193,5 +193,6 @@ public:
 	FName BossRowName;
 
 private:
+	UFUNCTION()
 	void InitializeFromDataTable();
 };

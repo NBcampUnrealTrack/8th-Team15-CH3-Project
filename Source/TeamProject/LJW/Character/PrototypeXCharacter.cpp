@@ -12,6 +12,7 @@
 
 #include "Combat/StatusComponent.h"
 #include "Combat/AttackSystemComponent.h"
+#include "Combat/DataTable/StaminaCostRow.h"
 #include "LJW/Item/ActorBagComponent.h"
 #include "LJW/Item/ItemDatatable.h"
 #include "MainGameInstance.h"
@@ -47,6 +48,10 @@ APrototypeXCharacter::APrototypeXCharacter()
 void APrototypeXCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// 승하가 추가함 - 데이터테이블의 데이터 값을 집어넣어주는 함수입니다.
+	InitializeFromDataTable();
+
 	SetPlayerMode(EPlayerMode::Normal);
 
 	PlayerStatusComponent = FindComponentByClass<UStatusComponent>();
@@ -222,7 +227,7 @@ void APrototypeXCharacter::ApplyRollingAtMode(EPlayerMode InMode)
 			//DesiredDir방향(Rotation) 회전하라(SetActorRotation)
 
 			// ============================ STEMINA =================================
-			PlayerStatusComponent->ConsumeStamina(13.f);
+			PlayerStatusComponent->ConsumeStamina(RollStamina); // 하드코딩된 값 변수로 변경. (승하 수정)
 			// ============================ STEMINA =================================
 
 			Animbackground->Montage_Play(RollMontage);
@@ -268,7 +273,10 @@ void APrototypeXCharacter::Tick(float DeltaTime)
 		}
 	}
 
-
+	if (bIsSprinting)
+	{
+		PlayerStatusComponent->DrainStamina(SprintStamina, DeltaTime);
+	}
 
 }
 
@@ -481,6 +489,8 @@ void APrototypeXCharacter::Sprint_Start(const FInputActionValue& value)
 	TargetLagSpeed = 10.f;
 	OnLagSpeed = true;
 
+	bIsSprinting = true; // bIsSprinting 변수가 True 일때만 스태미나를 소모함 (승하 추가)
+
 	// ========================== STEMINA ==============================
 	//if (!RunningTime)
 	//{
@@ -491,7 +501,7 @@ void APrototypeXCharacter::Sprint_Start(const FInputActionValue& value)
 	//		{
 	//			if (PlayerStatusComponent)
 	//			{
-					PlayerStatusComponent->ConsumeStamina(0.3f);
+					//PlayerStatusComponent->ConsumeStamina(0.3f);
 	//				RunningTime = false;
 	//			}
 	//		},
@@ -509,6 +519,8 @@ void APrototypeXCharacter::Sprint_Stop(const FInputActionValue& value)
 	GetCharacterMovement()->MaxWalkSpeed = Normal_Speed;
 	TargetLagSpeed = 50.f;
 
+	bIsSprinting = false;
+
 	// ========================== STEMINA ==============================
 	GetWorldTimerManager().ClearTimer(RunningTimeCheck);
 	// ========================== STEMINA ==============================
@@ -522,7 +534,7 @@ void APrototypeXCharacter::Jump_Start(const FInputActionValue& value)
 	UE_LOG(LogTemp, Warning, TEXT("Jumping"));
 	bIsOnJumpping = true;
 	// ======================== Stemina =============================
-	PlayerStatusComponent->ConsumeStamina(10.f);
+	PlayerStatusComponent->ConsumeStamina(JumpStamina); // 하드코딩된 값 변수로 변경. (승하 수정)
 	// ======================== Stemina =============================
 	Jump();
 }
@@ -550,7 +562,7 @@ void APrototypeXCharacter::Defence_Start(const FInputActionValue& value)
 	if (PlayerStatusComponent->GetStamina() < 15.f) return;
 
 	// =========================== STEMINA ==============================
-	PlayerStatusComponent->ConsumeStamina(15.f);
+	PlayerStatusComponent->ConsumeStamina(ParryStamina); // 하드코딩된 값 변수로 변경. (승하 수정)
 	// =========================== STEMINA ==============================
 	bIsOnDefencing = true;
 	// =========================== PARRY ===============================
@@ -671,4 +683,20 @@ void APrototypeXCharacter::ApplyAttackModeSettings()
 	GetCharacterMovement()->MaxWalkSpeed = Normal_Speed;
 
 	GetCharacterMovement()->JumpZVelocity = Normal_Jump_Speed;
+}
+
+// 데이터 테이블의 값을 변수로 대입해주는 함수 (승하 추가)
+void APrototypeXCharacter::InitializeFromDataTable()
+{
+	if (StaminaCostTable)
+	{
+		FStaminaCostRow* StaminaCostRow = StaminaCostTable->FindRow<FStaminaCostRow>(StaminaCostRowName, TEXT("Not Find RowName"));
+		if (StaminaCostRow)
+		{
+			RollStamina = StaminaCostRow->RollStamina;
+			SprintStamina = StaminaCostRow->SprintStamina;
+			JumpStamina = StaminaCostRow->JumpStamina;
+			ParryStamina = StaminaCostRow->ParryStamina;
+		}
+	}
 }
