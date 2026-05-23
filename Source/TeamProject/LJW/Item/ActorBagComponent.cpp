@@ -147,7 +147,7 @@ void UActorBagComponent::AddItemintoBag(FName itemid, int32 itemcount)
 
 void UActorBagComponent::UseItemIndexOnUI(int32 ArrayIndex)
 {
-	if (!ActorBag.IsValidIndex(ArrayIndex)) // maxslot³Ñ¾î°¡´Â indexÀÏ¶§
+	if (!ActorBag.IsValidIndex(ArrayIndex)) // maxslotï¿½Ñ¾î°¡ï¿½ï¿½ indexï¿½Ï¶ï¿½
 	{
 		if (GEngine)
 		{
@@ -166,7 +166,7 @@ void UActorBagComponent::UseItemIndexOnUI(int32 ArrayIndex)
 		return;
 	}
 
-	if (ActorBag[ArrayIndex].Count <= 0) // count 0ÀÌÇÏÀÏ¶§
+	if (ActorBag[ArrayIndex].Count <= 0) // count 0ï¿½ï¿½ï¿½ï¿½ï¿½Ï¶ï¿½
 	{
 		if (GEngine)
 		{
@@ -251,7 +251,7 @@ void UActorBagComponent::MoveItemSlot(int32 FromIndex, int32 ToIndex)
 	ActorBag[ToIndex] = ActorBag[FromIndex];
 	ActorBag[FromIndex] = Temp;
 
-	if (QuickSlotItemIndex == FromIndex) // ¾ç¹æÇâ Äü½½·Ô Ã¼Å©
+	if (QuickSlotItemIndex == FromIndex) // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã¼Å©
 	{
 		QuickSlotItemIndex = ToIndex;
 	}
