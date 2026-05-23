@@ -43,7 +43,7 @@ void UAttackSystemComponent::PerformHitTrace(FVector point1, FVector point2)
 
 	bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), CurrentPoint,
 		TargetPoint, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false,
-		IgnoreActors, EDrawDebugTrace::None, HitResult, true);
+		IgnoreActors, DebugTraceType, HitResult, true);
 
 	if (bHit)
 	{
@@ -254,7 +254,7 @@ void UAttackSystemComponent::CheckParry()
 	TArray<FHitResult> Mobs;
 
 	UKismetSystemLibrary::SphereTraceMulti(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation(),
-		ParryRange, TraceTypeQuery1, false, IgnoreActors, EDrawDebugTrace::None, Mobs, true, FLinearColor::Blue);
+		ParryRange, TraceTypeQuery1, false, IgnoreActors, DebugTraceType, Mobs, true, FLinearColor::Blue);
 
 	for (int i = 0; i < Mobs.Num(); ++i)
 	{
@@ -375,7 +375,10 @@ void UAttackSystemComponent::PerformRadialAttack(float Radius)
 	UKismetSystemLibrary::SphereOverlapActors(GetWorld(), GetOwner()->GetActorLocation(), Radius,
 		ObjectTypes, nullptr, ActorToIgnore, OutActors);
 
-	DrawDebugSphere(GetWorld(), GetOwner()->GetActorLocation(), Radius, 12, FColor::Red, false, 0.1f);
+	if (bShowDebugSphere)
+	{
+		DrawDebugSphere(GetWorld(), GetOwner()->GetActorLocation(), Radius, 12, FColor::Red, false, 0.1f);
+	}
 
 	for (int i = 0; i < OutActors.Num(); ++i)
 	{

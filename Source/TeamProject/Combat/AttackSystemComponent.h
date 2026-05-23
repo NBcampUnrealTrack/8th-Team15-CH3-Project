@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Engine/DataTable.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "AttackSystemComponent.generated.h"
 
 class UStatusComponent;
@@ -40,6 +41,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit")
 	TWeakObjectPtr<UStaticMeshComponent> CurrentWeapon;
+
+	UPROPERTY(EditAnywhere, Category = "Hit")
+	TEnumAsByte<EDrawDebugTrace::Type> DebugTraceType = EDrawDebugTrace::None;
 
 private:
 	UPROPERTY()
@@ -169,6 +173,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "BossRadialAttack")
 	float BossRadialAttackDamageMultiplier = 1.5f;
+
+	UPROPERTY(EditAnywhere, Category = "BossRadialAttack")
+	bool bShowDebugSphere = false;
 
 public:
 	UPROPERTY(BlueprintReadWrite, Category = "BossRadialAttack")
