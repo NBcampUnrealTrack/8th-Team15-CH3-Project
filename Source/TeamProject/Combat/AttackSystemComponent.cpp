@@ -43,7 +43,7 @@ void UAttackSystemComponent::PerformHitTrace(FVector point1, FVector point2)
 
 	bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), CurrentPoint,
 		TargetPoint, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false,
-		IgnoreActors, EDrawDebugTrace::ForDuration, HitResult, true);
+		IgnoreActors, EDrawDebugTrace::None, HitResult, true);
 
 	if (bHit)
 	{
@@ -254,7 +254,7 @@ void UAttackSystemComponent::CheckParry()
 	TArray<FHitResult> Mobs;
 
 	UKismetSystemLibrary::SphereTraceMulti(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation(),
-		ParryRange, TraceTypeQuery1, false, IgnoreActors, EDrawDebugTrace::ForDuration, Mobs, true, FLinearColor::Blue);
+		ParryRange, TraceTypeQuery1, false, IgnoreActors, EDrawDebugTrace::None, Mobs, true, FLinearColor::Blue);
 
 	for (int i = 0; i < Mobs.Num(); ++i)
 	{
