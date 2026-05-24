@@ -10,7 +10,7 @@
 #include "LJW/Item/ActorBagComponent.h"
 #include "MainGameInstance.h"
 #include "Kismet/GameplayStatics.h"
-#include "Sound/SoundWave.h"
+#include "Sound/SoundBase.h"
 AItemBase::AItemBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -72,9 +72,23 @@ void AItemBase::ActivateItem(AActor* Activator)
 	// ~~ add inventory
 	if (UActorBagComponent* ActivatorInventory = Activator->FindComponentByClass<UActorBagComponent>())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Activate Item: %s"), *this->GetName());
+		UE_LOG(LogTemp, Warning, TEXT("Activate Item: %s -- %s"), *this->GetName(), *ItemID.ToString());
 		ActivatorInventory->AddItemintoBag(ItemID);
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), ActiveSound, GetActorLocation());
+
+		if (UMainGameInstance* GameInstance = Cast<UMainGameInstance>(GetGameInstance()))
+		{
+			if (UDataTable* ItemDataTables = GameInstance->ItemDataTable)
+			{
+				FString ContextString(TEXT("BeginPlay Read"));
+				FItemDatatable* FoundRow = ItemDataTables->FindRow<FItemDatatable>(ItemID, ContextString);
+				if (FoundRow)
+				{
+					USoundBase* ActiveSound = FoundRow->ItemSound.LoadSynchronous();
+					UGameplayStatics::PlaySoundAtLocation(GetWorld(), ActiveSound, GetActorLocation());
+				}
+			}
+		}
+
 	}
 	Destroy();
 }

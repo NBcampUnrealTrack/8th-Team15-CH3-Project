@@ -9,7 +9,7 @@
 class USceneComponent;
 class UStaticMeshComponent;
 class USphereComponent;
-class USoundWave;
+class USoundBase;
 
 UCLASS(ABSTRACT)
 class TEAMPROJECT_API AItemBase
@@ -31,12 +31,11 @@ public:
 	TObjectPtr<USphereComponent> Magnetic_SphereComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<USphereComponent> Activate_SphereComponent;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TObjectPtr<USoundWave> ActiveSound;
 
 	virtual void OnMagneticSphereOverlap(
 		UPrimitiveComponent* OverlappedComponent,
 		AActor* OtherActor,
+
 		UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex,
 		bool bFromSweep,

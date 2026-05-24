@@ -171,7 +171,7 @@ bool APrototypeXCharacter::ItemUse_MontagePlay(FName GetItemID)
 					Animbackground->Montage_Play(PlayMontage);
 
 					FOnMontageEnded EndDelegate;
-					EndDelegate.BindUObject(this, &APrototypeXCharacter::ItemUse_End, NowHaveStaticMesh, BeforeChangeOffset);
+					EndDelegate.BindUObject(this, &APrototypeXCharacter::ItemUse_End, NowHaveStaticMesh, BeforeChangeOffset, FoundRow->ItemType);
 					Animbackground->Montage_SetEndDelegate(EndDelegate, PlayMontage);
 
 					return true;
@@ -182,14 +182,29 @@ bool APrototypeXCharacter::ItemUse_MontagePlay(FName GetItemID)
 	return false;
 }
 
-void APrototypeXCharacter::ItemUse_End(UAnimMontage*, bool bInterrupted, UStaticMesh* GetSwordComp, FRelativeOffset SetOffset)
+void APrototypeXCharacter::ItemUse_End(UAnimMontage*, bool bInterrupted, UStaticMesh* GetSwordComp, FRelativeOffset SetOffset, EItemType itemtype)
 {
 	IsItemUsing = false;
 	IsPlayerDrinking = false;
-	PlayerSwordComponent->SetStaticMesh(GetSwordComp);
-	PlayerSwordComponent->SetRelativeLocationAndRotation(SetOffset.Location, SetOffset.Rotation);
-	PlayerSwordComponent->SetRelativeScale3D(SetOffset.Scale);
 
+	switch (itemtype)
+	{
+		case EItemType::EQUIPMENT:
+		{
+			break;
+		}
+		case EItemType::POTION:
+		{
+			PlayerSwordComponent->SetStaticMesh(GetSwordComp);
+			PlayerSwordComponent->SetRelativeLocationAndRotation(SetOffset.Location, SetOffset.Rotation);
+			PlayerSwordComponent->SetRelativeScale3D(SetOffset.Scale);
+			break;
+		}
+		default:
+		{
+			break;
+		}
+	}
 	GetCharacterMovement()->MaxWalkSpeed = Normal_Speed;
 }
 

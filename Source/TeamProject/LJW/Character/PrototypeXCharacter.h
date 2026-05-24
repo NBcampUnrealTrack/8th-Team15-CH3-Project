@@ -11,6 +11,7 @@ class USpringArmComponent;
 class UCameraComponent;
 
 struct FInputActionValue;
+enum class EItemType : uint8;
 
 class UAnimMontage;
 
@@ -138,7 +139,7 @@ protected:
 	TArray<UAnimMontage*> ItemUseMontage;
 
 	//void ItemUse_Start(const FInputActionValue& value);
-	void ItemUse_End(UAnimMontage*, bool bInterrupted, UStaticMesh* GetSwordComp, FRelativeOffset SetOffset);
+	void ItemUse_End(UAnimMontage*, bool bInterrupted, UStaticMesh* GetSwordComp, FRelativeOffset SetOffset, EItemType itemtype);
 	bool IsItemUsing = false;
 
 	//================================
