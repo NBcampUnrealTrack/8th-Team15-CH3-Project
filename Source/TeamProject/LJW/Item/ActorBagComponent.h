@@ -7,6 +7,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWhenBagChangedSignal);
 
 class AActor;
+enum class EItemType : uint8;
 
 USTRUCT(BlueprintType)
 struct FInventorySlot
@@ -37,6 +38,12 @@ public:
 	TArray<FInventorySlot> GetActorBag() const;
 	UFUNCTION()
 	void SetActorBag(TArray<FInventorySlot> SetBagWhenGameStart);
+
+	UFUNCTION(BlueprintCallable)
+	TMap<EItemType, FName> GetActorWeaponBag() const;
+	UFUNCTION()
+	void SetActorWeaponBag(TMap<EItemType, FName> SetBagWhenGameStart);
+
 	UFUNCTION(BlueprintCallable)
 	void AddItemintoBag(FName itemid, int32 itemcount = 1);
 	// ====================== getitemingame ======================
@@ -71,6 +78,8 @@ protected:
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"), Category = "Inventory")
 	TArray<FInventorySlot> ActorBag;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"), Category = "Inventory")
+	TMap<EItemType, FName> ActorWeaponBag;
 	UPROPERTY()
 	int32 MaxBagSlot = 54; // 임시로 게임인스턴스에 54
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Inventory")

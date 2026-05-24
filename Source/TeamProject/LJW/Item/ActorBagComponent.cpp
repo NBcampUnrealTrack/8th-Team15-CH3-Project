@@ -107,6 +107,16 @@ void UActorBagComponent::SetActorBag(TArray<FInventorySlot> SetBagWhenGameStart)
 	OnBagChanged.Broadcast();
 }
 
+TMap<EItemType, FName> UActorBagComponent::GetActorWeaponBag() const
+{
+	return ActorWeaponBag;
+}
+
+void UActorBagComponent::SetActorWeaponBag(TMap<EItemType, FName> SetBagWhenGameStart)
+{
+	ActorWeaponBag = SetBagWhenGameStart;
+}
+
 void UActorBagComponent::AddItemintoBag(FName itemid, int32 itemcount)
 {
 	//while (ActorBag.Num() < MaxBagSlot)
@@ -196,7 +206,7 @@ void UActorBagComponent::UseItemIndexOnUI(int32 ArrayIndex)
 							StatusCompoent->SetHP(StatusCompoent->GetHP() + FoundRow->Amount);
 							break;
 						case EItemType::EQUIPMENT:
-
+							ActorWeaponBag.Emplace(SetItemType, ActorBag[ArrayIndex].ItemID);
 							StatusCompoent->SetATK(FoundRow->Amount);
 							break;
 						}

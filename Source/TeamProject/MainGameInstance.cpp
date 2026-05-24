@@ -5,6 +5,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Combat/StatusComponent.h"
 #include "LJW/Item/ActorBagComponent.h"
+#include "LJW/Item/ItemDatatable.h"
+
 void UMainGameInstance::SavePlayerStatus(AActor* Player)
 {
 	if (!Player)
@@ -51,10 +53,21 @@ TArray<FInventorySlot> UMainGameInstance::GetPlayerInventory()
 	return PlayerInventory;
 }
 
+void UMainGameInstance::SetPlayerWeaponBag(TMap<EItemType, FName> Inventory)
+{
+	PlayerWeaponBag = Inventory;
+}
+
+TMap<EItemType, FName> UMainGameInstance::GetPlayerWeaponBag()
+{
+	return PlayerWeaponBag;
+}
+
 void UMainGameInstance::Init()
 {
 	Super::Init();
 	UE_LOG(LogTemp, Error, TEXT("GAMEINSTANCE :: SET PLAYERINVENT 54"));
 
 	PlayerInventory.Init(FInventorySlot(), 54);
+	PlayerWeaponBag.Add(EItemType::EQUIPMENT, "NormalSword");
 }

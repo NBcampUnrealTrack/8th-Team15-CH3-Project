@@ -8,6 +8,7 @@
 
 class UDataTable;
 struct FInventorySlot;
+enum class EItemType : uint8;
 
 UCLASS()
 class TEAMPROJECT_API UMainGameInstance : public UGameInstance
@@ -25,6 +26,10 @@ private:
 
 	UPROPERTY()
 	TArray<FInventorySlot> PlayerInventory;
+
+	UPROPERTY()
+	TMap<EItemType, FName> PlayerWeaponBag;
+
 public:
 	UFUNCTION()
 	void SavePlayerStatus(AActor* Player);
@@ -36,6 +41,11 @@ public:
 	void SetPlayerInventory(TArray<FInventorySlot> Inventory);
 	UFUNCTION()
 	TArray<FInventorySlot> GetPlayerInventory();
+
+	UFUNCTION()
+	void SetPlayerWeaponBag(TMap<EItemType, FName> Inventory);
+	UFUNCTION()
+	TMap<EItemType, FName> GetPlayerWeaponBag();
 
 	virtual void Init() override;
 };

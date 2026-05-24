@@ -82,7 +82,20 @@ void APrototypeXCharacter::BeginPlay()
 			UE_LOG(LogTemp, Error, TEXT("GameInstance Is Valid :: SET BAG FROM GAMEINSTANCE BEFORE :: %d"), PlayerActorBagComponent->GetActorBag().Num());
 			PlayerActorBagComponent->SetActorBag(GameInstance->GetPlayerInventory());
 			UE_LOG(LogTemp, Error, TEXT("7SET BAG FROM GAMEINSTANCE AFTER :: %d"), PlayerActorBagComponent->GetActorBag().Num());
+			
+			TMap<EItemType, FName> SetPlayerWeapon = GameInstance->GetPlayerWeaponBag();
+			if (SetPlayerWeapon.Num() > 0)
+			{
+				for (const auto& Element : SetPlayerWeapon)
+				{
+					EItemType CurrentType = Element.Key;     // Key 값
 
+					if (CurrentType == EItemType::EQUIPMENT)
+					{
+						ItemUse_MontagePlay(Element.Value);
+					}
+				}
+			}
 		}
 	}
 }

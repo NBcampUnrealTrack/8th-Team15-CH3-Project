@@ -99,6 +99,7 @@ void AMoveLevelTriggerBox::NextLevelFunction()
             {
                 UE_LOG(LogTemp, Error, TEXT("Saving Player Data before opening level..."));
                 GameInstance->SetPlayerInventory(PlayerBag->GetActorBag());
+                GameInstance->SetPlayerWeaponBag(PlayerBag->GetActorWeaponBag());
             }
         }
     }
