@@ -159,22 +159,22 @@ public:
 
 // Boss Pattern
 public:
-	UPROPERTY(EditDefaultsOnly, Category = "BossRadialAttack")
+	UPROPERTY(BlueprintCallable, Category = "BossRadialAttack")
 	float BossRadialAttackCurrentRadius;
 
-	UPROPERTY(EditDefaultsOnly, Category = "BossRadialAttack")
+	UPROPERTY(BlueprintCallable, Category = "BossRadialAttack")
 	float BossRadialAttackFirstRadius = 38.0f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "BossRadialAttack")
+	UPROPERTY(BlueprintCallable, Category = "BossRadialAttack")
 	float BossRadialAttackMaxRadius = 500.0f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "BossRadialAttack")
+	UPROPERTY(BlueprintCallable, Category = "BossRadialAttack")
 	float BossRadialAttackExpandSpeed = 100.0f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "BossRadialAttack")
+	UPROPERTY(BlueprintCallable, Category = "BossRadialAttack")
 	float BossRadialAttackDamageMultiplier = 1.5f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "BossRadialAttack")
+	UPROPERTY(BlueprintCallable, Category = "BossRadialAttack")
 	bool bShowDebugSphere = false;
 
 public:
