@@ -6,7 +6,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "LJW/Item/ItemBase.h"
 #include "LJW/Character/PrototypeXCharacter.h"
-
+#include "Kismet/GameplayStatics.h"
 UActorBagComponent::UActorBagComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -198,6 +198,12 @@ void UActorBagComponent::UseItemIndexOnUI(int32 ArrayIndex)
 					{
 						// (IsRollingMontagePlaying || bIsAttacking || bIsOnJumpping || IsItemUsing) CANNOT USE ITEM
 						EItemType SetItemType = FoundRow->ItemType;
+
+						USoundBase* ActiveSound = FoundRow->ItemUseSound.LoadSynchronous();
+						if (ActiveSound)
+						{
+							UGameplayStatics::PlaySoundAtLocation(GetWorld(), ActiveSound, Player->GetActorLocation());
+						}
 
 						switch (SetItemType)
 						{

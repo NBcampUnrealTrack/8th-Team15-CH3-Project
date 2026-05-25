@@ -50,6 +50,8 @@ public:
 	TSoftObjectPtr<UTexture2D> ItemIcon;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
 	TSoftObjectPtr<USoundBase> ItemSound;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+	TSoftObjectPtr<USoundBase> ItemUseSound;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	TSoftObjectPtr<UAnimMontage> UseItemAnim;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Location")
