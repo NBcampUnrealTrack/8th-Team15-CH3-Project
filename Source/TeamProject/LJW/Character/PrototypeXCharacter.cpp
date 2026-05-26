@@ -84,6 +84,8 @@ void APrototypeXCharacter::BeginPlay()
 			UE_LOG(LogTemp, Error, TEXT("7SET BAG FROM GAMEINSTANCE AFTER :: %d"), PlayerActorBagComponent->GetActorBag().Num());
 			
 			TMap<EItemType, FName> SetPlayerWeapon = GameInstance->GetPlayerWeaponBag();
+			PlayerActorBagComponent->SetActorWeaponBag(SetPlayerWeapon);
+
 			if (SetPlayerWeapon.Num() > 0)
 			{
 				for (const auto& Element : SetPlayerWeapon)
@@ -93,6 +95,11 @@ void APrototypeXCharacter::BeginPlay()
 					if (CurrentType == EItemType::EQUIPMENT)
 					{
 						ItemUse_MontagePlay(Element.Value);
+						if (FItemDatatable* BFoundRow = GameInstance->ItemDataTable->FindRow<FItemDatatable>(GameInstance->GetPlayerWeaponBag().FindRef(CurrentType), FString(TEXT("NoneTableRow"))))
+						{
+							PlayerStatusComponent->SetATK(PlayerStatusComponent->GetATK() + BFoundRow->Amount);
+							UE_LOG(LogTemp, Error, TEXT("After ATK :: %f == Basic 24 + SwordAttack"), PlayerStatusComponent->GetATK());
+						}
 					}
 				}
 			}

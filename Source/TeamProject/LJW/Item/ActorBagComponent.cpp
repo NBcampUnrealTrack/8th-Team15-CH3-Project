@@ -212,8 +212,15 @@ void UActorBagComponent::UseItemIndexOnUI(int32 ArrayIndex)
 							StatusCompoent->SetHP(StatusCompoent->GetHP() + FoundRow->Amount);
 							break;
 						case EItemType::EQUIPMENT:
+							if (FItemDatatable* BFoundRow = GameInstance->ItemDataTable->FindRow<FItemDatatable>(ActorWeaponBag.FindRef(SetItemType), DebugString))
+							{
+								StatusCompoent->SetATK(StatusCompoent->GetATK() - BFoundRow->Amount);
+								UE_LOG(LogTemp, Error, TEXT("Before ATK :: %f"), StatusCompoent->GetATK());
+							}
+							StatusCompoent->SetATK(StatusCompoent->GetATK() + FoundRow->Amount);
+							UE_LOG(LogTemp, Error, TEXT("After ATK :: %f"), StatusCompoent->GetATK());
+
 							ActorWeaponBag.Emplace(SetItemType, ActorBag[ArrayIndex].ItemID);
-							StatusCompoent->SetATK(FoundRow->Amount);
 							break;
 						}
 
