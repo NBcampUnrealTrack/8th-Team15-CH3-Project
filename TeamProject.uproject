@@ -24,6 +24,10 @@
 		{
 			"Name": "MotionWarping",
 			"Enabled": true
+		},
+		{
+			"Name": "CustomizableSequencerTracks",
+			"Enabled": true
 		}
 	]
 }
