@@ -82,11 +82,6 @@ void AMoveLevelTriggerBox::OnOverlapBegin(
 
 void AMoveLevelTriggerBox::NextLevelFunction()
 {
-    if (GEngine)
-    {
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("!!!! SEQUENCE EVENT TRIGGERED SUCCESSFULLY !!!!"));
-    }
-
     APrototypeXCharacter* PlayerCharacter = Cast<APrototypeXCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
     if (PlayerCharacter)
