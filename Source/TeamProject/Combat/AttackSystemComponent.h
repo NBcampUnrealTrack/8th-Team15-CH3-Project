@@ -100,7 +100,7 @@ private:
 	FTimerHandle Timer;
 
 	UPROPERTY()
-	TMap<AActor*, FTimerHandle> HitSlowTimers;
+	TMap<uint32, FTimerHandle> HitSlowTimers;
 
 private:
 	void HitSlow(AActor* TargetActor);

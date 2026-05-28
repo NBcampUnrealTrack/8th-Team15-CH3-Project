@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
@@ -11,7 +11,7 @@ class UStaticMeshComponent;
 class USphereComponent;
 class USoundBase;
 
-UCLASS(ABSTRACT)
+UCLASS()
 class TEAMPROJECT_API AItemBase
 	: public AActor
 	, public IItemInterface

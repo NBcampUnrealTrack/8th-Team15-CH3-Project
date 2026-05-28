@@ -213,7 +213,7 @@ void UAttackSystemComponent::HitSlow(AActor* TargetActor)
 
 	TargetActor->CustomTimeDilation = HitSlowMobTime;
 
-	FTimerHandle& Handle = HitSlowTimers.FindOrAdd(TargetActor);
+	FTimerHandle& Handle = HitSlowTimers.FindOrAdd(TargetActor->GetUniqueID());
 
 	GetWorld()->GetTimerManager().ClearTimer(Handle);
 
@@ -238,7 +238,7 @@ void UAttackSystemComponent::HitSlow(AActor* TargetActor)
 			}
 
 			WeakTargetActor->CustomTimeDilation = 1.0f;
-			WeakThis.Get()->HitSlowTimers.Remove(WeakTargetActor.Get());
+			WeakThis.Get()->HitSlowTimers.Remove(WeakTargetActor.Get()->GetUniqueID());
 
 		},
 		HitSlowDelayTime,

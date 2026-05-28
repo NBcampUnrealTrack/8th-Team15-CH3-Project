@@ -1,4 +1,4 @@
-#include "ItemBase.h"
+﻿#include "ItemBase.h"
 #include "LJW/GameUtilHeader/GameUtil.h"
 #include "Components/SceneComponent.h"
 #include "Components/SphereComponent.h"
@@ -16,16 +16,22 @@ AItemBase::AItemBase()
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = false;
 
-	SceneComponent = GameUtil::CreateRootComponet<USceneComponent>(this);
-	StaticMeshComponent = GameUtil::CreateComponent<UStaticMeshComponent>(this);
-	NiagaraComponent = GameUtil::CreateComponent<UNiagaraComponent>(this);
-	Magnetic_SphereComponent = GameUtil::CreateComponent<USphereComponent>(this);
+	SceneComponent = GameUtil::CreateRootComponet<USceneComponent>(
+		this, TEXT("ItemSceneComponent"));
+	StaticMeshComponent = GameUtil::CreateComponent<UStaticMeshComponent>(
+		this, true, nullptr, TEXT("ItemStaticMeshComponent"));;
+	NiagaraComponent = GameUtil::CreateComponent<UNiagaraComponent>(
+		this, true, nullptr, TEXT("ItemNiagaraComponent"));;
+	Magnetic_SphereComponent = GameUtil::CreateComponent<USphereComponent>(
+		this, true, nullptr, TEXT("ItemMagnetic_SphereComponent"));;
 	Magnetic_SphereComponent->SetSphereRadius(200.f);
-	Activate_SphereComponent = GameUtil::CreateComponent<USphereComponent>(this);
+	Activate_SphereComponent = GameUtil::CreateComponent<USphereComponent>(
+		this, true, nullptr, TEXT("ItemActivate_SphereComponent"));;
 	Activate_SphereComponent->SetSphereRadius(40.f);
 
 	Magnetic_SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &AItemBase::OnMagneticSphereOverlap);
 	Activate_SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &AItemBase::OnActivateSphereOverlap);
+
 }
 
 void AItemBase::OnMagneticSphereOverlap(
@@ -123,7 +129,7 @@ void AItemBase::UpdateItemAppearance()
 				//}
 
 				UNiagaraSystem* NewNiagara = FoundRow->ItemEffect.LoadSynchronous();
-				if (NewNiagara)
+				if (NewNiagara && IsValid(NiagaraComponent))
 				{
 					UE_LOG(LogTemp, Warning, TEXT("GET NIAGARA"));
 					NiagaraComponent->SetAsset(NewNiagara);

@@ -1,4 +1,4 @@
-#include "LJW/Item/MoveLevelTriggerBox.h"
+﻿#include "LJW/Item/MoveLevelTriggerBox.h"
 #include "Components/ShapeComponent.h"
 #include "LJW/Character/PrototypeXCharacter.h"
 #include "Kismet/GameplayStatics.h"
@@ -98,7 +98,7 @@ void AMoveLevelTriggerBox::NextLevelFunction()
             }
         }
     }
-    UE_LOG(LogTemp, Error, TEXT("Sequence triggered OpenLevel!"));
+    
     UGameplayStatics::OpenLevelBySoftObjectPtr(GetWorld(), NextLevel);
 }
 
